@@ -1,20 +1,21 @@
-# main.py
 import os
 import json
+import asyncio # Import asyncio for running async functions
 from src.chunkers.hybrid_chunker import HybridMarkdownChunker
 from src.chunkers.evaluators import ChunkQualityEvaluator
 from src.utils.file_handler import FileHandler
-from src.utils.metadata_enricher import MetadataEnricher
+from src.utils.metadata_enricher import MetadataEnricher # Import the MetadataEnricher
 from src.config.settings import config
 from langchain_core.documents import Document
 
 # Define file paths
-INPUT_FILE = os.path.join(config.INPUT_DIR, "sample_prose_document.md") # <<< CHANGED THIS LINE
-OUTPUT_CHUNKS_FILE = os.path.join(config.OUTPUT_DIR, "chunks", "sample_prose_document_chunks.json") # <<< CHANGED THIS LINE
-QUALITY_REPORT_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_prose_document_quality_report.md") # <<< CHANGED THIS LINE
-PROCESSING_SUMMARY_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_prose_document_processing_summary.json") # <<< CHANGED THIS LINE
+INPUT_FILE = os.path.join(config.INPUT_DIR, "sample_prose_document.md")
+OUTPUT_CHUNKS_FILE = os.path.join(config.OUTPUT_DIR, "chunks", "sample_prose_document_chunks.json")
+QUALITY_REPORT_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_prose_document_quality_report.md")
+PROCESSING_SUMMARY_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_prose_document_processing_summary.json")
 
-def main():
+# Define the async main function
+async def main_async():
     print("🚀 Starting Hybrid Chunking System...")
 
     # Ensure output directories exist
@@ -22,11 +23,11 @@ def main():
     os.makedirs(os.path.dirname(QUALITY_REPORT_FILE), exist_ok=True)
     os.makedirs(os.path.dirname(PROCESSING_SUMMARY_FILE), exist_ok=True)
 
-    # Initialize chunker with semantic chunking enabled
     chunker = HybridMarkdownChunker(enable_semantic=True)
     evaluator = ChunkQualityEvaluator()
+    metadata_enricher = MetadataEnricher() # Initialize the MetadataEnricher
 
-    # Create dummy document for demonstration if it doesn't exist (adjusted for prose doc)
+    # Create dummy document for demonstration if it doesn't exist
     if not os.path.exists(INPUT_FILE):
         print(f"Creating dummy test file: {INPUT_FILE}")
         dummy_content = """
@@ -73,10 +74,16 @@ The journey of AI is far from over. As researchers continue to push the boundari
         chunks = chunker.chunk_document(content, initial_metadata)
         print(f"Generated {len(chunks)} chunks.")
 
-        FileHandler.save_chunks(chunks, OUTPUT_CHUNKS_FILE, format='json')
+        # --- NEW STEP: Enrich chunks with LLM-generated summaries ---
+        print("Enriching chunks with LLM summaries...")
+        enriched_chunks = await metadata_enricher.enrich_chunks_with_llm_summaries(chunks)
+        print(f"Finished enriching {len(enriched_chunks)} chunks.")
+        # -----------------------------------------------------------
+
+        FileHandler.save_chunks(enriched_chunks, OUTPUT_CHUNKS_FILE, format='json') # Save enriched chunks
         print(f"Chunks saved to {OUTPUT_CHUNKS_FILE}")
 
-        report = evaluator.generate_report(chunks, QUALITY_REPORT_FILE)
+        report = evaluator.generate_report(enriched_chunks, QUALITY_REPORT_FILE) # Evaluate enriched chunks
         print("--- Quality Report ---")
         print(report)
         print("----------------------")
@@ -84,9 +91,9 @@ The journey of AI is far from over. As researchers continue to push the boundari
 
         processing_summary = {
             "file_name": os.path.basename(INPUT_FILE),
-            "total_chunks": len(chunks),
-            "chunking_strategy_applied": "Hybrid (Table-aware, Header-Recursive, Semantic)",
-            "average_chunk_tokens": sum(c.metadata.get('chunk_tokens', 0) for c in chunks) / len(chunks) if chunks else 0
+            "total_chunks": len(enriched_chunks), # Use enriched chunks count
+            "chunking_strategy_applied": "Hybrid (Table-aware, Header-Recursive, Semantic, LLM-Enriched)", # Updated description
+            "average_chunk_tokens": sum(c.metadata.get('chunk_tokens', 0) for c in enriched_chunks) / len(enriched_chunks) if enriched_chunks else 0
         }
         with open(PROCESSING_SUMMARY_FILE, 'w', encoding='utf-8') as f:
             json.dump(processing_summary, f, indent=2, ensure_ascii=False)
@@ -97,5 +104,6 @@ The journey of AI is far from over. As researchers continue to push the boundari
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
+# Call the async main function
 if __name__ == "__main__":
-    main()
+    asyncio.run(main_async())
