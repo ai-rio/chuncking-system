@@ -1,13 +1,12 @@
 [
   {
-    "content": "# Document with Tables  \nThis is some introductory text before a table.",
+    "content": "# Document with Tables\n\nThis is some introductory text before a table.",
     "metadata": {
       "source_file": "sample_table_document.md",
       "document_type": "markdown",
-      "Part": "Document with Tables",
       "chunk_index": 0,
       "chunk_tokens": 14,
-      "chunk_chars": 71,
+      "chunk_chars": 70,
       "word_count": 12
     }
   },
@@ -48,12 +47,24 @@
     }
   },
   {
+    "content": "Some text after the first table. ## Another Section with a Small Table",
+    "metadata": {
+      "source_file": "sample_table_document.md",
+      "document_type": "markdown",
+      "chunking_strategy": "semantic",
+      "chunk_index": 4,
+      "chunk_tokens": 14,
+      "chunk_chars": 70,
+      "word_count": 13
+    }
+  },
+  {
     "content": "| Key | Value |\n|-----|-------|\n| Apple | Fruit |\n| Carrot| Veggie|",
     "metadata": {
       "source_file": "sample_table_document.md",
       "document_type": "markdown",
       "content_type": "table",
-      "chunk_index": 4,
+      "chunk_index": 5,
       "chunk_tokens": 22,
       "chunk_chars": 67,
       "word_count": 14

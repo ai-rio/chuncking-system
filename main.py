@@ -3,16 +3,16 @@ import os
 import json
 from src.chunkers.hybrid_chunker import HybridMarkdownChunker
 from src.chunkers.evaluators import ChunkQualityEvaluator
-from src.utils.file_handler import FileHandler # Ensure this is imported and used correctly
-from src.utils.metadata_enricher import MetadataEnricher # If MetadataEnricher is used elsewhere, keep it. Otherwise, it can be removed if unused.
+from src.utils.file_handler import FileHandler
+from src.utils.metadata_enricher import MetadataEnricher
 from src.config.settings import config
-from langchain_core.documents import Document # Import Document
+from langchain_core.documents import Document
 
 # Define file paths
-INPUT_FILE = os.path.join(config.INPUT_DIR, "sample_table_document.md") # Your test file
-OUTPUT_CHUNKS_FILE = os.path.join(config.OUTPUT_DIR, "chunks", "sample_table_document_chunks.json")
-QUALITY_REPORT_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_table_document_quality_report.md")
-PROCESSING_SUMMARY_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_table_document_processing_summary.json")
+INPUT_FILE = os.path.join(config.INPUT_DIR, "sample_prose_document.md") # <<< CHANGED THIS LINE
+OUTPUT_CHUNKS_FILE = os.path.join(config.OUTPUT_DIR, "chunks", "sample_prose_document_chunks.json") # <<< CHANGED THIS LINE
+QUALITY_REPORT_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_prose_document_quality_report.md") # <<< CHANGED THIS LINE
+PROCESSING_SUMMARY_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_prose_document_processing_summary.json") # <<< CHANGED THIS LINE
 
 def main():
     print("🚀 Starting Hybrid Chunking System...")
@@ -22,37 +22,41 @@ def main():
     os.makedirs(os.path.dirname(QUALITY_REPORT_FILE), exist_ok=True)
     os.makedirs(os.path.dirname(PROCESSING_SUMMARY_FILE), exist_ok=True)
 
-    chunker = HybridMarkdownChunker()
+    # Initialize chunker with semantic chunking enabled
+    chunker = HybridMarkdownChunker(enable_semantic=True)
     evaluator = ChunkQualityEvaluator()
 
-    # Create dummy document for demonstration if it doesn't exist
+    # Create dummy document for demonstration if it doesn't exist (adjusted for prose doc)
     if not os.path.exists(INPUT_FILE):
         print(f"Creating dummy test file: {INPUT_FILE}")
         dummy_content = """
-# Document with Tables
+# The Future of Artificial Intelligence
 
-This is some introductory text before a table.
+Artificial intelligence (AI) is rapidly transforming industries and daily life. From self-driving cars to advanced medical diagnostics, AI's capabilities are expanding at an unprecedented pace. This technology promises to solve complex problems, enhance efficiency, and unlock new frontiers of innovation. However, its development also presents ethical and societal challenges that require careful consideration.
 
-| Header 1 | Header 2 | Header 3 |
-|----------|----------|----------|
-| Row 1 Col 1 | Row 1 Col 2 | Row 1 Col 3 |
-| Row 2 Col 1 | Row 2 Col 2 | Row 2 Col 3 |
-| This is a very long piece of text that spans multiple words in a single cell, to test how the chunker handles long content within a table. It should ideally split this row if it exceeds the token limit set for table chunks. | Another cell | Last cell of a long row |
-| Row 4 Col 1 | Row 4 Col 2 | Row 4 Col 3 |
+## Machine Learning and Deep Learning
 
-Some text after the first table.
+At the core of many AI advancements are machine learning (ML) and deep learning (DL). Machine learning algorithms enable systems to learn from data without explicit programming. Deep learning, a subset of ML, uses neural networks with multiple layers to learn complex patterns. These techniques are behind breakthroughs in image recognition, natural language processing, and predictive analytics. The sheer volume of data available today fuels these algorithms, allowing them to achieve remarkable accuracy.
 
-## Another Section with a Small Table
+### The Role of Large Language Models (LLMs)
 
-| Key | Value |
-|-----|-------|
-| Apple | Fruit |
-| Carrot| Veggie|
+Large Language Models (LLMs) like Gemini, GPT, and Llama have revolutionized natural language understanding and generation. These models are trained on vast datasets of text and code, allowing them to perform tasks such as translation, summarization, and creative writing. They represent a significant leap towards more human-like AI interactions. The ability of LLMs to generate coherent and contextually relevant text has opened new possibilities for applications in customer service, content creation, and education.
 
-End of document.
+## Ethical Considerations and Societal Impact
+
+The increasing power of AI also brings forth critical ethical considerations. Issues such as algorithmic bias, privacy concerns, job displacement, and the potential for misuse of AI technologies are paramount. Ensuring fairness, transparency, and accountability in AI systems is essential for their responsible deployment. Discussions around AI governance and regulation are gaining momentum as societies grapple with the profound impact of these technologies.
+
+### AI in Healthcare
+
+AI is poised to transform healthcare by assisting with drug discovery, personalized treatment plans, and early disease detection. AI-powered tools can analyze vast amounts of patient data to identify patterns that human doctors might miss. This can lead to more accurate diagnoses and more effective interventions, ultimately improving patient outcomes. The integration of AI into healthcare systems requires robust validation and careful integration to ensure patient safety and data security.
+
+## Conclusion
+
+The journey of AI is far from over. As researchers continue to push the boundaries of what's possible, AI will undoubtedly become even more integrated into the fabric of society. Navigating its complexities, harnessing its potential, and mitigating its risks will be a collective endeavor, requiring collaboration across technology, policy, and ethics. The future is exciting, but it also demands thoughtful stewardship of this powerful technology.
         """
         with open(INPUT_FILE, 'w', encoding='utf-8') as f:
             f.write(dummy_content)
+
 
     try:
         # Load content from the input file
@@ -66,30 +70,24 @@ End of document.
         }
 
         print(f"Chunking document: {INPUT_FILE}")
-        # Chunk the document
         chunks = chunker.chunk_document(content, initial_metadata)
         print(f"Generated {len(chunks)} chunks.")
 
-        # Save chunks to JSON (for inspection)
-        # Using the correct method from FileHandler: save_chunks
         FileHandler.save_chunks(chunks, OUTPUT_CHUNKS_FILE, format='json')
         print(f"Chunks saved to {OUTPUT_CHUNKS_FILE}")
 
-        # Generate and save quality report
         report = evaluator.generate_report(chunks, QUALITY_REPORT_FILE)
         print("--- Quality Report ---")
         print(report)
         print("----------------------")
         print(f"Quality report saved to {QUALITY_REPORT_FILE}")
 
-        # Generate and save processing summary (placeholder, implement as needed)
         processing_summary = {
             "file_name": os.path.basename(INPUT_FILE),
             "total_chunks": len(chunks),
-            "chunking_strategy_applied": "Hybrid (Table-aware, Header-Recursive)",
+            "chunking_strategy_applied": "Hybrid (Table-aware, Header-Recursive, Semantic)",
             "average_chunk_tokens": sum(c.metadata.get('chunk_tokens', 0) for c in chunks) / len(chunks) if chunks else 0
         }
-        # Correctly saving processing summary using json.dump
         with open(PROCESSING_SUMMARY_FILE, 'w', encoding='utf-8') as f:
             json.dump(processing_summary, f, indent=2, ensure_ascii=False)
         print(f"Processing summary saved to {PROCESSING_SUMMARY_FILE}")

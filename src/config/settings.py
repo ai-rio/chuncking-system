@@ -5,7 +5,6 @@ import os
 
 class ChunkingConfig(BaseSettings):
     # Chunking parameters optimized for i3/16GB and Gemini token constraints
-    # Targeting a smaller chunk size for RAG effectiveness within Gemini limits
     DEFAULT_CHUNK_SIZE: int = 800 # Set a target for tokens, allowing space for prompt
     DEFAULT_CHUNK_OVERLAP: int = 150 # Moderate overlap for context
     MAX_CHUNK_SIZE: int = 1200 # Absolute max for very long sentences/paragraphs
@@ -14,15 +13,14 @@ class ChunkingConfig(BaseSettings):
 
     # Markdown header levels to split on, comprehensive for a book structure
     HEADER_LEVELS: List[tuple] = [
-        ("#", "Part"),       # e.g., "Part I: The New Reality of Markets"
-        ("##", "Chapter"),    # e.g., "## 1: THE DISCOVERY JOURNEY"
-        ("###", "Section"),   # For potential sections within chapters if they use H3
-        ("####", "Sub-section") # For deeper nesting
-        # Add more levels if your book has deeper hierarchy (e.g., "#####", "######")
+        ("#", "Part"),
+        ("##", "Chapter"),
+        ("###", "Section"),
+        ("####", "Sub-section")
     ]
 
     # Recursive splitter separators (priority order)
-    SEPARATORS: List[str] = ["\n\n", "\n", ". ", "? ", "! ", " ", ""] # Added sentence endings
+    SEPARATORS: List[str] = ["\n\n", "\n", ". ", "? ", "! ", " ", ""]
     
     # File handling
     INPUT_DIR: str = "data/input/markdown_files"
@@ -30,25 +28,22 @@ class ChunkingConfig(BaseSettings):
     TEMP_DIR: str = "data/temp"
     
     # Processing settings for i3 CPU
-    BATCH_SIZE: int = 10  # Process files in small batches
-    ENABLE_PARALLEL: bool = False  # Keep False for i3 (GPU-optional libraries are commented out)
+    BATCH_SIZE: int = 10
+    ENABLE_PARALLEL: bool = False
     
-    # LLM Integration (optional, but keep OPENAI_API_KEY for potential future use)
+    # LLM Integration
     OPENAI_API_KEY: str = ""
-    # EMBEDDING_MODEL is commented out in requirements.txt
-    # EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2" # Lightweight
-
+    EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2"
+    EMBEDDING_API_KEY: str = ""
+    
     # Quality thresholds
-    SEMANTIC_SIMILARITY_THRESHOLD: float = 0.8
+    SEMANTIC_SIMILARITY_THRESHOLD: float = 0.3 # ADJUSTED: Lowered threshold for more coherent semantic chunks
 
     # Table-specific chunking settings
-    # Maximum tokens for a single table chunk (e.g., a single row or few rows)
-    TABLE_CHUNK_MAX_TOKENS: int = 75 # REDUCED to force row-by-row splitting for larger tables
-    # Whether to repeat table headers with each row-based chunk for context
+    TABLE_CHUNK_MAX_TOKENS: int = 75 
     TABLE_MERGE_HEADER_WITH_ROWS: bool = True
     
     class Config:
         env_file = ".env"
 
-# Global config instance
 config = ChunkingConfig()

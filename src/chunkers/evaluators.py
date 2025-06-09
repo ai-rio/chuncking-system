@@ -8,18 +8,15 @@ import re
 class ChunkQualityEvaluator:
     """Evaluate the quality of document chunks"""
     
-    def __init__(self): # Removed document_type='general' from init for now, as it's not used elsewhere.
+    def __init__(self):
         self.vectorizer = TfidfVectorizer(
             max_features=1000,
             stop_words='english',
             ngram_range=(1, 2)
         )
-        
-        # Adaptive thresholds (removed document_type from init, so these will be fixed values for now)
-        # These can be made dynamic if a document_type parameter is reintroduced and used.
-        self.min_words_for_very_short = 10 # Default from settings in previous turns
-        self.coherence_score_boost_factor = 1.0 # Default, no boost
-        self.structure_score_weight_factor = 1.0 # Default, no change
+        self.min_words_for_very_short = 10
+        self.coherence_score_boost_factor = 1.0
+        self.structure_score_weight_factor = 1.0
 
     def evaluate_chunks(self, chunks: List[Document]) -> Dict[str, Any]:
         """Comprehensive chunk quality evaluation"""
@@ -78,7 +75,10 @@ class ChunkQualityEvaluator:
         }
     
     def _analyze_content_quality(self, chunks: List[Document]) -> Dict[str, Any]:
-        """Analyze content quality metrics"""
+        """
+        Analyze content quality metrics, now smarter about incomplete sentences
+        for different content types.
+        """
         
         quality_metrics = {
             'empty_chunks': 0,
@@ -93,14 +93,20 @@ class ChunkQualityEvaluator:
                 quality_metrics['empty_chunks'] += 1
                 continue
             
-            if len(content.split()) < self.min_words_for_very_short: # Use class attribute
+            if len(content.split()) < self.min_words_for_very_short:
                 quality_metrics['very_short_chunks'] += 1
             
-            is_header = re.match(r'^#+\s', content) or any(h in chunk.metadata for h in ["Header 1", "Header 2", "Header 3", "Header 4"])
-            is_code = '```' in content or chunk.metadata.get('content_type') == 'code' or re.search(r'\b(def|class|import|function|const|var)\b', content)
-            is_list = re.search(r'^\s*[-*+]\s+.*|\s*\d+\.\s+.*', content, re.MULTILINE) # Re-added list detection
-            
-            if not (is_header or is_code or is_list) and not re.search(r'[.!?:]$', content): # Check for ending punctuation
+            # Determine if the chunk is structural (header, code, table, list)
+            is_structural = False
+            if chunk.metadata.get('content_type') in ['code', 'table']:
+                is_structural = True
+            elif re.match(r'^#+\s', content) or any(h in chunk.metadata for h in ["Part", "Chapter", "Section", "Sub-section"]):
+                is_structural = True
+            elif re.search(r'^\s*[-*+]\s+.*|\s*\d+\.\s+.*', content, re.MULTILINE):
+                is_structural = True
+
+            # Only check for incomplete sentences if it's not a structural chunk
+            if not is_structural and not re.search(r'[.!?:]$', content):
                 quality_metrics['incomplete_sentences'] += 1
             
         total_chunks = len(chunks)
@@ -114,11 +120,22 @@ class ChunkQualityEvaluator:
     def _analyze_semantic_coherence(self, chunks: List[Document]) -> Dict[str, Any]:
         """Analyze semantic coherence between chunks"""
         
-        if len(chunks) < 2:
+        # Filter for prose chunks only for semantic coherence
+        prose_chunks = [
+            chunk for chunk in chunks
+            if not (
+                chunk.metadata.get('content_type') in ['code', 'table'] or
+                re.match(r'^#+\s', chunk.page_content.strip()) or
+                any(h in chunk.metadata for h in ["Part", "Chapter", "Section", "Sub-section"])
+            )
+        ]
+
+        if len(prose_chunks) < 2:
+            # If less than 2 prose chunks, semantic coherence is considered perfect as no comparison is needed
             return {'coherence_score': 1.0, 'avg_similarity': 0.0, 'similarity_std': 0.0}
         
         try:
-            texts = [chunk.page_content for chunk in chunks if chunk.page_content.strip()]
+            texts = [chunk.page_content for chunk in prose_chunks if chunk.page_content.strip()]
             
             if len(texts) < 2:
                  return {'coherence_score': 1.0, 'avg_similarity': 0.0, 'similarity_std': 0.0}
@@ -133,7 +150,6 @@ class ChunkQualityEvaluator:
             
             avg_adjacent_similarity = np.mean(adjacent_similarities) if adjacent_similarities else 0
             
-            # Apply boost factor (self.coherence_score_boost_factor)
             coherence_score = min(1.0, avg_adjacent_similarity * self.coherence_score_boost_factor) 
 
             overall_avg_similarity = np.mean(similarities[np.triu_indices_from(similarities, k=1)])
@@ -183,13 +199,14 @@ class ChunkQualityEvaluator:
             'chunks_with_headers': 0,
             'chunks_with_code': 0,
             'chunks_with_lists': 0,
-            'chunks_with_links': 0
+            'chunks_with_links': 0,
+            'chunks_with_tables': 0 # Added new metric for tables
         }
         
         for chunk in chunks:
             content = chunk.page_content
             
-            if any(h in chunk.metadata for h in ["Header 1", "Header 2", "Header 3", "Header 4"]):
+            if any(h in chunk.metadata for h in ["Part", "Chapter", "Section", "Sub-section"]):
                 structure_metrics['chunks_with_headers'] += 1
             elif re.search(r'^#+\s', content, re.MULTILINE):
                 structure_metrics['chunks_with_headers'] += 1
@@ -198,12 +215,14 @@ class ChunkQualityEvaluator:
                re.search(r'\b(def|class|import|function|const|var)\b', content):
                 structure_metrics['chunks_with_code'] += 1
             
-            # This regex is robust for both bullet and numbered lists starting a line.
             if re.search(r'^\s*[-*+]\s+.*|\s*\d+\.\s+.*', content, re.MULTILINE):
                 structure_metrics['chunks_with_lists'] += 1
             
             if '[' in content and '](' in content:
                 structure_metrics['chunks_with_links'] += 1
+
+            if chunk.metadata.get('content_type') == 'table': # Check for table content type
+                structure_metrics['chunks_with_tables'] += 1
         
         total_chunks = len(chunks)
         structure_percentages = {
@@ -217,26 +236,30 @@ class ChunkQualityEvaluator:
         """Calculate overall quality score (0-100)"""
         
         try:
-            size_score = metrics['size_distribution']['size_consistency'] * 20 # Adjusted weight
+            size_score = metrics['size_distribution']['size_consistency'] * 20
             
             content_metrics = metrics['content_quality']
+            # Reduced weight of incomplete sentences as it's now context-aware
             content_score_raw = (
-                (100 - content_metrics['empty_chunks_pct']) * 0.5 + 
+                (100 - content_metrics['empty_chunks_pct']) * 0.6 + # Increased weight for empty chunks
                 (100 - content_metrics['very_short_chunks_pct']) * 0.3 +
-                (100 - content_metrics['incomplete_sentences_pct']) * 0.2
+                (100 - content_metrics['incomplete_sentences_pct']) * 0.1 # Reduced weight
             )
-            content_score = (content_score_raw / 100) * 30 # Adjusted weight
+            content_score = (content_score_raw / 100) * 30
             
+            # Semantic coherence should only consider prose chunks
             coherence_score = metrics['semantic_coherence']['coherence_score'] * 25
             
             structure_metrics = metrics['structural_preservation']
+            # Increased weight for structural chunks now that they are better handled
             structure_score_raw = (
-                structure_metrics['chunks_with_headers_pct'] * 0.4 +
-                structure_metrics['chunks_with_code_pct'] * 0.3 +
-                structure_metrics['chunks_with_lists_pct'] * 0.2 +
-                structure_metrics['chunks_with_links_pct'] * 0.1 # New bonus for links
+                structure_metrics['chunks_with_headers_pct'] * 0.3 +
+                structure_metrics['chunks_with_code_pct'] * 0.2 +
+                structure_metrics['chunks_with_lists_pct'] * 0.1 +
+                structure_metrics['chunks_with_links_pct'] * 0.1 +
+                structure_metrics['chunks_with_tables_pct'] * 0.3 # New weight for tables
             )
-            structure_score = (structure_score_raw / 100) * 25 # Adjusted weight
+            structure_score = (structure_score_raw / 100) * 25
             
             overall_score = size_score + content_score + coherence_score + structure_score
             return min(100, max(0, overall_score))
@@ -275,6 +298,7 @@ class ChunkQualityEvaluator:
 - **Chunks with Headers**: {metrics['structural_preservation']['chunks_with_headers']} ({metrics['structural_preservation']['chunks_with_headers_pct']:.1f}%)
 - **Chunks with Code**: {metrics['structural_preservation']['chunks_with_code']} ({metrics['structural_preservation']['chunks_with_code_pct']:.1f}%)
 - **Chunks with Lists**: {metrics['structural_preservation']['chunks_with_lists']} ({metrics['structural_preservation']['chunks_with_lists_pct']:.1f}%)
+- **Chunks with Tables**: {metrics['structural_preservation']['chunks_with_tables']} ({metrics['structural_preservation']['chunks_with_tables_pct']:.1f}%)
 
 ## Recommendations
 """
@@ -302,6 +326,7 @@ class ChunkQualityEvaluator:
         if output_path:
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(report)
-            print(f"📊 Evaluation report saved to: {output_path}")
+            # print(f"📊 Evaluation report saved to: {output_path}") # Removed print for clean output
         
         return report
+

@@ -1,6 +1,6 @@
 {
   "file_name": "sample_table_document.md",
-  "total_chunks": 5,
-  "chunking_strategy_applied": "Hybrid (Table-aware, Header-Recursive)",
-  "average_chunk_tokens": 44.2
+  "total_chunks": 6,
+  "chunking_strategy_applied": "Hybrid (Table-aware, Header-Recursive, Semantic)",
+  "average_chunk_tokens": 39.166666666666664
 }
