@@ -1,5 +1,5 @@
 # src/config/settings.py
-from pydantic_settings import BaseSettings # Already updated in previous step
+from pydantic_settings import BaseSettings
 from typing import List, Dict, Any
 import os
 
@@ -9,7 +9,8 @@ class ChunkingConfig(BaseSettings):
     DEFAULT_CHUNK_SIZE: int = 800 # Set a target for tokens, allowing space for prompt
     DEFAULT_CHUNK_OVERLAP: int = 150 # Moderate overlap for context
     MAX_CHUNK_SIZE: int = 1200 # Absolute max for very long sentences/paragraphs
-    MIN_CHUNK_SIZE: int = 50 # Minimum chunk size in characters
+    MIN_CHUNK_WORDS: int = 10 # Adjusted to be slightly lower for more granular chunks
+    MAX_CHUNK_WORDS: int = 600 # Adjusted for new chunk size
 
     # Markdown header levels to split on, comprehensive for a book structure
     HEADER_LEVELS: List[tuple] = [
@@ -39,8 +40,12 @@ class ChunkingConfig(BaseSettings):
 
     # Quality thresholds
     SEMANTIC_SIMILARITY_THRESHOLD: float = 0.8
-    MIN_CHUNK_WORDS: int = 10 # Adjusted to be slightly lower for more granular chunks
-    MAX_CHUNK_WORDS: int = 600 # Adjusted for new chunk size
+
+    # Table-specific chunking settings
+    # Maximum tokens for a single table chunk (e.g., a single row or few rows)
+    TABLE_CHUNK_MAX_TOKENS: int = 75 # REDUCED to force row-by-row splitting for larger tables
+    # Whether to repeat table headers with each row-based chunk for context
+    TABLE_MERGE_HEADER_WITH_ROWS: bool = True
     
     class Config:
         env_file = ".env"

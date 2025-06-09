@@ -1,0 +1,62 @@
+[
+  {
+    "content": "# Document with Tables  \nThis is some introductory text before a table.",
+    "metadata": {
+      "source_file": "sample_table_document.md",
+      "document_type": "markdown",
+      "Part": "Document with Tables",
+      "chunk_index": 0,
+      "chunk_tokens": 14,
+      "chunk_chars": 71,
+      "word_count": 12
+    }
+  },
+  {
+    "content": "| Header 1 | Header 2 | Header 3 |\n|---|---|---|\n| Row 1 Col 1 | Row 1 Col 2 | Row 1 Col 3 |\n| Row 2 Col 1 | Row 2 Col 2 | Row 2 Col 3 |",
+    "metadata": {
+      "source_file": "sample_table_document.md",
+      "document_type": "markdown",
+      "content_type": "table",
+      "chunk_index": 1,
+      "chunk_tokens": 64,
+      "chunk_chars": 136,
+      "word_count": 43
+    }
+  },
+  {
+    "content": "| Header 1 | Header 2 | Header 3 |\n|---|---|---|\n| This is a very long piece of text that spans multiple words in a single cell, to test how the chunker handles long content within a table. It should ideally split this row if it exceeds the token limit set for table chunks. | Another cell | Last cell of a long row |",
+    "metadata": {
+      "source_file": "sample_table_document.md",
+      "document_type": "markdown",
+      "content_type": "table",
+      "chunk_index": 2,
+      "chunk_tokens": 79,
+      "chunk_chars": 317,
+      "word_count": 66
+    }
+  },
+  {
+    "content": "| Header 1 | Header 2 | Header 3 |\n|---|---|---|\n| Row 4 Col 1 | Row 4 Col 2 | Row 4 Col 3 |",
+    "metadata": {
+      "source_file": "sample_table_document.md",
+      "document_type": "markdown",
+      "content_type": "table",
+      "chunk_index": 3,
+      "chunk_tokens": 42,
+      "chunk_chars": 92,
+      "word_count": 27
+    }
+  },
+  {
+    "content": "| Key | Value |\n|-----|-------|\n| Apple | Fruit |\n| Carrot| Veggie|",
+    "metadata": {
+      "source_file": "sample_table_document.md",
+      "document_type": "markdown",
+      "content_type": "table",
+      "chunk_index": 4,
+      "chunk_tokens": 22,
+      "chunk_chars": 67,
+      "word_count": 14
+    }
+  }
+]

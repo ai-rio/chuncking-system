@@ -2,30 +2,29 @@
 # Chunk Quality Evaluation Report
 
 ## Summary
-- **Total Chunks**: 18
-- **Overall Quality Score**: 38.3/100
+- **Total Chunks**: 5
+- **Overall Quality Score**: 35.7/100
 
 ## Size Distribution
-- **Average Characters**: 1017
-- **Average Words**: 132
-- **Size Consistency**: 0.00
+- **Average Characters**: 137
+- **Average Words**: 32
+- **Size Consistency**: 0.32
 
 ## Content Quality
 - **Empty Chunks**: 0 (0.0%)
-- **Very Short Chunks**: 7 (38.9%)
-- **Incomplete Sentences**: 3 (16.7%)
+- **Very Short Chunks**: 0 (0.0%)
+- **Incomplete Sentences**: 4 (80.0%)
 
 ## Semantic Coherence
-- **Coherence Score**: 0.156
-- **Average Similarity**: 0.049
+- **Coherence Score**: 0.086
+- **Average Similarity**: 0.139
 
 ## Structure Preservation
-- **Chunks with Headers**: 13 (72.2%)
-- **Chunks with Code**: 4 (22.2%)
+- **Chunks with Headers**: 1 (20.0%)
+- **Chunks with Code**: 0 (0.0%)
 - **Chunks with Lists**: 0 (0.0%)
 
 ## Recommendations
-- ⚠️  Many very short chunks. Consider increasing minimum chunk size.
 - ⚠️  Low semantic coherence. Consider adjusting chunk overlap or using semantic chunking.
 - ⚠️  Inconsistent chunk sizes. Consider using fixed-size chunking for more consistency.
 - ❌ Chunking quality needs significant improvement.
