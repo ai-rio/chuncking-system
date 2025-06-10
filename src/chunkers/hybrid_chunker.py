@@ -131,9 +131,9 @@ class HybridChunker:
         self.current_document_id = metadata.get("document_id", str(uuid.uuid4()))
         metadata = metadata or {}
         
-        # Sequence of processing: Tables, then Code, then Images, then Headers/Recursive/Semantic
-        processed_chunks = await self._sequential_complex_content_chunking(content, metadata)
-        return self._post_process_chunks(processed_chunks)
+        # Directly return from sequential chunking, bypassing _post_process_chunks
+        return await self._sequential_complex_content_chunking(content, metadata)
+
 
     async def _sequential_complex_content_chunking(
         self,

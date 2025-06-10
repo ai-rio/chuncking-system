@@ -6,7 +6,7 @@ import os
 class ChunkingConfig(BaseSettings):
     # Chunking parameters optimized for i3/16GB and Gemini token constraints
     # Targeting a smaller chunk size for RAG effectiveness within Gemini limits
-    DEFAULT_CHUNK_SIZE: int = 250 # **CHANGED: Reduced chunk size for semantic tuning**
+    DEFAULT_CHUNK_SIZE: int = 250 # Reduced chunk size for semantic tuning
     DEFAULT_CHUNK_OVERLAP: int = 150 # Moderate overlap for context
     MAX_CHUNK_SIZE: int = 1200 # Absolute max for very long sentences/paragraphs
     MIN_CHUNK_WORDS: int = 10 # Adjusted to be slightly lower for more granular chunks
@@ -54,14 +54,9 @@ class ChunkingConfig(BaseSettings):
     # Table-specific chunking settings
     TABLE_CHUNK_MAX_TOKENS: int = 75 
     TABLE_MERGE_HEADER_WITH_ROWS: bool = True
-
-    # NEW: LLM Caching Settings
-    ENABLE_LLM_CACHE: bool = True # Flag to enable/disable LLM response caching
-    LLM_CACHE_DIR: str = "data/cache/llm_responses" # Directory to store cached LLM responses
     
     class Config:
         env_file = ".env"
 
 # Global config instance
 config = ChunkingConfig()
-
