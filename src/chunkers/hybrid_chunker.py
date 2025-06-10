@@ -159,27 +159,11 @@ class HybridChunker:
         image_pattern = re.compile(r'!\[([^\]]*)\]\(([^)]+)\)')
 
         cursor = 0
-        iteration = 0
         while cursor < len(remaining_content):
-            iteration += 1
-            print(f"\n--- Sequential Chunking Iteration {iteration} ---")
-            print(f"Current cursor position: {cursor}")
-            print(f"Remaining content length from cursor: {len(remaining_content) - cursor}")
             
             table_match = table_pattern.search(remaining_content, cursor)
             code_match = code_pattern.search(remaining_content, cursor)
-
-            # --- DEBUG PRINTS FOR IMAGE DETECTION ---
-            print(f"  -> IMAGE_DEBUG: Content around cursor for image search (first 100 chars from cursor): '{remaining_content[cursor:cursor+100].strip()}'")
-            print(f"  -> IMAGE_DEBUG: Full content length: {len(remaining_content)}")
-            print(f"  -> IMAGE_DEBUG: Cursor: {cursor}")
-            
-            image_match = image_pattern.search(remaining_content, cursor)
-            if image_match:
-                print(f"  -> IMAGE_DEBUG: FOUND IMAGE at {image_match.start()}: {image_match.group(0)}")
-            else:
-                print(f"  -> IMAGE_DEBUG: NO IMAGE found from cursor {cursor}")
-            # --- END DEBUG PRINTS ---
+            image_match = image_pattern.search(remaining_content, cursor) 
 
             next_table_start = table_match.start() if table_match else len(remaining_content)
             next_code_start = code_match.start() if code_match else len(remaining_content)
@@ -188,21 +172,13 @@ class HybridChunker:
             # Determine the start of the next special block (table, code, or image)
             next_special_start = min(next_table_start, next_code_start, next_image_start)
 
-            print(f"Next table starts at: {next_table_start if table_match else 'N/A'}")
-            print(f"Next code block starts at: {next_code_start if code_match else 'N/A'}")
-            print(f"Next image starts at: {next_image_start if image_match else 'N/A'}")
-
-
             # Process text before the next special block
             if next_special_start > cursor:
                 text_segment = remaining_content[cursor : next_special_start]
-                print(f"Processing text segment from {cursor} to {next_special_start} (Length: {len(text_segment)})")
-                print(f"Text Segment (first 100 chars): {text_segment[:100].strip()}...")
                 if text_segment.strip():
                     text_analysis = self._detect_content_type(text_segment)
                     
                     if text_analysis['has_headers']:
-                        print("  -> Text segment has headers, using header-recursive chunking.")
                         header_split_chunks = self._header_recursive_chunking(text_segment, metadata, text_analysis)
                         
                         for h_chunk in header_split_chunks:
@@ -213,49 +189,39 @@ class HybridChunker:
                                not h_chunk_analysis['has_tables'] and \
                                not h_chunk_analysis['has_lists'] and \
                                not h_chunk_analysis['has_images']:
-                                print("    -> Applying semantic chunking to a header-derived prose sub-segment.")
-                                all_chunks.extend(self._semantic_chunking(h_chunk.page_content, h_chunk.metadata))
+                                all_chunks.extend(await self._semantic_chunking(h_chunk.page_content, h_chunk.metadata))
                             else:
                                 all_chunks.append(h_chunk)
                     else: # No headers in this text segment
                         if self.enable_semantic:
-                            print("  -> Text segment has no headers, applying semantic chunking.")
-                            all_chunks.extend(await self._semantic_chunking(text_segment, metadata)) # Changed to await
+                            all_chunks.extend(await self._semantic_chunking(text_segment, metadata))
                         else:
-                            print("  -> Text segment no headers, semantic disabled, using simple recursive chunking.")
                             all_chunks.extend(self._simple_recursive_chunking(text_segment, metadata))
                 cursor = next_special_start
             
             # Process the special block (table, code, or image) that comes next
             if cursor == next_table_start and table_match:
                 table_content = table_match.group(0)
-                print(f"Processing TABLE content from {cursor} to {table_match.end()} (Length: {len(table_content)})")
                 all_chunks.extend(self._table_aware_chunking(table_content, metadata))
                 cursor = table_match.end()
             elif cursor == next_code_start and code_match:
                 code_content = code_match.group(0)
-                print(f"Processing CODE content from {cursor} to {code_match.end()} (Length: {len(code_content)})")
                 all_chunks.extend(self._code_aware_chunking(code_content, metadata))
                 cursor = code_match.end()
             elif cursor == next_image_start and image_match:
                 image_markdown = image_match.group(0)
-                print(f"Processing IMAGE content from {cursor} to {image_match.end()} (Length: {len(image_markdown)})")
                 image_chunks = await self._image_aware_processing(image_markdown, metadata)
                 all_chunks.extend(image_chunks)
                 cursor = image_match.end()
             else:
-                print(f"No more special blocks found starting at cursor {cursor}. Breaking loop.")
                 break
 
         # Handle any remaining text at the end of the document
         if cursor < len(remaining_content) and remaining_content[cursor:].strip():
             final_text_segment = remaining_content[cursor:]
-            print(f"\n--- Final Text Segment Handling ---")
-            print(f"Processing final text segment from {cursor} (Length: {len(final_text_segment)})")
             text_analysis = self._detect_content_type(final_text_segment)
             
             if text_analysis['has_headers']:
-                print("  -> Final text segment has headers, using header-recursive chunking.")
                 header_split_chunks = self._header_recursive_chunking(final_text_segment, metadata, text_analysis)
                 for h_chunk in header_split_chunks:
                     h_chunk_analysis = self._detect_content_type(h_chunk.page_content)
@@ -265,20 +231,15 @@ class HybridChunker:
                        not h_chunk_analysis['has_tables'] and \
                        not h_chunk_analysis['has_lists'] and \
                        not h_chunk_analysis['has_images']:
-                        print("    -> Applying semantic chunking to a final header-derived prose sub-segment.")
-                        all_chunks.extend(await self._semantic_chunking(h_chunk.page_content, h_chunk.metadata)) # Changed to await
+                        all_chunks.extend(await self._semantic_chunking(h_chunk.page_content, h_chunk.metadata))
                     else:
                         all_chunks.append(h_chunk)
             else:
                 if self.enable_semantic:
-                    print("  -> Final text segment no headers, applying semantic chunking.")
-                    all_chunks.extend(await self._semantic_chunking(final_text_segment, metadata)) # Changed to await
+                    all_chunks.extend(await self._semantic_chunking(final_text_segment, metadata))
                 else:
-                    print("  -> Final text segment no headers, semantic disabled, using simple recursive chunking.")
                     all_chunks.extend(self._simple_recursive_chunking(final_text_segment, metadata))
-        else:
-            print("\nNo remaining text to process at the end.")
-
+        
         return all_chunks
 
     def _header_recursive_chunking(
@@ -497,122 +458,60 @@ class HybridChunker:
         print(f"  -> Entering _image_aware_processing for image markdown: {image_markdown[:50]}...")
         
         if not config.config.ENABLE_LLM_IMAGE_DESCRIPTION:
-            print("  -> LLM image description is disabled. Skipping.")
-            return [Document(page_content=image_markdown, metadata={**metadata, 'content_type': 'image_markdown', 'has_images': True})] # Added has_images=True
+            return "Image description generation disabled."
 
         if not config.config.GEMINI_API_KEY:
-            print("  -> GEMINI_API_KEY not set. Cannot generate LLM image description. Using alt text if available or placeholder.")
-            alt_text_match = re.search(r'!\[(.*?)\]', image_markdown)
-            alt_text = alt_text_match.group(1) if alt_text_match else "an image"
-            description = f"Description of {alt_text}."
-            return [Document(page_content=description, metadata={**metadata, 'content_type': 'image_description_fallback', 'has_images': True})] # Added has_images=True
-        
-        # Extract alt text and URL if available for context
-        alt_text_match = re.search(r'!\[(.*?)\]', image_markdown)
-        image_url_match = re.search(r'\]\((.*?)\)', image_markdown)
-        
-        alt_text = alt_text_match.group(1) if alt_text_match else "an image"
-        image_url = image_url_match.group(1) if image_url_match else None
+            fallback_description = f"Mock description of {alt_text or 'an image'}"
+            return fallback_description
 
-        prompt_parts = [config.config.LLM_IMAGE_DESCRIPTION_PROMPT]
-        if alt_text and alt_text != "image":
-            prompt_parts.append(f"The image's alt text is: '{alt_text}'.")
-        if image_url:
-            prompt_parts.append(f"The image URL is: '{image_url}'.")
-        prompt_parts.append("Please provide the description.")
+        # Normalize alt_text and image_url before creating prompt_parts for consistent hashing
+        normalized_alt_text = alt_text.strip().replace('\r', '') if alt_text else ""
+        normalized_image_url = image_url.strip().replace('\r', '') if image_url else ""
 
-        full_prompt = "\n".join(prompt_parts)
+        # Construct prompt parts consistently for caching
+        prompt_parts_for_key = [
+            config.config.LLM_IMAGE_DESCRIPTION_PROMPT,
+            f"alt_text:{normalized_alt_text}",
+            f"image_url:{normalized_image_url}"
+        ]
+
+        cache_key = self._get_cache_key(prompt_parts_for_key)
+
+        cached_description = self._read_from_cache(cache_key)
+        if cached_description:
+            print(f"LLM Image Description: (CACHED) for alt text: {alt_text or 'N/A'}")
+            return cached_description
+
+        actual_llm_prompt_parts = [config.config.LLM_IMAGE_DESCRIPTION_PROMPT]
+        if normalized_alt_text:
+            actual_llm_prompt_parts.append(f"The image's alt text is: '{normalized_alt_text}'.")
+        if normalized_image_url:
+            actual_llm_prompt_parts.append(f"The image URL is: '{normalized_image_url}'.")
+        full_prompt_to_llm = "\n".join(actual_llm_prompt_parts)
 
         model = genai.GenerativeModel(config.config.LLM_IMAGE_MODEL)
 
         try:
-            # Using asyncio.to_thread to run blocking model.generate_content in a separate thread
-            chatHistory = [{"role": "user", "parts": [{"text": full_prompt}]}]
-            
+            chatHistory = [{"role": "user", "parts": [{"text": full_prompt_to_llm}]}]
             response = await asyncio.to_thread(model.generate_content, chatHistory)
             description_text = response.candidates[0].content.parts[0].text
-            print(f"  -> LLM Image Description generated: {description_text[:50]}...")
-
+            self._write_to_cache(cache_key, description_text)
+            print(f"LLM Image Description generated for alt text: {alt_text or 'N/A'}")
+            return description_text
         except Exception as e:
-            print(f"  -> Error generating LLM image description: {e}. Falling back to alt text.")
-            description_text = f"Description of {alt_text}."
+            print(f"Error generating LLM image description for '{alt_text or image_url}'. Error: {e}")
+            return f"Error describing image with alt text '{alt_text or 'N/A'}'."
 
-        # Create a new document with the LLM-generated description
-        image_description_chunk = Document(
-            page_content=description_text,
-            metadata={
-                **metadata,
-                'chunk_id': f"{self.current_document_id}-{uuid.uuid4()}",
-                'chunk_type': 'visual',
-                'source_segment_type': 'image',
-                'image_alt_text': alt_text,
-                'image_url': image_url,
-                'enriched_by_llm': True,
-                'summary': description_text, # Summary is the description itself
-                'has_images': True # Explicitly mark this chunk as containing an image
-            }
-        )
-        return [image_description_chunk]
-
-    def _post_process_chunks(self, chunks: List[Document]) -> List[Document]:
+    async def enrich_chunks_with_llm_summaries(self, chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
         """
-        Post-process chunks for quality and consistency,
-        and assign a sequential global chunk_index.
+        Asynchronously enriches a list of chunks with LLM-generated summaries.
+        This function iterates through the chunks and calls the summarize_chunk method.
         """
-        processed_chunks = []
-        global_chunk_index = 0
-
-        for chunk in chunks:
-            # Ensure chunk content meets minimum word count unless it's a structural element
-            # This logic can be refined based on specific requirements for structural chunks
-            if len(chunk.page_content.strip().split()) < config.config.MIN_CHUNK_WORDS and \
-               chunk.metadata.get('chunk_type') not in ['structural', 'visual']:
-                continue
-
-            chunk.metadata['chunk_index'] = global_chunk_index
-            global_chunk_index += 1
-
-            chunk.metadata['chunk_tokens'] = self._token_length(chunk.page_content)
-            chunk.metadata['chunk_chars'] = len(chunk.page_content)
-            chunk.metadata['word_count'] = len(chunk.page_content.split())
-
-            processed_chunks.append(chunk)
-
-        return processed_chunks
-
-    async def batch_process_files(
-        self,
-        file_paths: List[str],
-        progress_callback=None
-    ) -> Dict[str, List[Document]]:
-        """Process multiple files efficiently for i3/16GB system"""
-
-        results = {}
-
-        for i, file_path in enumerate(file_paths):
-            try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
-
-                metadata = {
-                    'source': file_path,
-                    'file_name': os.path.basename(file_path)
-                }
-
-                # chunk_document is now async
-                chunks = await self.chunk_document(content, metadata)
-                results[file_path] = chunks
-
-                if progress_callback:
-                    progress_callback(i + 1, len(file_paths), file_path)
-
-                if i % config.config.BATCH_SIZE == 0:
-                    import gc
-                    gc.collect()
-
-            except Exception as e:
-                print(f"Error processing {file_path}: {e}")
-                results[file_path] = []
-
-        return results
-
+        enriched_chunks = []
+        for i, chunk in enumerate(chunks):
+            # The summarize_chunk method now handles caching internally
+            summary = await self.summarize_chunk(chunk.page_content)
+            chunk.metadata['summary'] = summary
+            enriched_chunks.append(chunk)
+            print(f"LLM Summary processed for chunk {i}.")
+        return enriched_chunks

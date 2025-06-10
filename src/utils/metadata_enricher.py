@@ -32,6 +32,8 @@ class MetadataEnricher:
         This now converts the entire list to a sorted JSON string for ultimate consistency.
         """
         # Convert the entire list of prompt parts to a sorted JSON string
+        # This ensures that the order and exact representation are consistent for hashing
+        # For non-dict parts, str() converts them to strings for JSON serialization.
         consistent_string = json.dumps(prompt_parts, sort_keys=True, ensure_ascii=False)
         hasher = hashlib.sha256()
         hasher.update(consistent_string.encode('utf-8'))
@@ -44,21 +46,14 @@ class MetadataEnricher:
 
         cache_file_path = os.path.join(config.config.LLM_CACHE_DIR, f"{cache_key}.json")
         
-        print(f"DEBUG Cache Read: Checking if file exists: {cache_file_path} -> {os.path.exists(cache_file_path)}")
-
         if os.path.exists(cache_file_path):
             try:
                 with open(cache_file_path, 'r', encoding='utf-8') as f:
                     cached_data = json.load(f)
                     response_from_cache = cached_data.get("response")
-                    print(f"DEBUG Cache Read: Retrieved cached_data: {cached_data}")
-                    print(f"DEBUG Cache Read: Extracted response: '{response_from_cache}' (Type: {type(response_from_cache)})")
                     
-                    # --- CRUCIAL FIX: Strip whitespace from cached response ---
                     if response_from_cache is not None:
-                        response_from_cache = response_from_cache.strip()
-                        print(f"DEBUG Cache Read: Stripped response: '{response_from_cache}'")
-                    # --- END CRUCIAL FIX ---
+                        response_from_cache = response_from_cache.strip() # Strip whitespace from cached response
 
                     return response_from_cache
             except Exception as e:
@@ -75,7 +70,6 @@ class MetadataEnricher:
         try:
             with open(cache_file_path, 'w', encoding='utf-8') as f:
                 json.dump({"response": response_text}, f, ensure_ascii=False, indent=2)
-            print(f"DEBUG Cache Write: Successfully wrote to {cache_file_path}")
         except Exception as e:
             print(f"Error writing to cache file {cache_file_path}: {e}")
 
@@ -94,7 +88,6 @@ class MetadataEnricher:
         cache_key = self._get_cache_key(prompt_parts)
         
         cached_summary = self._read_from_cache(cache_key)
-        print(f"DEBUG Summary Cache: Cached summary before check: '{cached_summary}' (Type: {type(cached_summary)})")
         if cached_summary:
             print(f"LLM Summary: (CACHED) for chunk: {text_content[:30]}...")
             return cached_summary
@@ -136,15 +129,8 @@ class MetadataEnricher:
 
         cache_key = self._get_cache_key(prompt_parts_for_key)
 
-        print(f"DEBUG Image Cache: Alt Text: '{alt_text}' -> Normalized: '{normalized_alt_text}'")
-        print(f"DEBUG Image Cache: Image URL: '{image_url}' -> Normalized: '{normalized_image_url}'")
-        print(f"DEBUG Image Cache: Prompt Parts for Key: {prompt_parts_for_key}")
-        print(f"DEBUG Image Cache: Generated Cache Key: {cache_key}")
-        print(f"DEBUG Image Cache: Prompt Parts for Key (Bytes): {json.dumps(prompt_parts_for_key, sort_keys=True, ensure_ascii=False).encode('utf-8')}")
-
         cached_description = self._read_from_cache(cache_key)
-        print(f"DEBUG Image Cache: Cached description before check: '{cached_description}' (Type: {type(cached_description)})")
-        if cached_description: # This is the crucial check
+        if cached_description:
             print(f"LLM Image Description: (CACHED) for alt text: {alt_text or 'N/A'}")
             return cached_description
 
