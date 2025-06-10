@@ -4,15 +4,15 @@ import asyncio # Import asyncio for running async functions
 from src.chunkers.hybrid_chunker import HybridMarkdownChunker
 from src.chunkers.evaluators import ChunkQualityEvaluator
 from src.utils.file_handler import FileHandler
-from src.utils.metadata_enricher import MetadataEnricher # Import the MetadataEnricher
+from src.utils.metadata_enricher import MetadataEnricher
 from src.config.settings import config
 from langchain_core.documents import Document
 
 # Define file paths
-INPUT_FILE = os.path.join(config.INPUT_DIR, "sample_prose_document.md")
-OUTPUT_CHUNKS_FILE = os.path.join(config.OUTPUT_DIR, "chunks", "sample_prose_document_chunks.json")
-QUALITY_REPORT_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_prose_document_quality_report.md")
-PROCESSING_SUMMARY_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_prose_document_processing_summary.json")
+INPUT_FILE = os.path.join(config.INPUT_DIR, "sample_image_document.md") # <<< CHANGED THIS LINE
+OUTPUT_CHUNKS_FILE = os.path.join(config.OUTPUT_DIR, "chunks", "sample_image_document_chunks.json") # <<< CHANGED THIS LINE
+QUALITY_REPORT_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_image_document_quality_report.md") # <<< CHANGED THIS LINE
+PROCESSING_SUMMARY_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_image_document_processing_summary.json") # <<< CHANGED THIS LINE
 
 # Define the async main function
 async def main_async():
@@ -23,41 +23,41 @@ async def main_async():
     os.makedirs(os.path.dirname(QUALITY_REPORT_FILE), exist_ok=True)
     os.makedirs(os.path.dirname(PROCESSING_SUMMARY_FILE), exist_ok=True)
 
+    # Enable semantic and ensure LLM image description is enabled via settings
     chunker = HybridMarkdownChunker(enable_semantic=True)
     evaluator = ChunkQualityEvaluator()
-    metadata_enricher = MetadataEnricher() # Initialize the MetadataEnricher
+    metadata_enricher = MetadataEnricher()
 
-    # Create dummy document for demonstration if it doesn't exist
+    # Create dummy document for demonstration if it doesn't exist (adjusted for image doc)
     if not os.path.exists(INPUT_FILE):
         print(f"Creating dummy test file: {INPUT_FILE}")
         dummy_content = """
-# The Future of Artificial Intelligence
+# Document with Images
 
-Artificial intelligence (AI) is rapidly transforming industries and daily life. From self-driving cars to advanced medical diagnostics, AI's capabilities are expanding at an unprecedented pace. This technology promises to solve complex problems, enhance efficiency, and unlock new frontiers of innovation. However, its development also presents ethical and societal challenges that require careful consideration.
+This document contains text and some images that need to be processed.
 
-## Machine Learning and Deep Learning
+## Section 1: Introduction to AI
 
-At the core of many AI advancements are machine learning (ML) and deep learning (DL). Machine learning algorithms enable systems to learn from data without explicit programming. Deep learning, a subset of ML, uses neural networks with multiple layers to learn complex patterns. These techniques are behind breakthroughs in image recognition, natural language processing, and predictive analytics. The sheer volume of data available today fuels these algorithms, allowing them to achieve remarkable accuracy.
+Artificial intelligence (AI) is transforming many aspects of our lives. From smart assistants to complex data analysis, AI is becoming increasingly prevalent.
 
-### The Role of Large Language Models (LLMs)
+Here's an example of an AI model's architecture:
+![Neural Network Architecture](https://placehold.co/600x400/FF0000/FFFFFF?text=Neural%20Network)
+A visual representation of a deep neural network, showing layers of interconnected nodes.
 
-Large Language Models (LLMs) like Gemini, GPT, and Llama have revolutionized natural language understanding and generation. These models are trained on vast datasets of text and code, allowing them to perform tasks such as translation, summarization, and creative writing. They represent a significant leap towards more human-like AI interactions. The ability of LLMs to generate coherent and contextually relevant text has opened new possibilities for applications in customer service, content creation, and education.
+## Section 2: Data Visualization
 
-## Ethical Considerations and Societal Impact
+Data visualization is key to understanding complex datasets. Charts and graphs help us interpret trends and patterns.
 
-The increasing power of AI also brings forth critical ethical considerations. Issues such as algorithmic bias, privacy concerns, job displacement, and the potential for misuse of AI technologies are paramount. Ensuring fairness, transparency, and accountability in AI systems is essential for their responsible deployment. Discussions around AI governance and regulation are gaining momentum as societies grapple with the profound impact of these technologies.
-
-### AI in Healthcare
-
-AI is poised to transform healthcare by assisting with drug discovery, personalized treatment plans, and early disease detection. AI-powered tools can analyze vast amounts of patient data to identify patterns that human doctors might miss. This can lead to more accurate diagnoses and more effective interventions, ultimately improving patient outcomes. The integration of AI into healthcare systems requires robust validation and careful integration to ensure patient safety and data security.
+This chart illustrates market trends over the last quarter:
+![Market Trends Chart](https://placehold.co/800x500/00FF00/000000?text=Market%20Trends%20Q1)
+A bar chart depicting sales performance across different product categories for the first quarter.
 
 ## Conclusion
 
-The journey of AI is far from over. As researchers continue to push the boundaries of what's possible, AI will undoubtedly become even more integrated into the fabric of society. Navigating its complexities, harnessing its potential, and mitigating its risks will be a collective endeavor, requiring collaboration across technology, policy, and ethics. The future is exciting, but it also demands thoughtful stewardship of this powerful technology.
+Images play a crucial role in conveying information effectively.
         """
         with open(INPUT_FILE, 'w', encoding='utf-8') as f:
             f.write(dummy_content)
-
 
     try:
         # Load content from the input file
@@ -71,19 +71,19 @@ The journey of AI is far from over. As researchers continue to push the boundari
         }
 
         print(f"Chunking document: {INPUT_FILE}")
-        chunks = chunker.chunk_document(content, initial_metadata)
+        # Call the async chunk_document method
+        chunks = await chunker.chunk_document(content, initial_metadata)
         print(f"Generated {len(chunks)} chunks.")
 
-        # --- NEW STEP: Enrich chunks with LLM-generated summaries ---
+        # Enrich chunks with LLM-generated summaries (this is already async)
         print("Enriching chunks with LLM summaries...")
         enriched_chunks = await metadata_enricher.enrich_chunks_with_llm_summaries(chunks)
         print(f"Finished enriching {len(enriched_chunks)} chunks.")
-        # -----------------------------------------------------------
 
-        FileHandler.save_chunks(enriched_chunks, OUTPUT_CHUNKS_FILE, format='json') # Save enriched chunks
+        FileHandler.save_chunks(enriched_chunks, OUTPUT_CHUNKS_FILE, format='json')
         print(f"Chunks saved to {OUTPUT_CHUNKS_FILE}")
 
-        report = evaluator.generate_report(enriched_chunks, QUALITY_REPORT_FILE) # Evaluate enriched chunks
+        report = evaluator.generate_report(enriched_chunks, QUALITY_REPORT_FILE)
         print("--- Quality Report ---")
         print(report)
         print("----------------------")
@@ -91,8 +91,8 @@ The journey of AI is far from over. As researchers continue to push the boundari
 
         processing_summary = {
             "file_name": os.path.basename(INPUT_FILE),
-            "total_chunks": len(enriched_chunks), # Use enriched chunks count
-            "chunking_strategy_applied": "Hybrid (Table-aware, Header-Recursive, Semantic, LLM-Enriched)", # Updated description
+            "total_chunks": len(enriched_chunks),
+            "chunking_strategy_applied": "Hybrid (Table-aware, Header-Recursive, Semantic, LLM-Enriched, Image-Processed)", # Updated description
             "average_chunk_tokens": sum(c.metadata.get('chunk_tokens', 0) for c in enriched_chunks) / len(enriched_chunks) if enriched_chunks else 0
         }
         with open(PROCESSING_SUMMARY_FILE, 'w', encoding='utf-8') as f:
@@ -104,6 +104,6 @@ The journey of AI is far from over. As researchers continue to push the boundari
     except Exception as e:
         print(f"An unexpected error occurred: {e}")
 
-# Call the async main function
+# Run the async main function
 if __name__ == "__main__":
     asyncio.run(main_async())

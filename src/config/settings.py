@@ -5,7 +5,6 @@ import os
 
 class ChunkingConfig(BaseSettings):
     # Chunking parameters optimized for i3/16GB and Gemini token constraints
-    # Targeting a smaller chunk size for RAG effectiveness within Gemini limits
     DEFAULT_CHUNK_SIZE: int = 800 # Set a target for tokens, allowing space for prompt
     DEFAULT_CHUNK_OVERLAP: int = 150 # Moderate overlap for context
     MAX_CHUNK_SIZE: int = 1200 # Absolute max for very long sentences/paragraphs
@@ -34,14 +33,19 @@ class ChunkingConfig(BaseSettings):
     
     # LLM Integration
     OPENAI_API_KEY: str = "" # Keep for potential OpenAI models
-    GEMINI_API_KEY: str = "" # NEW: For Gemini API calls (if direct API use, otherwise handled by Canvas env)
+    GEMINI_API_KEY: str = "" # For Gemini API calls (if direct API use, otherwise handled by Canvas env)
     EMBEDDING_MODEL: str = "sentence-transformers/all-MiniLM-L6-v2" # Lightweight embedding model for semantic
     EMBEDDING_API_KEY: str = "" # To avoid pydantic validation error if in .env
 
-    # NEW: Flag to enable LLM-based metadata enrichment
+    # LLM-based metadata enrichment for chunks
     ENABLE_LLM_METADATA_ENRICHMENT: bool = True
     LLM_METADATA_MODEL: str = "gemini-2.0-flash" # Model to use for summarization
     LLM_SUMMARY_PROMPT: str = "Summarize the following text concisely in 1-2 sentences, focusing on its main topic and key points, for improved search and retrieval accuracy:"
+
+    # NEW: LLM-based Image Processing
+    ENABLE_LLM_IMAGE_DESCRIPTION: bool = True # Flag to enable image description generation
+    LLM_IMAGE_MODEL: str = "gemini-2.0-flash" # Model to use for image description (can be multimodal if needed)
+    LLM_IMAGE_DESCRIPTION_PROMPT: str = "Describe the content of this image (or figure) in a concise sentence or two for a document retrieval system. Focus on key elements and context."
     
     # Quality thresholds
     SEMANTIC_SIMILARITY_THRESHOLD: float = 0.3 # Adjusted previously

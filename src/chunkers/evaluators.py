@@ -96,14 +96,17 @@ class ChunkQualityEvaluator:
             if len(content.split()) < self.min_words_for_very_short:
                 quality_metrics['very_short_chunks'] += 1
             
-            # Determine if the chunk is structural (header, code, table, list)
+            # Determine if the chunk is structural (header, code, table, list, image description)
             is_structural = False
-            if chunk.metadata.get('content_type') in ['code', 'table']:
+            if chunk.metadata.get('content_type') in ['code', 'table', 'image_description', 'image_description_fallback']:
                 is_structural = True
             elif re.match(r'^#+\s', content) or any(h in chunk.metadata for h in ["Part", "Chapter", "Section", "Sub-section"]):
                 is_structural = True
             elif re.search(r'^\s*[-*+]\s+.*|\s*\d+\.\s+.*', content, re.MULTILINE):
                 is_structural = True
+            elif re.search(r'!\[.*?\]\(.*?\)', content): # Original image markdown also considered structural
+                is_structural = True
+
 
             # Only check for incomplete sentences if it's not a structural chunk
             if not is_structural and not re.search(r'[.!?:]$', content):
@@ -124,14 +127,14 @@ class ChunkQualityEvaluator:
         prose_chunks = [
             chunk for chunk in chunks
             if not (
-                chunk.metadata.get('content_type') in ['code', 'table'] or
-                re.match(r'^#+\s', chunk.page_content.strip()) or
-                any(h in chunk.metadata for h in ["Part", "Chapter", "Section", "Sub-section"])
+                chunk.metadata.get('content_type') in ['code', 'table', 'image_description', 'image_description_fallback'] or
+                re.match(r'^\s*#+\s', chunk.page_content.strip()) or # Check for header in content
+                any(h in chunk.metadata for h in ["Part", "Chapter", "Section", "Sub-section"]) or # Check for header in metadata
+                re.search(r'^\s*!\[.*?\]\(.*?\)', chunk.page_content.strip(), re.MULTILINE) # Check for image markdown
             )
         ]
 
         if len(prose_chunks) < 2:
-            # If less than 2 prose chunks, semantic coherence is considered perfect as no comparison is needed
             return {'coherence_score': 1.0, 'avg_similarity': 0.0, 'similarity_std': 0.0}
         
         try:
@@ -200,7 +203,8 @@ class ChunkQualityEvaluator:
             'chunks_with_code': 0,
             'chunks_with_lists': 0,
             'chunks_with_links': 0,
-            'chunks_with_tables': 0 # Added new metric for tables
+            'chunks_with_tables': 0,
+            'chunks_with_images': 0 # Added new metric for images
         }
         
         for chunk in chunks:
@@ -221,9 +225,14 @@ class ChunkQualityEvaluator:
             if '[' in content and '](' in content:
                 structure_metrics['chunks_with_links'] += 1
 
-            if chunk.metadata.get('content_type') == 'table': # Check for table content type
+            if chunk.metadata.get('content_type') == 'table':
                 structure_metrics['chunks_with_tables'] += 1
-        
+
+            # Check for image content type in metadata OR original image markdown in content
+            if chunk.metadata.get('content_type') in ['image_description', 'image_description_fallback'] or \
+               re.search(r'!\[.*?\]\(.*?\)', content):
+                structure_metrics['chunks_with_images'] += 1
+
         total_chunks = len(chunks)
         structure_percentages = {
             f"{key}_pct": (value / total_chunks * 100) if total_chunks > 0 else 0
@@ -239,25 +248,23 @@ class ChunkQualityEvaluator:
             size_score = metrics['size_distribution']['size_consistency'] * 20
             
             content_metrics = metrics['content_quality']
-            # Reduced weight of incomplete sentences as it's now context-aware
             content_score_raw = (
-                (100 - content_metrics['empty_chunks_pct']) * 0.6 + # Increased weight for empty chunks
+                (100 - content_metrics['empty_chunks_pct']) * 0.6 +
                 (100 - content_metrics['very_short_chunks_pct']) * 0.3 +
-                (100 - content_metrics['incomplete_sentences_pct']) * 0.1 # Reduced weight
+                (100 - content_metrics['incomplete_sentences_pct']) * 0.1
             )
             content_score = (content_score_raw / 100) * 30
             
-            # Semantic coherence should only consider prose chunks
             coherence_score = metrics['semantic_coherence']['coherence_score'] * 25
             
             structure_metrics = metrics['structural_preservation']
-            # Increased weight for structural chunks now that they are better handled
             structure_score_raw = (
-                structure_metrics['chunks_with_headers_pct'] * 0.3 +
-                structure_metrics['chunks_with_code_pct'] * 0.2 +
+                structure_metrics['chunks_with_headers_pct'] * 0.25 + # Slightly reduced weight to balance
+                structure_metrics['chunks_with_code_pct'] * 0.15 +
                 structure_metrics['chunks_with_lists_pct'] * 0.1 +
                 structure_metrics['chunks_with_links_pct'] * 0.1 +
-                structure_metrics['chunks_with_tables_pct'] * 0.3 # New weight for tables
+                structure_metrics['chunks_with_tables_pct'] * 0.2 +
+                structure_metrics['chunks_with_images_pct'] * 0.2 # New weight for images
             )
             structure_score = (structure_score_raw / 100) * 25
             
@@ -299,6 +306,7 @@ class ChunkQualityEvaluator:
 - **Chunks with Code**: {metrics['structural_preservation']['chunks_with_code']} ({metrics['structural_preservation']['chunks_with_code_pct']:.1f}%)
 - **Chunks with Lists**: {metrics['structural_preservation']['chunks_with_lists']} ({metrics['structural_preservation']['chunks_with_lists_pct']:.1f}%)
 - **Chunks with Tables**: {metrics['structural_preservation']['chunks_with_tables']} ({metrics['structural_preservation']['chunks_with_tables_pct']:.1f}%)
+- **Chunks with Images**: {metrics['structural_preservation']['chunks_with_images']} ({metrics['structural_preservation']['chunks_with_images_pct']:.1f}%)
 
 ## Recommendations
 """
@@ -326,7 +334,6 @@ class ChunkQualityEvaluator:
         if output_path:
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(report)
-            # print(f"📊 Evaluation report saved to: {output_path}") # Removed print for clean output
         
         return report
 
