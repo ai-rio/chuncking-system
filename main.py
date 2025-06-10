@@ -1,6 +1,7 @@
 import os
 import json
 import asyncio # Import asyncio for running async functions
+import re # Added this import for regular expressions
 from src.chunkers.hybrid_chunker import HybridChunker
 from src.chunkers.evaluators import ChunkQualityEvaluator
 from src.utils.file_handler import FileHandler
@@ -9,10 +10,10 @@ from src.config.settings import config
 from langchain_core.documents import Document
 
 # Define file paths
-INPUT_FILE = os.path.join(config.INPUT_DIR, "sample_image_document.md") # <<< CHANGED THIS LINE
-OUTPUT_CHUNKS_FILE = os.path.join(config.OUTPUT_DIR, "chunks", "sample_image_document_chunks.json") # <<< CHANGED THIS LINE
-QUALITY_REPORT_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_image_document_quality_report.md") # <<< CHANGED THIS LINE
-PROCESSING_SUMMARY_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_image_document_processing_summary.json") # <<< CHANGED THIS LINE
+INPUT_FILE = os.path.join(config.INPUT_DIR, "sample_image_document.md")
+OUTPUT_CHUNKS_FILE = os.path.join(config.OUTPUT_DIR, "chunks", "sample_image_document_chunks.json")
+QUALITY_REPORT_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_image_document_quality_report.md")
+PROCESSING_SUMMARY_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_image_document_processing_summary.json")
 
 # Define the async main function
 async def main_async():
@@ -22,6 +23,9 @@ async def main_async():
     os.makedirs(os.path.dirname(OUTPUT_CHUNKS_FILE), exist_ok=True)
     os.makedirs(os.path.dirname(QUALITY_REPORT_FILE), exist_ok=True)
     os.makedirs(os.path.dirname(PROCESSING_SUMMARY_FILE), exist_ok=True)
+    # Ensure cache directory exists too
+    os.makedirs(config.LLM_CACHE_DIR, exist_ok=True)
+
 
     # Enable semantic and ensure LLM image description is enabled via settings
     chunker = HybridChunker(enable_semantic=True)
@@ -31,6 +35,7 @@ async def main_async():
     # Create dummy document for demonstration if it doesn't exist (adjusted for image doc)
     if not os.path.exists(INPUT_FILE):
         print(f"Creating dummy test file: {INPUT_FILE}")
+        # Use fixed, well-defined URLs for consistency and strip any potential hidden chars
         dummy_content = """
 # Document with Images
 
@@ -41,7 +46,7 @@ This document contains text and some images that need to be processed.
 Artificial intelligence (AI) is transforming many aspects of our lives. From smart assistants to complex data analysis, AI is becoming increasingly prevalent.
 
 Here's an example of an AI model's architecture:
-![Neural Network Architecture](https://placehold.co/600x400/FF0000/FFFFFF?text=Neural%20Network)
+![Neural Network Architecture](https://example.com/images/neural_network.png)
 A visual representation of a deep neural network, showing layers of interconnected nodes.
 
 ## Section 2: Data Visualization
@@ -49,20 +54,20 @@ A visual representation of a deep neural network, showing layers of interconnect
 Data visualization is key to understanding complex datasets. Charts and graphs help us interpret trends and patterns.
 
 This chart illustrates market trends over the last quarter:
-![Market Trends Chart](https://placehold.co/800x500/00FF00/000000?text=Market%20Trends%20Q1)
+![Market Trends Chart](https://example.com/images/market_trends.png)
 A bar chart depicting sales performance across different product categories for the first quarter.
 
 ## Conclusion
 
 Images play a crucial role in conveying information effectively.
-        """
+        """.strip() # .strip() here to remove any leading/trailing newlines in the multi-line string
         with open(INPUT_FILE, 'w', encoding='utf-8') as f:
             f.write(dummy_content)
 
     try:
         # Load content from the input file
         with open(INPUT_FILE, 'r', encoding='utf-8') as f:
-            content = f.read()
+            content = f.read().replace('\r', '') # Crucial: remove carriage returns on read
         
         # Initial metadata for the document
         initial_metadata = {
@@ -77,8 +82,35 @@ Images play a crucial role in conveying information effectively.
 
         # Enrich chunks with LLM-generated summaries (this is already async)
         print("Enriching chunks with LLM summaries...")
-        enriched_chunks = await metadata_enricher.enrich_chunks_with_llm_summaries(chunks)
+        
+        # We need to explicitly call describe_image for the visual chunks.
+        # The previous loop was too generic. Let's make it smarter.
+        enriched_chunks = []
+        for i, chunk in enumerate(chunks):
+            if chunk.metadata.get('source_segment_type') == 'image':
+                # For image chunks, we need to extract alt_text and image_url from the page_content
+                # and call describe_image. The _image_aware_processing in HybridChunker already does this
+                # when it first processes the image. So, for the overall enrichment phase,
+                # we just need to ensure its summary is consistent.
+                # However, to be safe, let's re-extract and re-process through describe_image for its caching logic.
+                # This ensures the caching path is explicitly taken.
+                match = re.search(r'!\[(.*?)\]\((.*?)\)', chunk.page_content)
+                if match:
+                    alt_text = match.group(1)
+                    image_url = match.group(2)
+                    description = await metadata_enricher.describe_image(alt_text=alt_text, image_url=image_url)
+                    chunk.metadata['summary'] = description # Update summary with the description
+                    chunk.page_content = description # Replace content with description for RAG
+                enriched_chunks.append(chunk)
+            else:
+                # For non-image chunks, summarize them
+                summary = await metadata_enricher.summarize_chunk(chunk.page_content)
+                chunk.metadata['summary'] = summary
+                enriched_chunks.append(chunk)
+            print(f"Chunk processed for summary/image description: {chunk.metadata.get('chunk_index', 'N/A')}")
+        
         print(f"Finished enriching {len(enriched_chunks)} chunks.")
+
 
         FileHandler.save_chunks(enriched_chunks, OUTPUT_CHUNKS_FILE, format='json')
         print(f"Chunks saved to {OUTPUT_CHUNKS_FILE}")
@@ -107,3 +139,4 @@ Images play a crucial role in conveying information effectively.
 # Run the async main function
 if __name__ == "__main__":
     asyncio.run(main_async())
+

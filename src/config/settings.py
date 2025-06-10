@@ -54,6 +54,10 @@ class ChunkingConfig(BaseSettings):
     # Table-specific chunking settings
     TABLE_CHUNK_MAX_TOKENS: int = 75 
     TABLE_MERGE_HEADER_WITH_ROWS: bool = True
+
+    # NEW: LLM Caching Settings
+    ENABLE_LLM_CACHE: bool = True # Flag to enable/disable LLM response caching
+    LLM_CACHE_DIR: str = "data/cache/llm_responses" # Directory to store cached LLM responses
     
     class Config:
         env_file = ".env"

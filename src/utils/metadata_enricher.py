@@ -1,130 +1,183 @@
+import google.generativeai as genai
 import os
 import json
 import asyncio
-from typing import List, Dict, Any
-from langchain_core.documents import Document
-from src.config.settings import config
+import hashlib
+from typing import List, Dict, Any, Optional
+from collections.abc import Iterable
+
+import src.config.settings as config
 
 class MetadataEnricher:
     """
-    Enriches document chunks with additional metadata, including LLM-generated summaries.
+    Enriches document chunks with additional metadata, such as LLM-generated summaries
+    and image descriptions, with integrated caching for LLM calls.
     """
 
     def __init__(self):
-        # Placeholder for any initialization needed, e.g., LLM client setup if not using fetch directly
-        pass
+        # Configure Gemini API if key is available
+        if config.config.GEMINI_API_KEY:
+            genai.configure(api_key=config.config.GEMINI_API_KEY)
+        else:
+            print("Warning: GEMINI_API_KEY not set. LLM-based features (summaries, image descriptions) will use mock data.")
 
-    async def enrich_chunks_with_llm_summaries(self, chunks: List[Document]) -> List[Document]:
-        """
-        Asynchronously enriches chunks with LLM-generated summaries.
-        Uses a mock API call for demonstration purposes.
-        """
-        if not config.ENABLE_LLM_METADATA_ENRICHMENT:
-            print("LLM metadata enrichment is disabled in settings.")
-            return chunks
+        # Ensure cache directory exists if caching is enabled
+        if config.config.ENABLE_LLM_CACHE:
+            os.makedirs(config.config.LLM_CACHE_DIR, exist_ok=True)
+            print(f"LLM cache directory initialized: {config.config.LLM_CACHE_DIR}")
 
+    def _get_cache_key(self, prompt_parts: List[Any]) -> str:
+        """
+        Generates a unique cache key (SHA256 hash) for a given list of prompt parts.
+        This now converts the entire list to a sorted JSON string for ultimate consistency.
+        """
+        # Convert the entire list of prompt parts to a sorted JSON string
+        consistent_string = json.dumps(prompt_parts, sort_keys=True, ensure_ascii=False)
+        hasher = hashlib.sha256()
+        hasher.update(consistent_string.encode('utf-8'))
+        return hasher.hexdigest()
+
+    def _read_from_cache(self, cache_key: str) -> Optional[str]:
+        """Reads a cached response from the file system."""
+        if not config.config.ENABLE_LLM_CACHE:
+            return None
+
+        cache_file_path = os.path.join(config.config.LLM_CACHE_DIR, f"{cache_key}.json")
+        
+        print(f"DEBUG Cache Read: Checking if file exists: {cache_file_path} -> {os.path.exists(cache_file_path)}")
+
+        if os.path.exists(cache_file_path):
+            try:
+                with open(cache_file_path, 'r', encoding='utf-8') as f:
+                    cached_data = json.load(f)
+                    response_from_cache = cached_data.get("response")
+                    print(f"DEBUG Cache Read: Retrieved cached_data: {cached_data}")
+                    print(f"DEBUG Cache Read: Extracted response: '{response_from_cache}' (Type: {type(response_from_cache)})")
+                    
+                    # --- CRUCIAL FIX: Strip whitespace from cached response ---
+                    if response_from_cache is not None:
+                        response_from_cache = response_from_cache.strip()
+                        print(f"DEBUG Cache Read: Stripped response: '{response_from_cache}'")
+                    # --- END CRUCIAL FIX ---
+
+                    return response_from_cache
+            except Exception as e:
+                print(f"Error reading from cache file {cache_file_path}: {e}")
+                return None
+        return None
+
+    def _write_to_cache(self, cache_key: str, response_text: str):
+        """Writes a response to the file system cache."""
+        if not config.config.ENABLE_LLM_CACHE:
+            return
+
+        cache_file_path = os.path.join(config.config.LLM_CACHE_DIR, f"{cache_key}.json")
+        try:
+            with open(cache_file_path, 'w', encoding='utf-8') as f:
+                json.dump({"response": response_text}, f, ensure_ascii=False, indent=2)
+            print(f"DEBUG Cache Write: Successfully wrote to {cache_file_path}")
+        except Exception as e:
+            print(f"Error writing to cache file {cache_file_path}: {e}")
+
+    async def summarize_chunk(self, text_content: str) -> str:
+        """
+        Generates a concise summary for a given text chunk using an LLM,
+        with integrated caching.
+        """
+        if not config.config.ENABLE_LLM_METADATA_ENRICHMENT:
+            return "Summary generation disabled."
+
+        if not config.config.GEMINI_API_KEY:
+            return "Mock summary: " + text_content[:50] + "..."
+
+        prompt_parts = [config.config.LLM_SUMMARY_PROMPT, text_content]
+        cache_key = self._get_cache_key(prompt_parts)
+        
+        cached_summary = self._read_from_cache(cache_key)
+        print(f"DEBUG Summary Cache: Cached summary before check: '{cached_summary}' (Type: {type(cached_summary)})")
+        if cached_summary:
+            print(f"LLM Summary: (CACHED) for chunk: {text_content[:30]}...")
+            return cached_summary
+
+        model = genai.GenerativeModel(config.config.LLM_METADATA_MODEL)
+        try:
+            chatHistory = [{"role": "user", "parts": [{"text": config.config.LLM_SUMMARY_PROMPT + "\n" + text_content}]}]
+            response = await asyncio.to_thread(model.generate_content, chatHistory)
+            summary_text = response.candidates[0].content.parts[0].text
+            self._write_to_cache(cache_key, summary_text)
+            print(f"LLM Summary generated for chunk: {text_content[:30]}...")
+            return summary_text
+        except Exception as e:
+            print(f"Error generating LLM summary for chunk: {text_content[:30]}... Error: {e}")
+            return "Error summarizing chunk."
+
+    async def describe_image(self, alt_text: str = None, image_url: str = None) -> str:
+        """
+        Generates a description for an image using an LLM,
+        with integrated caching.
+        """
+        if not config.config.ENABLE_LLM_IMAGE_DESCRIPTION:
+            return "Image description generation disabled."
+
+        if not config.config.GEMINI_API_KEY:
+            fallback_description = f"Mock description of {alt_text or 'an image'}"
+            return fallback_description
+
+        # Normalize alt_text and image_url before creating prompt_parts for consistent hashing
+        normalized_alt_text = alt_text.strip().replace('\r', '') if alt_text else ""
+        normalized_image_url = image_url.strip().replace('\r', '') if image_url else ""
+
+        # Construct prompt parts consistently for caching
+        prompt_parts_for_key = [
+            config.config.LLM_IMAGE_DESCRIPTION_PROMPT,
+            f"alt_text:{normalized_alt_text}",
+            f"image_url:{normalized_image_url}"
+        ]
+
+        cache_key = self._get_cache_key(prompt_parts_for_key)
+
+        print(f"DEBUG Image Cache: Alt Text: '{alt_text}' -> Normalized: '{normalized_alt_text}'")
+        print(f"DEBUG Image Cache: Image URL: '{image_url}' -> Normalized: '{normalized_image_url}'")
+        print(f"DEBUG Image Cache: Prompt Parts for Key: {prompt_parts_for_key}")
+        print(f"DEBUG Image Cache: Generated Cache Key: {cache_key}")
+        print(f"DEBUG Image Cache: Prompt Parts for Key (Bytes): {json.dumps(prompt_parts_for_key, sort_keys=True, ensure_ascii=False).encode('utf-8')}")
+
+        cached_description = self._read_from_cache(cache_key)
+        print(f"DEBUG Image Cache: Cached description before check: '{cached_description}' (Type: {type(cached_description)})")
+        if cached_description: # This is the crucial check
+            print(f"LLM Image Description: (CACHED) for alt text: {alt_text or 'N/A'}")
+            return cached_description
+
+        actual_llm_prompt_parts = [config.config.LLM_IMAGE_DESCRIPTION_PROMPT]
+        if normalized_alt_text:
+            actual_llm_prompt_parts.append(f"The image's alt text is: '{normalized_alt_text}'.")
+        if normalized_image_url:
+            actual_llm_prompt_parts.append(f"The image URL is: '{normalized_image_url}'.")
+        full_prompt_to_llm = "\n".join(actual_llm_prompt_parts)
+
+        model = genai.GenerativeModel(config.config.LLM_IMAGE_MODEL)
+
+        try:
+            chatHistory = [{"role": "user", "parts": [{"text": full_prompt_to_llm}]}]
+            response = await asyncio.to_thread(model.generate_content, chatHistory)
+            description_text = response.candidates[0].content.parts[0].text
+            self._write_to_cache(cache_key, description_text)
+            print(f"LLM Image Description generated for alt text: {alt_text or 'N/A'}")
+            return description_text
+        except Exception as e:
+            print(f"Error generating LLM image description for '{alt_text or image_url}'. Error: {e}")
+            return f"Error describing image with alt text '{alt_text or 'N/A'}'."
+
+    async def enrich_chunks_with_llm_summaries(self, chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Asynchronously enriches a list of chunks with LLM-generated summaries.
+        This function iterates through the chunks and calls the summarize_chunk method.
+        """
         enriched_chunks = []
         for i, chunk in enumerate(chunks):
-            original_content = chunk.page_content
-            
-            # Skip summarization for very short chunks or structural elements
-            if len(original_content.split()) < config.MIN_CHUNK_WORDS * 2 and \
-               chunk.metadata.get('content_type') not in ['code', 'table'] and \
-               not self._is_header_chunk(chunk):
-                print(f"Skipping LLM summary for short or structural chunk {i}.")
-                enriched_chunks.append(chunk)
-                continue
-
-            try:
-                # Construct the prompt for the LLM summary
-                prompt = f"{config.LLM_SUMMARY_PROMPT}\n\nTEXT:\n{original_content}"
-                
-                # Prepare the payload for the Gemini API call
-                chatHistory = [{"role": "user", "parts": [{"text": prompt}]}]
-                payload = {"contents": chatHistory}
-                
-                # Use Canvas environment's API key (empty string for auto-injection)
-                apiKey = "" 
-                apiUrl = f"https://generativelanguage.googleapis.com/v1beta/models/{config.LLM_METADATA_MODEL}:generateContent?key={apiKey}"
-                
-                # Simulate the fetch call to the Gemini API
-                # In a real async environment, you would use an aiohttp client or similar.
-                # For this environment, we'll use a synchronous fetch-like pattern or a mock.
-                # Since this is Python, we'll simulate the response structure.
-                
-                # --- MOCK LLM RESPONSE ---
-                # In a real environment, you'd perform an actual HTTP request here.
-                # For demonstration in this environment, we'll simulate a concise summary.
-                # If an actual API call is needed, the `requests` library would be used
-                # or the `google.generativeai` client, which requires proper async setup.
-                
-                # For direct execution within a synchronous context, this mock is necessary.
-                # If an async context were available (e.g., FastAPI, aiohttp), it would be:
-                # response = await aiohttp.ClientSession().post(apiUrl, json=payload)
-                # result = await response.json()
-                
-                # For now, let's provide a simple mock summary for non-API key based interaction
-                # and then, if the user explicitly wants to test the LLM call with a key,
-                # we can adjust for that or for a proper async environment if available.
-
-                # Simple placeholder/mock for summary generation
-                mock_summary_text = f"Summary of chunk {i}: {original_content[:min(100, len(original_content))]}..."
-                
-                # To make an actual async call in a non-async main function
-                # we'd need a specific async library and loop or a different structure.
-                # For this interactive environment, the safest is to explicitly use `google.generativeai` client
-                # or assume a helper function that can do sync calls to async endpoints if available.
-                
-                # Assuming `google.generativeai` is installed and configured (e.g., from .env)
-                # If you prefer a pure `fetch` HTTP request simulation for now, let me know.
-                
-                # Using google.generativeai client as it's typically easier than raw http fetch in Python
-                # Need to import google.generativeai and configure it with the API key.
-                # Let's assume google-generativeai is installed (pip install google-generativeai)
-                # and we can load the key from config.
-
-                # Since `google.generativeai` client is preferred for Gemini, let's update this:
-                import google.generativeai as genai
-                
-                if config.GEMINI_API_KEY:
-                    genai.configure(api_key=config.GEMINI_API_KEY)
-                else:
-                    print("Warning: GEMINI_API_KEY not set in settings. Skipping actual LLM call for summary.")
-                    summary_text = mock_summary_text
-                
-                if config.GEMINI_API_KEY:
-                    # Creating a model instance for text generation
-                    model = genai.GenerativeModel(config.LLM_METADATA_MODEL)
-                    
-                    try:
-                        # Make the API call
-                        response = await asyncio.to_thread(model.generate_content, chatHistory)
-                        summary_text = response.candidates[0].content.parts[0].text
-                        print(f"LLM Summary generated for chunk {i}.")
-                    except Exception as llm_e:
-                        print(f"Error generating LLM summary for chunk {i}: {llm_e}. Using mock summary.")
-                        summary_text = mock_summary_text
-                else:
-                    summary_text = mock_summary_text # Fallback to mock if API key is missing
-
-                new_metadata = chunk.metadata.copy()
-                new_metadata['llm_summary'] = summary_text
-                new_metadata['enriched_by_llm'] = True
-                
-                enriched_chunks.append(Document(page_content=original_content, metadata=new_metadata))
-
-            except Exception as e:
-                print(f"Error during LLM enrichment for chunk {i}: {e}. Keeping original chunk.")
-                enriched_chunks.append(chunk)
-
+            # The summarize_chunk method now handles caching internally
+            summary = await self.summarize_chunk(chunk.page_content)
+            chunk.metadata['summary'] = summary
+            enriched_chunks.append(chunk)
+            print(f"LLM Summary processed for chunk {i}.")
         return enriched_chunks
-
-    def _is_header_chunk(self, chunk: Document) -> bool:
-        """Helper to check if a chunk is primarily a header."""
-        # Check metadata from MarkdownHeaderTextSplitter
-        if any(key in chunk.metadata for key in ["Part", "Chapter", "Section", "Sub-section"]):
-            return True
-        # Also check if content itself is just a header
-        if re.match(r'^\s*#+\s', chunk.page_content.strip()):
-            return True
-        return False
