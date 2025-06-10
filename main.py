@@ -1,7 +1,7 @@
 import os
 import json
 import asyncio # Import asyncio for running async functions
-from src.chunkers.hybrid_chunker import HybridMarkdownChunker
+from src.chunkers.hybrid_chunker import HybridChunker
 from src.chunkers.evaluators import ChunkQualityEvaluator
 from src.utils.file_handler import FileHandler
 from src.utils.metadata_enricher import MetadataEnricher
@@ -24,7 +24,7 @@ async def main_async():
     os.makedirs(os.path.dirname(PROCESSING_SUMMARY_FILE), exist_ok=True)
 
     # Enable semantic and ensure LLM image description is enabled via settings
-    chunker = HybridMarkdownChunker(enable_semantic=True)
+    chunker = HybridChunker(enable_semantic=True)
     evaluator = ChunkQualityEvaluator()
     metadata_enricher = MetadataEnricher()
 

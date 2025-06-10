@@ -104,7 +104,7 @@ class ChunkQualityEvaluator:
                 is_structural = True
             elif re.search(r'^\s*[-*+]\s+.*|\s*\d+\.\s+.*', content, re.MULTILINE):
                 is_structural = True
-            elif re.search(r'!\[.*?\]\(.*?\)', content): # Original image markdown also considered structural
+            elif chunk.metadata.get('has_images', False): # Check the new has_images flag
                 is_structural = True
 
 
@@ -130,7 +130,7 @@ class ChunkQualityEvaluator:
                 chunk.metadata.get('content_type') in ['code', 'table', 'image_description', 'image_description_fallback'] or
                 re.match(r'^\s*#+\s', chunk.page_content.strip()) or # Check for header in content
                 any(h in chunk.metadata for h in ["Part", "Chapter", "Section", "Sub-section"]) or # Check for header in metadata
-                re.search(r'^\s*!\[.*?\]\(.*?\)', chunk.page_content.strip(), re.MULTILINE) # Check for image markdown
+                chunk.metadata.get('has_images', False) # Check the new has_images flag
             )
         ]
 
@@ -228,9 +228,8 @@ class ChunkQualityEvaluator:
             if chunk.metadata.get('content_type') == 'table':
                 structure_metrics['chunks_with_tables'] += 1
 
-            # Check for image content type in metadata OR original image markdown in content
-            if chunk.metadata.get('content_type') in ['image_description', 'image_description_fallback'] or \
-               re.search(r'!\[.*?\]\(.*?\)', content):
+            # Check for image content type in metadata OR the new has_images flag
+            if chunk.metadata.get('has_images', False): # Modified to directly check the has_images flag
                 structure_metrics['chunks_with_images'] += 1
 
         total_chunks = len(chunks)

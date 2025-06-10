@@ -1,13 +1,16 @@
+import re
+import uuid
 from typing import List, Dict, Any, Optional
+from collections import deque
+
 from langchain_text_splitters import (
     MarkdownHeaderTextSplitter,
     RecursiveCharacterTextSplitter,
     PythonCodeTextSplitter
 )
 from langchain_core.documents import Document
-import re
 import tiktoken
-from src.config.settings import config
+import src.config.settings as config
 import os
 import numpy as np
 
@@ -18,7 +21,7 @@ from sentence_transformers import SentenceTransformer, util
 import google.generativeai as genai
 import asyncio
 
-class HybridMarkdownChunker:
+class HybridChunker:
     """
     Hybrid chunking system optimized for i3/16GB hardware.
     Combines header-based, recursive, code-aware, table-aware, semantic,
@@ -31,30 +34,39 @@ class HybridMarkdownChunker:
         chunk_overlap: int = None,
         enable_semantic: bool = False
     ):
-        self.chunk_size = chunk_size or config.DEFAULT_CHUNK_SIZE
-        self.chunk_overlap = chunk_overlap or config.DEFAULT_CHUNK_OVERLAP
+        """
+        Initializes the HybridChunker with specified chunk size and overlap.
+
+        Args:
+            chunk_size (int): The target size for each text chunk.
+            chunk_overlap (int): The number of characters to overlap between consecutive chunks.
+            enable_semantic (bool): Flag to enable/disable semantic chunking.
+        """
+        self.chunk_size = chunk_size or config.config.DEFAULT_CHUNK_SIZE
+        self.chunk_overlap = chunk_overlap or config.config.DEFAULT_CHUNK_OVERLAP
         self.enable_semantic = enable_semantic
+        self.current_document_id = None # To be set by main processing pipeline
 
         # Configure Gemini API if key is available
-        if config.GEMINI_API_KEY:
-            genai.configure(api_key=config.GEMINI_API_KEY)
+        if config.config.GEMINI_API_KEY:
+            genai.configure(api_key=config.config.GEMINI_API_KEY)
         else:
             print("Warning: GEMINI_API_KEY not set. LLM-based features (summaries, image descriptions) will use mock data.")
 
         # Initialize tokenizer for accurate token counting
         try:
             self.tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
-        except:
+        except Exception: # Fallback for tiktoken model not found
             self.tokenizer = tiktoken.get_encoding("cl100k_base")
 
         # Initialize embedding model if semantic chunking is enabled
         self.embedding_model = None
-        if self.enable_semantic and config.EMBEDDING_MODEL:
+        if self.enable_semantic and config.config.EMBEDDING_MODEL:
             try:
-                self.embedding_model = SentenceTransformer(config.EMBEDDING_MODEL)
-                print(f"Loaded embedding model: {config.EMBEDDING_MODEL}")
+                self.embedding_model = SentenceTransformer(config.config.EMBEDDING_MODEL)
+                print(f"Loaded embedding model: {config.config.EMBEDDING_MODEL}")
             except Exception as e:
-                print(f"Error loading embedding model {config.EMBEDDING_MODEL}: {e}. Disabling semantic chunking.")
+                print(f"Error loading embedding model {config.config.EMBEDDING_MODEL}: {e}. Disabling semantic chunking.")
                 self.enable_semantic = False
 
         # Initialize splitters
@@ -65,7 +77,7 @@ class HybridMarkdownChunker:
 
         # Header-based splitter for Markdown structure
         self.header_splitter = MarkdownHeaderTextSplitter(
-            headers_to_split_on=config.HEADER_LEVELS,
+            headers_to_split_on=config.config.HEADER_LEVELS,
             strip_headers=False
         )
 
@@ -74,7 +86,7 @@ class HybridMarkdownChunker:
             chunk_size=self.chunk_size,
             chunk_overlap=self.chunk_overlap,
             length_function=self._token_length,
-            separators=config.SEPARATORS
+            separators=config.config.SEPARATORS
         )
 
         # Code-specific splitter
@@ -82,18 +94,18 @@ class HybridMarkdownChunker:
             chunk_size=self.chunk_size,
             chunk_overlap=self.chunk_overlap
         )
-
+    
     def _token_length(self, text: str) -> int:
         """Calculate token length using tiktoken"""
         return len(self.tokenizer.encode(text))
 
     def _detect_content_type(self, content: str) -> Dict[str, bool]:
         """
-        Analyze content to determine general content features.
+        Analyzes content to determine general content features.
         Now includes image detection.
         """
         has_headers = bool(re.search(r'^\s*#+\s', content, re.MULTILINE))
-        has_images = bool(re.search(r'^\s*!\[.*?\]\(.*?\)', content, re.MULTILINE)) # Updated regex for ![alt text](url)
+        has_images = bool(re.search(r'!\[.*?\]\((.*?)\)', content)) # Detects markdown images
 
         return {
             'has_headers': has_headers,
@@ -116,10 +128,12 @@ class HybridMarkdownChunker:
         if not content.strip():
             return []
 
+        self.current_document_id = metadata.get("document_id", str(uuid.uuid4()))
         metadata = metadata or {}
         
         # Sequence of processing: Tables, then Code, then Images, then Headers/Recursive/Semantic
-        return await self._sequential_complex_content_chunking(content, metadata)
+        processed_chunks = await self._sequential_complex_content_chunking(content, metadata)
+        return self._post_process_chunks(processed_chunks)
 
     async def _sequential_complex_content_chunking(
         self,
@@ -142,7 +156,7 @@ class HybridMarkdownChunker:
         )
 
         code_pattern = re.compile(r'```[\s\S]*?```')
-        image_pattern = re.compile(r'^\s*!\[(.*?)\]\((.*?)\)', re.MULTILINE) # Updated regex for ![alt text](url)
+        image_pattern = re.compile(r'!\[([^\]]*)\]\(([^)]+)\)')
 
         cursor = 0
         iteration = 0
@@ -159,13 +173,17 @@ class HybridMarkdownChunker:
             print(f"  -> IMAGE_DEBUG: Content around cursor for image search (first 100 chars from cursor): '{remaining_content[cursor:cursor+100].strip()}'")
             print(f"  -> IMAGE_DEBUG: Full content length: {len(remaining_content)}")
             print(f"  -> IMAGE_DEBUG: Cursor: {cursor}")
+            
+            image_match = image_pattern.search(remaining_content, cursor)
+            if image_match:
+                print(f"  -> IMAGE_DEBUG: FOUND IMAGE at {image_match.start()}: {image_match.group(0)}")
+            else:
+                print(f"  -> IMAGE_DEBUG: NO IMAGE found from cursor {cursor}")
             # --- END DEBUG PRINTS ---
-
-            image_match = image_pattern.search(remaining_content, cursor) # New image match
 
             next_table_start = table_match.start() if table_match else len(remaining_content)
             next_code_start = code_match.start() if code_match else len(remaining_content)
-            next_image_start = image_match.start() if image_match else len(remaining_content) # New image start
+            next_image_start = image_match.start() if image_match else len(remaining_content)
 
             # Determine the start of the next special block (table, code, or image)
             next_special_start = min(next_table_start, next_code_start, next_image_start)
@@ -261,34 +279,50 @@ class HybridMarkdownChunker:
         else:
             print("\nNo remaining text to process at the end.")
 
-        return self._post_process_chunks(all_chunks)
+        return all_chunks
 
     def _header_recursive_chunking(
         self,
         content: str,
-        metadata: Dict[str, Any],
-        analysis: Dict[str, bool]
+        base_metadata: Dict[str, Any],
+        content_analysis: Dict[str, bool]
     ) -> List[Document]:
-        """Hybrid header-based + recursive chunking (recommended approach)"""
+        """
+        Chunks the document by headers, maintaining semantic boundaries.
+        Within header sections, it further applies appropriate chunking strategies.
+        """
         try:
-            header_chunks = self.header_splitter.split_text(content)
+            # MarkdownHeaderTextSplitter will return a list of Documents with header metadata
+            header_sections = self.header_splitter.split_text(content)
         except Exception as e:
             print(f"Header splitting failed: {e}. Falling back to recursive.")
-            return self._simple_recursive_chunking(content, metadata)
+            # If header splitting fails, treat the whole content as prose
+            return self._simple_recursive_chunking(content, base_metadata)
 
-        final_chunks = []
-        for chunk in header_chunks:
-            chunk_tokens = self._token_length(chunk.page_content)
-            chunk.metadata = {**metadata, **chunk.metadata}
+        all_chunks = []
 
-            if chunk_tokens > self.chunk_size:
-                sub_chunks = self.recursive_splitter.split_documents([chunk])
-                for sub_chunk in sub_chunks:
-                    sub_chunk.metadata.update(chunk.metadata)
-                    final_chunks.append(sub_chunk)
+        for section_doc in header_sections:
+            section_content = section_doc.page_content
+            # The header metadata is already in section_doc.metadata
+            combined_metadata = {**base_metadata, **section_doc.metadata}
+
+            # Re-analyze the section content for its internal structure
+            section_analysis = self._detect_content_type(section_content)
+
+            # Prioritize sub-chunking strategies within header sections
+            if section_analysis['has_tables']:
+                all_chunks.extend(self._table_aware_chunking(section_content, combined_metadata))
+            elif section_analysis['has_code']:
+                all_chunks.extend(self._code_aware_chunking(section_content, combined_metadata))
+            elif section_analysis['has_images']:
+                # Note: _image_aware_processing is async, need to await if called directly here
+                # For now, it's safer to assume _sequential_complex_content_chunking handles outer logic
+                # or _image_aware_chunking placeholder takes care of it by calling recursive.
+                all_chunks.extend(self._simple_recursive_chunking(section_content, combined_metadata)) # Fallback
             else:
-                final_chunks.append(chunk)
-        return final_chunks
+                # If no specific structures, apply simple recursive chunking to the section
+                all_chunks.extend(self._simple_recursive_chunking(section_content, combined_metadata))
+        return all_chunks
 
     def _simple_recursive_chunking(
         self,
@@ -351,23 +385,23 @@ class HybridMarkdownChunker:
             header_str = "| " + " | ".join(parsed_table['header']) + " |\n"
             header_str += "|---" * len(parsed_table['header']) + "|\n"
         full_table_tokens = self._token_length(content)
-        if full_table_tokens <= config.TABLE_CHUNK_MAX_TOKENS:
+        if full_table_tokens <= config.config.TABLE_CHUNK_MAX_TOKENS:
             return [Document(page_content=content.strip(), metadata=table_metadata)]
         else:
             chunks = []
-            current_chunk_content = header_str if config.TABLE_MERGE_HEADER_WITH_ROWS else ""
+            current_chunk_content = header_str if config.config.TABLE_MERGE_HEADER_WITH_ROWS else ""
             current_chunk_tokens = self._token_length(current_chunk_content)
             for row_idx, row in enumerate(parsed_table['rows']):
                 row_str = "| " + " | ".join(row) + " |\n"
                 row_tokens = self._token_length(row_str)
-                if current_chunk_tokens + row_tokens > config.TABLE_CHUNK_MAX_TOKENS + 5:
-                    if current_chunk_content.strip() and self._token_length(current_chunk_content.strip()) >= config.MIN_CHUNK_WORDS:
+                if current_chunk_tokens + row_tokens > config.config.TABLE_CHUNK_MAX_TOKENS + 5:
+                    if current_chunk_content.strip() and self._token_length(current_chunk_content.strip()) >= config.config.MIN_CHUNK_WORDS:
                         chunks.append(Document(page_content=current_chunk_content.strip(), metadata=table_metadata))
-                    current_chunk_content = header_str if config.TABLE_MERGE_HEADER_WITH_ROWS else ""
+                    current_chunk_content = header_str if config.config.TABLE_MERGE_HEADER_WITH_ROWS else ""
                     current_chunk_tokens = self._token_length(current_chunk_content)
                 current_chunk_content += row_str
                 current_chunk_tokens += row_tokens
-            if current_chunk_content.strip() and self._token_length(current_chunk_content.strip()) >= config.MIN_CHUNK_WORDS:
+            if current_chunk_content.strip() and self._token_length(current_chunk_content.strip()) >= config.config.MIN_CHUNK_WORDS:
                 chunks.append(Document(page_content=current_chunk_content.strip(), metadata=table_metadata))
             if not chunks and content.strip():
                 return self._simple_recursive_chunking(content, table_metadata)
@@ -381,8 +415,8 @@ class HybridMarkdownChunker:
         """
         Performs semantic chunking on a given text segment.
         """
-        if not self.embedding_model:
-            print("  -> Semantic chunking is enabled but embedding model not loaded. Falling back to recursive.")
+        if not self.enable_semantic or not self.embedding_model:
+            print("  -> Semantic chunking is disabled or embedding model not loaded. Falling back to recursive.")
             return self._simple_recursive_chunking(content, metadata)
 
         sentences = re.split(r'(?<=[.!?])\s+', content)
@@ -398,7 +432,7 @@ class HybridMarkdownChunker:
             cosine_scores_adjacent = util.cos_sim(sentence_embeddings[:-1], sentence_embeddings[1:]).diag()
 
             chunks: List[Document] = []
-            current_chunk_sentences = []
+            current_chunk_sentences = deque() # Use deque for efficient appending/popping
             current_chunk_text = ""
 
             for i, sentence in enumerate(sentences):
@@ -407,23 +441,26 @@ class HybridMarkdownChunker:
                 is_semantic_break = False
                 if i > 0:
                     similarity = cosine_scores_adjacent[i-1].item()
-                    if similarity < config.SEMANTIC_SIMILARITY_THRESHOLD:
+                    if similarity < config.config.SEMANTIC_SIMILARITY_THRESHOLD:
                         is_semantic_break = True
 
-                if (current_chunk_text and self._token_length(current_chunk_text + " " + sentence) > self.chunk_size) or \
-                   (is_semantic_break and len(current_chunk_sentences) > 0 and self._token_length(current_chunk_text) >= config.MIN_CHUNK_WORDS):
+                # Check if adding the current sentence would exceed chunk size OR if a semantic break occurs
+                # and the current chunk has enough content.
+                if (self._token_length(current_chunk_text + " " + sentence) > self.chunk_size and current_chunk_text) or \
+                   (is_semantic_break and len(current_chunk_sentences) > 0 and self._token_length(current_chunk_text) >= config.config.MIN_CHUNK_WORDS):
                     if current_chunk_text.strip():
                         chunk_doc = Document(
                             page_content=current_chunk_text.strip(),
                             metadata={**metadata, 'chunking_strategy': 'semantic'}
                         )
                         chunks.append(chunk_doc)
-                    current_chunk_sentences = []
+                    current_chunk_sentences.clear() # Clear the deque
                     current_chunk_text = ""
 
                 current_chunk_sentences.append(sentence)
-                current_chunk_text += (" " if current_chunk_text else "") + sentence
+                current_chunk_text = " ".join(current_chunk_sentences) # Reconstruct text from deque
 
+            # Add any remaining content as a final chunk
             if current_chunk_text.strip():
                 chunk_doc = Document(
                     page_content=current_chunk_text.strip(),
@@ -449,16 +486,16 @@ class HybridMarkdownChunker:
         """
         print(f"  -> Entering _image_aware_processing for image markdown: {image_markdown[:50]}...")
         
-        if not config.ENABLE_LLM_IMAGE_DESCRIPTION:
+        if not config.config.ENABLE_LLM_IMAGE_DESCRIPTION:
             print("  -> LLM image description is disabled. Skipping.")
-            return [Document(page_content=image_markdown, metadata={**metadata, 'content_type': 'image_markdown'})]
+            return [Document(page_content=image_markdown, metadata={**metadata, 'content_type': 'image_markdown', 'has_images': True})] # Added has_images=True
 
-        if not config.GEMINI_API_KEY:
+        if not config.config.GEMINI_API_KEY:
             print("  -> GEMINI_API_KEY not set. Cannot generate LLM image description. Using alt text if available or placeholder.")
             alt_text_match = re.search(r'!\[(.*?)\]', image_markdown)
             alt_text = alt_text_match.group(1) if alt_text_match else "an image"
             description = f"Description of {alt_text}."
-            return [Document(page_content=description, metadata={**metadata, 'content_type': 'image_description_fallback'})]
+            return [Document(page_content=description, metadata={**metadata, 'content_type': 'image_description_fallback', 'has_images': True})] # Added has_images=True
         
         # Extract alt text and URL if available for context
         alt_text_match = re.search(r'!\[(.*?)\]', image_markdown)
@@ -467,7 +504,7 @@ class HybridMarkdownChunker:
         alt_text = alt_text_match.group(1) if alt_text_match else "an image"
         image_url = image_url_match.group(1) if image_url_match else None
 
-        prompt_parts = [config.LLM_IMAGE_DESCRIPTION_PROMPT]
+        prompt_parts = [config.config.LLM_IMAGE_DESCRIPTION_PROMPT]
         if alt_text and alt_text != "image":
             prompt_parts.append(f"The image's alt text is: '{alt_text}'.")
         if image_url:
@@ -476,9 +513,10 @@ class HybridMarkdownChunker:
 
         full_prompt = "\n".join(prompt_parts)
 
-        model = genai.GenerativeModel(config.LLM_IMAGE_MODEL)
+        model = genai.GenerativeModel(config.config.LLM_IMAGE_MODEL)
 
         try:
+            # Using asyncio.to_thread to run blocking model.generate_content in a separate thread
             chatHistory = [{"role": "user", "parts": [{"text": full_prompt}]}]
             
             response = await asyncio.to_thread(model.generate_content, chatHistory)
@@ -494,11 +532,14 @@ class HybridMarkdownChunker:
             page_content=description_text,
             metadata={
                 **metadata,
-                'content_type': 'image_description',
-                'original_image_markdown': image_markdown,
+                'chunk_id': f"{self.current_document_id}-{uuid.uuid4()}",
+                'chunk_type': 'visual',
+                'source_segment_type': 'image',
                 'image_alt_text': alt_text,
                 'image_url': image_url,
-                'enriched_by_llm': True
+                'enriched_by_llm': True,
+                'summary': description_text, # Summary is the description itself
+                'has_images': True # Explicitly mark this chunk as containing an image
             }
         )
         return [image_description_chunk]
@@ -512,7 +553,10 @@ class HybridMarkdownChunker:
         global_chunk_index = 0
 
         for chunk in chunks:
-            if len(chunk.page_content.strip().split()) < config.MIN_CHUNK_WORDS:
+            # Ensure chunk content meets minimum word count unless it's a structural element
+            # This logic can be refined based on specific requirements for structural chunks
+            if len(chunk.page_content.strip().split()) < config.config.MIN_CHUNK_WORDS and \
+               chunk.metadata.get('chunk_type') not in ['structural', 'visual']:
                 continue
 
             chunk.metadata['chunk_index'] = global_chunk_index
@@ -552,7 +596,7 @@ class HybridMarkdownChunker:
                 if progress_callback:
                     progress_callback(i + 1, len(file_paths), file_path)
 
-                if i % config.BATCH_SIZE == 0:
+                if i % config.config.BATCH_SIZE == 0:
                     import gc
                     gc.collect()
 
