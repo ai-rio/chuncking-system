@@ -5,7 +5,8 @@ import os
 
 class ChunkingConfig(BaseSettings):
     # Chunking parameters optimized for i3/16GB and Gemini token constraints
-    DEFAULT_CHUNK_SIZE: int = 800 # Set a target for tokens, allowing space for prompt
+    # Targeting a smaller chunk size for RAG effectiveness within Gemini limits
+    DEFAULT_CHUNK_SIZE: int = 250 # **CHANGED: Reduced chunk size for semantic tuning**
     DEFAULT_CHUNK_OVERLAP: int = 150 # Moderate overlap for context
     MAX_CHUNK_SIZE: int = 1200 # Absolute max for very long sentences/paragraphs
     MIN_CHUNK_WORDS: int = 10 # Adjusted to be slightly lower for more granular chunks
@@ -48,7 +49,7 @@ class ChunkingConfig(BaseSettings):
     LLM_IMAGE_DESCRIPTION_PROMPT: str = "Describe the content of this image (or figure) in a concise sentence or two for a document retrieval system. Focus on key elements and context."
     
     # Quality thresholds
-    SEMANTIC_SIMILARITY_THRESHOLD: float = 0.3 # Adjusted previously
+    SEMANTIC_SIMILARITY_THRESHOLD: float = 0.27 # **FINALIZED: Set based on tuning results**
 
     # Table-specific chunking settings
     TABLE_CHUNK_MAX_TOKENS: int = 75 
@@ -59,3 +60,4 @@ class ChunkingConfig(BaseSettings):
 
 # Global config instance
 config = ChunkingConfig()
+

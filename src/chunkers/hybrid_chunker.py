@@ -220,7 +220,7 @@ class HybridChunker:
                     else: # No headers in this text segment
                         if self.enable_semantic:
                             print("  -> Text segment has no headers, applying semantic chunking.")
-                            all_chunks.extend(self._semantic_chunking(text_segment, metadata))
+                            all_chunks.extend(await self._semantic_chunking(text_segment, metadata)) # Changed to await
                         else:
                             print("  -> Text segment no headers, semantic disabled, using simple recursive chunking.")
                             all_chunks.extend(self._simple_recursive_chunking(text_segment, metadata))
@@ -266,13 +266,13 @@ class HybridChunker:
                        not h_chunk_analysis['has_lists'] and \
                        not h_chunk_analysis['has_images']:
                         print("    -> Applying semantic chunking to a final header-derived prose sub-segment.")
-                        all_chunks.extend(self._semantic_chunking(h_chunk.page_content, h_chunk.metadata))
+                        all_chunks.extend(await self._semantic_chunking(h_chunk.page_content, h_chunk.metadata)) # Changed to await
                     else:
                         all_chunks.append(h_chunk)
             else:
                 if self.enable_semantic:
                     print("  -> Final text segment no headers, applying semantic chunking.")
-                    all_chunks.extend(self._semantic_chunking(final_text_segment, metadata))
+                    all_chunks.extend(await self._semantic_chunking(final_text_segment, metadata)) # Changed to await
                 else:
                     print("  -> Final text segment no headers, semantic disabled, using simple recursive chunking.")
                     all_chunks.extend(self._simple_recursive_chunking(final_text_segment, metadata))
@@ -407,7 +407,7 @@ class HybridChunker:
                 return self._simple_recursive_chunking(content, table_metadata)
         return chunks
 
-    def _semantic_chunking(
+    async def _semantic_chunking( # Marked as async
         self,
         content: str,
         metadata: Dict[str, Any]
@@ -451,7 +451,12 @@ class HybridChunker:
                     if current_chunk_text.strip():
                         chunk_doc = Document(
                             page_content=current_chunk_text.strip(),
-                            metadata={**metadata, 'chunking_strategy': 'semantic'}
+                            metadata={
+                                **metadata,
+                                'chunking_strategy': 'semantic',
+                                'chunk_type': 'prose',         # ADDED THIS LINE
+                                'source_segment_type': 'text'  # ADDED THIS LINE
+                            }
                         )
                         chunks.append(chunk_doc)
                     current_chunk_sentences.clear() # Clear the deque
@@ -464,7 +469,12 @@ class HybridChunker:
             if current_chunk_text.strip():
                 chunk_doc = Document(
                     page_content=current_chunk_text.strip(),
-                    metadata={**metadata, 'chunking_strategy': 'semantic'}
+                    metadata={
+                        **metadata,
+                        'chunking_strategy': 'semantic',
+                        'chunk_type': 'prose',         # ADDED THIS LINE
+                        'source_segment_type': 'text'  # ADDED THIS LINE
+                    }
                 )
                 chunks.append(chunk_doc)
             
@@ -605,3 +615,4 @@ class HybridChunker:
                 results[file_path] = []
 
         return results
+

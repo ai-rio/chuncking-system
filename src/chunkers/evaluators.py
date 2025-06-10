@@ -1,9 +1,18 @@
 import numpy as np
 from typing import List, Dict, Any, Tuple
 from langchain_core.documents import Document
-from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.feature_extraction.text import TfidfVectorizer # Keep for other metrics, but not main semantic
 from sklearn.metrics.pairwise import cosine_similarity
 import re
+import os # Import os for path handling
+import sys # Import sys for path manipulation
+
+# Add the parent directory to the sys.path to allow imports from src.config
+sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..', '..')))
+import src.config.settings as config # Import the settings module
+
+# Import SentenceTransformer for semantic embeddings
+from sentence_transformers import SentenceTransformer, util
 
 class ChunkQualityEvaluator:
     """Evaluate the quality of document chunks"""
@@ -15,8 +24,20 @@ class ChunkQualityEvaluator:
             ngram_range=(1, 2)
         )
         self.min_words_for_very_short = 10
-        self.coherence_score_boost_factor = 1.0
+        self.coherence_score_boost_factor = 1.0 # This might need adjustment after true semantic scores appear
         self.structure_score_weight_factor = 1.0
+
+        # Initialize embedding model for semantic coherence evaluation
+        self.embedding_model = None
+        if config.config.EMBEDDING_MODEL:
+            try:
+                self.embedding_model = SentenceTransformer(config.config.EMBEDDING_MODEL)
+                print(f"Evaluator loaded embedding model: {config.config.EMBEDDING_MODEL}")
+            except Exception as e:
+                print(f"Evaluator Error: Could not load embedding model {config.config.EMBEDDING_MODEL}: {e}. Semantic coherence evaluation will use TF-IDF fallback.")
+        else:
+            print("Evaluator Warning: EMBEDDING_MODEL not set in settings. Semantic coherence evaluation will use TF-IDF fallback.")
+
 
     def evaluate_chunks(self, chunks: List[Document]) -> Dict[str, Any]:
         """Comprehensive chunk quality evaluation"""
@@ -98,13 +119,12 @@ class ChunkQualityEvaluator:
             
             # Determine if the chunk is structural (header, code, table, list, image description)
             is_structural = False
-            if chunk.metadata.get('content_type') in ['code', 'table', 'image_description', 'image_description_fallback']:
+            # Check for chunk_type 'structural' or 'visual' which are set by HybridChunker
+            if chunk.metadata.get('chunk_type') in ['structural', 'visual']:
                 is_structural = True
             elif re.match(r'^#+\s', content) or any(h in chunk.metadata for h in ["Part", "Chapter", "Section", "Sub-section"]):
                 is_structural = True
             elif re.search(r'^\s*[-*+]\s+.*|\s*\d+\.\s+.*', content, re.MULTILINE):
-                is_structural = True
-            elif chunk.metadata.get('has_images', False): # Check the new has_images flag
                 is_structural = True
 
 
@@ -121,47 +141,60 @@ class ChunkQualityEvaluator:
         return {**quality_metrics, **quality_percentages}
     
     def _analyze_semantic_coherence(self, chunks: List[Document]) -> Dict[str, Any]:
-        """Analyze semantic coherence between chunks"""
+        """
+        Analyze semantic coherence between chunks using SentenceTransformer if available,
+        otherwise fall back to TF-IDF.
+        """
         
         # Filter for prose chunks only for semantic coherence
+        # Now explicitly looking for 'prose' chunk_type set by HybridChunker
         prose_chunks = [
             chunk for chunk in chunks
-            if not (
-                chunk.metadata.get('content_type') in ['code', 'table', 'image_description', 'image_description_fallback'] or
-                re.match(r'^\s*#+\s', chunk.page_content.strip()) or # Check for header in content
-                any(h in chunk.metadata for h in ["Part", "Chapter", "Section", "Sub-section"]) or # Check for header in metadata
-                chunk.metadata.get('has_images', False) # Check the new has_images flag
-            )
+            if chunk.metadata.get('chunk_type') == 'prose'
         ]
 
         if len(prose_chunks) < 2:
             return {'coherence_score': 1.0, 'avg_similarity': 0.0, 'similarity_std': 0.0}
         
+        texts = [chunk.page_content for chunk in prose_chunks if chunk.page_content.strip()]
+        if len(texts) < 2:
+            return {'coherence_score': 1.0, 'avg_similarity': 0.0, 'similarity_std': 0.0}
+
         try:
-            texts = [chunk.page_content for chunk in prose_chunks if chunk.page_content.strip()]
-            
-            if len(texts) < 2:
-                 return {'coherence_score': 1.0, 'avg_similarity': 0.0, 'similarity_std': 0.0}
-
-            tfidf_matrix = self.vectorizer.fit_transform(texts)
-            
-            similarities = cosine_similarity(tfidf_matrix)
-            
-            adjacent_similarities = []
-            for i in range(len(similarities) - 1):
-                adjacent_similarities.append(similarities[i][i + 1])
-            
-            avg_adjacent_similarity = np.mean(adjacent_similarities) if adjacent_similarities else 0
-            
-            coherence_score = min(1.0, avg_adjacent_similarity * self.coherence_score_boost_factor) 
-
-            overall_avg_similarity = np.mean(similarities[np.triu_indices_from(similarities, k=1)])
-            
-            return {
-                'coherence_score': coherence_score,
-                'avg_similarity': overall_avg_similarity,
-                'similarity_std': np.std(adjacent_similarities) if adjacent_similarities else 0
-            }
+            if self.embedding_model:
+                # Use SentenceTransformer for semantic coherence
+                chunk_embeddings = self.embedding_model.encode(texts, convert_to_tensor=True)
+                # Calculate cosine similarity between adjacent chunk embeddings
+                adjacent_similarities = util.cos_sim(chunk_embeddings[:-1], chunk_embeddings[1:]).diag().cpu().numpy()
+                
+                avg_adjacent_similarity = np.mean(adjacent_similarities) if adjacent_similarities.size > 0 else 0
+                coherence_score = avg_adjacent_similarity # Raw similarity is the coherence score
+                overall_avg_similarity = np.mean(util.cos_sim(chunk_embeddings, chunk_embeddings).cpu().numpy()[np.triu_indices_from(util.cos_sim(chunk_embeddings, chunk_embeddings).cpu().numpy(), k=1)])
+                
+                return {
+                    'coherence_score': coherence_score,
+                    'avg_similarity': overall_avg_similarity,
+                    'similarity_std': np.std(adjacent_similarities) if adjacent_similarities.size > 0 else 0
+                }
+            else:
+                # Fallback to TF-IDF if embedding model is not loaded
+                print("Semantic coherence: Falling back to TF-IDF for evaluation (embedding model not loaded).")
+                tfidf_matrix = self.vectorizer.fit_transform(texts)
+                similarities = cosine_similarity(tfidf_matrix)
+                
+                adjacent_similarities = []
+                for i in range(len(similarities) - 1):
+                    adjacent_similarities.append(similarities[i][i + 1])
+                
+                avg_adjacent_similarity = np.mean(adjacent_similarities) if adjacent_similarities else 0
+                coherence_score = min(1.0, avg_adjacent_similarity * self.coherence_score_boost_factor) 
+                overall_avg_similarity = np.mean(similarities[np.triu_indices_from(similarities, k=1)])
+                
+                return {
+                    'coherence_score': coherence_score,
+                    'avg_similarity': overall_avg_similarity,
+                    'similarity_std': np.std(adjacent_similarities) if adjacent_similarities else 0
+                }
             
         except Exception as e:
             print(f"Error in semantic analysis: {e}")
