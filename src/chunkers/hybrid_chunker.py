@@ -10,7 +10,7 @@ from langchain_text_splitters import (
 )
 from langchain_core.documents import Document
 import tiktoken
-import src.config.settings as config
+import src.config.settings as settings_module  # Changed import for config
 import os
 import numpy as np
 
@@ -36,26 +36,26 @@ class HybridChunker:
         chunk_size: int = None,
         chunk_overlap: int = None,
         enable_semantic: bool = False,
-        metadata_enricher: Optional[MetadataEnricher] = None # NEW: Accept MetadataEnricher instance
+        metadata_enricher: Optional[MetadataEnricher] = None
     ):
         """
         Initializes the HybridChunker with specified chunk size and overlap.
-
+    
         Args:
             chunk_size (int): The target size for each text chunk.
             chunk_overlap (int): The number of characters to overlap between consecutive chunks.
             enable_semantic (bool): Flag to enable/disable semantic chunking.
             metadata_enricher (MetadataEnricher): An instance of MetadataEnricher for LLM calls.
         """
-        self.chunk_size = chunk_size or config.config.DEFAULT_CHUNK_SIZE
-        self.chunk_overlap = chunk_overlap or config.config.DEFAULT_CHUNK_OVERLAP
+        self.chunk_size = chunk_size or settings_module.config.DEFAULT_CHUNK_SIZE
+        self.chunk_overlap = chunk_overlap or settings_module.config.DEFAULT_CHUNK_OVERLAP
         self.enable_semantic = enable_semantic
-        self.current_document_id = None # To be set by main processing pipeline
-        self.metadata_enricher = metadata_enricher if metadata_enricher is not None else MetadataEnricher() # NEW: Store enricher instance
-
+        self.current_document_id = None
+        self.metadata_enricher = metadata_enricher if metadata_enricher is not None else MetadataEnricher()
+    
         # Configure Gemini API if key is available
-        if config.config.GEMINI_API_KEY:
-            genai.configure(api_key=config.config.GEMINI_API_KEY)
+        if settings_module.config.GEMINI_API_KEY:
+            genai.configure(api_key=settings_module.config.GEMINI_API_KEY)
         else:
             print("Warning: GEMINI_API_KEY not set. LLM-based features (summaries, image descriptions) will use mock data.")
 
@@ -67,12 +67,12 @@ class HybridChunker:
 
         # Initialize embedding model if semantic chunking is enabled
         self.embedding_model = None
-        if self.enable_semantic and config.config.EMBEDDING_MODEL:
+        if self.enable_semantic and settings_module.config.EMBEDDING_MODEL:
             try:
-                self.embedding_model = SentenceTransformer(config.config.EMBEDDING_MODEL)
-                print(f"Loaded embedding model: {config.config.EMBEDDING_MODEL}")
+                self.embedding_model = SentenceTransformer(settings_module.config.EMBEDDING_MODEL)
+                print(f"Loaded embedding model: {settings_module.config.EMBEDDING_MODEL}")
             except Exception as e:
-                print(f"Error loading embedding model {config.config.EMBEDDING_MODEL}: {e}. Disabling semantic chunking.")
+                print(f"Error loading embedding model {settings_module.config.EMBEDDING_MODEL}: {e}. Disabling semantic chunking.")
                 self.enable_semantic = False
 
         # Initialize splitters
@@ -80,19 +80,19 @@ class HybridChunker:
 
     def _init_splitters(self):
         """Initialize all text splitters"""
-
+    
         # Header-based splitter for Markdown structure
         self.header_splitter = MarkdownHeaderTextSplitter(
-            headers_to_split_on=config.config.HEADER_LEVELS,
+            headers_to_split_on=settings_module.config.HEADER_LEVELS,
             strip_headers=False
         )
-
+    
         # Recursive splitter for general text
         self.recursive_splitter = RecursiveCharacterTextSplitter(
             chunk_size=self.chunk_size,
             chunk_overlap=self.chunk_overlap,
             length_function=self._token_length,
-            separators=config.config.SEPARATORS
+            separators=settings_module.config.SEPARATORS
         )
 
         # Code-specific splitter
@@ -137,8 +137,13 @@ class HybridChunker:
         self.current_document_id = metadata.get("document_id", str(uuid.uuid4()))
         metadata = metadata or {}
         
-        # Directly return from sequential chunking, bypassing _post_process_chunks
-        return await self._sequential_complex_content_chunking(content, metadata)
+        # Process the content through sequential and complex chunking strategies
+        raw_chunks = await self._sequential_complex_content_chunking(content, metadata)
+        
+        # Apply post-processing to add token counts and chunk index
+        final_chunks = self._post_process_chunks(raw_chunks)
+        
+        return final_chunks
 
 
     async def _sequential_complex_content_chunking(
@@ -338,24 +343,25 @@ class HybridChunker:
         if parsed_table['header']:
             header_str = "| " + " | ".join(parsed_table['header']) + " |\n"
             header_str += "|---" * len(parsed_table['header']) + "|\n"
+        # In the table chunking method around line 347
         full_table_tokens = self._token_length(content)
-        if full_table_tokens <= config.config.TABLE_CHUNK_MAX_TOKENS:
+        if full_table_tokens <= settings_module.config.TABLE_CHUNK_MAX_TOKENS:
             return [Document(page_content=content.strip(), metadata=table_metadata)]
         else:
             chunks = []
-            current_chunk_content = header_str if config.config.TABLE_MERGE_HEADER_WITH_ROWS else ""
+            current_chunk_content = header_str if settings_module.config.TABLE_MERGE_HEADER_WITH_ROWS else ""
             current_chunk_tokens = self._token_length(current_chunk_content)
             for row_idx, row in enumerate(parsed_table['rows']):
                 row_str = "| " + " | ".join(row) + " |\n"
                 row_tokens = self._token_length(row_str)
-                if current_chunk_tokens + row_tokens > config.config.TABLE_CHUNK_MAX_TOKENS + 5:
-                    if current_chunk_content.strip() and self._token_length(current_chunk_content.strip()) >= config.config.MIN_CHUNK_WORDS:
+                if current_chunk_tokens + row_tokens > settings_module.config.TABLE_CHUNK_MAX_TOKENS + 5:
+                    if current_chunk_content.strip() and self._token_length(current_chunk_content.strip()) >= settings_module.config.MIN_CHUNK_WORDS:
                         chunks.append(Document(page_content=current_chunk_content.strip(), metadata=table_metadata))
-                    current_chunk_content = header_str if config.config.TABLE_MERGE_HEADER_WITH_ROWS else ""
+                    current_chunk_content = header_str if settings_module.config.TABLE_MERGE_HEADER_WITH_ROWS else ""
                     current_chunk_tokens = self._token_length(current_chunk_content)
                 current_chunk_content += row_str
                 current_chunk_tokens += row_tokens
-            if current_chunk_content.strip() and self._token_length(current_chunk_content.strip()) >= config.config.MIN_CHUNK_WORDS:
+            if current_chunk_content.strip() and self._token_length(current_chunk_content.strip()) >= settings_module.config.MIN_CHUNK_WORDS:
                 chunks.append(Document(page_content=current_chunk_content.strip(), metadata=table_metadata))
             if not chunks and content.strip():
                 return self._simple_recursive_chunking(content, table_metadata)
@@ -393,15 +399,16 @@ class HybridChunker:
                 sentence_tokens = self._token_length(sentence)
 
                 is_semantic_break = False
+                # In the semantic chunking method around line 403
                 if i > 0:
                     similarity = cosine_scores_adjacent[i-1].item()
-                    if similarity < config.config.SEMANTIC_SIMILARITY_THRESHOLD:
+                    if similarity < settings_module.config.SEMANTIC_SIMILARITY_THRESHOLD:
                         is_semantic_break = True
 
                 # Check if adding the current sentence would exceed chunk size OR if a semantic break occurs
                 # and the current chunk has enough content.
                 if (self._token_length(current_chunk_text + " " + sentence) > self.chunk_size and current_chunk_text) or \
-                   (is_semantic_break and len(current_chunk_sentences) > 0 and self._token_length(current_chunk_text) >= config.config.MIN_CHUNK_WORDS):
+                   (is_semantic_break and len(current_chunk_sentences) > 0 and self._token_length(current_chunk_text) >= settings_module.config.MIN_CHUNK_WORDS):
                     if current_chunk_text.strip():
                         chunk_doc = Document(
                             page_content=current_chunk_text.strip(),
@@ -489,7 +496,8 @@ class HybridChunker:
                 chunk.metadata['summary'] = summary
                 
                 # Also extract structured metadata for these text-based chunks
-                if config.config.ENABLE_LLM_METADATA_EXTRACTION:
+                # In the enrichment method around line 497
+                if settings_module.config.ENABLE_LLM_METADATA_EXTRACTION:
                     extracted_metadata = await self.extract_metadata_from_chunk(chunk.page_content)
                     # Ensure extracted_metadata is a dict before updating
                     if isinstance(extracted_metadata, dict):
@@ -538,7 +546,8 @@ class HybridChunker:
                 if progress_callback:
                     progress_callback(i + 1, len(file_paths), file_path)
 
-                if i % config.BATCH_SIZE == 0:
+                # In the batch processing method around line 546
+                if i % settings_module.config.BATCH_SIZE == 0:
                     import gc
                     gc.collect()
 
@@ -547,3 +556,35 @@ class HybridChunker:
                 results[file_path] = []
 
         return results
+
+    def _post_process_chunks(self, chunks: List[Document]) -> List[Document]:
+        """
+        Post-processes chunks to add chunk_tokens and chunk_index metadata.
+        
+        Args:
+            chunks: List of Document objects to process
+            
+        Returns:
+            List of Document objects with enriched metadata
+        """
+        final_chunks = []
+        
+        for i, chunk in enumerate(chunks):
+            # Validate chunk structure
+            if not isinstance(chunk.page_content, str):
+                print(f"Warning: chunk {i} page_content is not a string, skipping token calculation")
+                chunk.metadata['chunk_tokens'] = 0
+            else:
+                # Calculate token count
+                chunk.metadata['chunk_tokens'] = self._token_length(chunk.page_content)
+            
+            # Ensure metadata is a dictionary
+            if not isinstance(chunk.metadata, dict):
+                chunk.metadata = {}
+            
+            # Add chunk index
+            chunk.metadata['chunk_index'] = i
+            
+            final_chunks.append(chunk)
+        
+        return final_chunks

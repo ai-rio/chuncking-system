@@ -7,7 +7,8 @@ import re # Import regex module
 from typing import List, Dict, Any, Optional
 from collections.abc import Iterable
 
-import src.config.settings as config
+import google.generativeai as genai
+from src.config.settings import config
 
 class MetadataEnricher:
     """
@@ -17,16 +18,19 @@ class MetadataEnricher:
     """
 
     def __init__(self):
-        # Configure Gemini API if key is available
-        if config.config.GEMINI_API_KEY:
-            genai.configure(api_key=config.config.GEMINI_API_KEY)
+        # Initialize Gemini API
+        if config.GEMINI_API_KEY:  # This should work with current import
+            genai.configure(api_key=config.GEMINI_API_KEY)
         else:
-            print("Warning: GEMINI_API_KEY not set. LLM-based features (summaries, image descriptions, extraction) will use mock data.")
+            print("Warning: GEMINI_API_KEY not found. LLM features will be mocked.")
+        
+        self.enable_cache = config.ENABLE_LLM_CACHE
+        self.cache_dir = config.LLM_CACHE_DIR
 
         # Ensure cache directory exists if caching is enabled
-        if config.config.ENABLE_LLM_CACHE:
-            os.makedirs(config.config.LLM_CACHE_DIR, exist_ok=True)
-            print(f"LLM cache directory initialized: {config.config.LLM_CACHE_DIR}")
+        if config.ENABLE_LLM_CACHE:
+            os.makedirs(config.LLM_CACHE_DIR, exist_ok=True)
+            print(f"LLM cache directory initialized: {config.LLM_CACHE_DIR}")
 
     def _get_cache_key(self, prompt_parts: List[Any]) -> str:
         """
@@ -41,10 +45,10 @@ class MetadataEnricher:
 
     def _read_from_cache(self, cache_key: str) -> Optional[str]:
         """Reads a cached response from the file system."""
-        if not config.config.ENABLE_LLM_CACHE:
+        if not config.ENABLE_LLM_CACHE:
             return None
 
-        cache_file_path = os.path.join(config.config.LLM_CACHE_DIR, f"{cache_key}.json")
+        cache_file_path = os.path.join(config.LLM_CACHE_DIR, f"{cache_key}.json")
         
         if os.path.exists(cache_file_path):
             try:
@@ -71,10 +75,10 @@ class MetadataEnricher:
 
     def _write_to_cache(self, cache_key: str, response_text: str):
         """Writes a response to the file system cache."""
-        if not config.config.ENABLE_LLM_CACHE:
+        if not config.ENABLE_LLM_CACHE:
             return
 
-        cache_file_path = os.path.join(config.config.LLM_CACHE_DIR, f"{cache_key}.json")
+        cache_file_path = os.path.join(config.LLM_CACHE_DIR, f"{cache_key}.json")
         try:
             # Store the response as a simple string in the cache
             with open(cache_file_path, 'w', encoding='utf-8') as f:
@@ -118,13 +122,13 @@ class MetadataEnricher:
         Generates a concise summary for a given text chunk using an LLM,
         with integrated caching.
         """
-        if not config.config.ENABLE_LLM_METADATA_ENRICHMENT: # Check the general enrichment flag
+        if not config.ENABLE_LLM_METADATA_ENRICHMENT: # Check the general enrichment flag
             return "Summary generation disabled."
 
-        if not config.config.GEMINI_API_KEY:
+        if not config.GEMINI_API_KEY:
             return "Mock summary: " + text_content[:50] + "..."
 
-        prompt_parts = [config.config.LLM_SUMMARY_PROMPT, text_content]
+        prompt_parts = [config.LLM_SUMMARY_PROMPT, text_content]
         cache_key = self._get_cache_key(prompt_parts)
         
         cached_summary = self._read_from_cache(cache_key)
@@ -132,9 +136,9 @@ class MetadataEnricher:
             print(f"LLM Summary: (CACHED) for chunk: {text_content[:30]}...")
             return cached_summary
 
-        model = genai.GenerativeModel(config.config.LLM_METADATA_MODEL)
+        model = genai.GenerativeModel(config.LLM_METADATA_MODEL)
         try:
-            chatHistory = [{"role": "user", "parts": [{"text": config.config.LLM_SUMMARY_PROMPT + "\n" + text_content}]}]
+            chatHistory = [{"role": "user", "parts": [{"text": config.LLM_SUMMARY_PROMPT + "\n" + text_content}]}]
             response = await asyncio.to_thread(model.generate_content, chatHistory)
             summary_text = response.candidates[0].content.parts[0].text
             self._write_to_cache(cache_key, summary_text)
@@ -149,10 +153,10 @@ class MetadataEnricher:
         Generates a description for an image using an LLM,
         with integrated caching.
         """
-        if not config.config.ENABLE_LLM_IMAGE_DESCRIPTION:
+        if not config.ENABLE_LLM_IMAGE_DESCRIPTION:
             return "Image description generation disabled."
 
-        if not config.config.GEMINI_API_KEY:
+        if not config.GEMINI_API_KEY:
             fallback_description = f"Mock description of {alt_text or 'an image'}"
             return fallback_description
 
@@ -162,7 +166,7 @@ class MetadataEnricher:
 
         # Construct prompt parts consistently for caching
         prompt_parts_for_key = [
-            config.config.LLM_IMAGE_DESCRIPTION_PROMPT,
+            config.LLM_IMAGE_DESCRIPTION_PROMPT,
             f"alt_text:{normalized_alt_text}",
             f"image_url:{normalized_image_url}"
         ]
@@ -174,14 +178,14 @@ class MetadataEnricher:
             print(f"LLM Image Description: (CACHED) for alt text: {alt_text or 'N/A'}")
             return cached_description
 
-        actual_llm_prompt_parts = [config.config.LLM_IMAGE_DESCRIPTION_PROMPT]
+        actual_llm_prompt_parts = [config.LLM_IMAGE_DESCRIPTION_PROMPT]
         if normalized_alt_text:
             actual_llm_prompt_parts.append(f"The image's alt text is: '{normalized_alt_text}'.")
         if normalized_image_url:
             actual_llm_prompt_parts.append(f"The image URL is: '{normalized_image_url}'.")
         full_prompt_to_llm = "\n".join(actual_llm_prompt_parts)
 
-        model = genai.GenerativeModel(config.config.LLM_IMAGE_MODEL)
+        model = genai.GenerativeModel(config.LLM_IMAGE_MODEL)
 
         try:
             chatHistory = [{"role": "user", "parts": [{"text": full_prompt_to_llm}]}]
@@ -199,13 +203,18 @@ class MetadataEnricher:
         Extracts structured metadata (main_topic, key_entities) from a text chunk using an LLM,
         with integrated caching and robust JSON parsing.
         """
-        if not config.config.ENABLE_LLM_METADATA_EXTRACTION:
+        if not config.ENABLE_LLM_METADATA_EXTRACTION:
             return {"main_topic": "Metadata extraction disabled.", "key_entities": []}
-
-        if not config.config.GEMINI_API_KEY:
+    
+        if not config.GEMINI_API_KEY:
             return {"main_topic": "Mock metadata extraction.", "key_entities": ["mock_entity_1", "mock_entity_2"]}
-
-        prompt_with_text = config.config.LLM_EXTRACTION_PROMPT.format(text_content=text_content)
+    
+        # Apply contextual prefix for summary content
+        processed_content = text_content
+        if "Summary:" in text_content or "Overview" in text_content or len(text_content.strip()) < 200:
+            processed_content = f"Summary of document section: {text_content}"
+        
+        prompt_with_text = config.LLM_EXTRACTION_PROMPT.format(text_content=processed_content)
         prompt_parts = [prompt_with_text] # For cache key, use the formatted prompt
         cache_key = self._get_cache_key(prompt_parts)
 
@@ -222,9 +231,11 @@ class MetadataEnricher:
                 return {"main_topic": cached_response_str.strip(), "key_entities": [], "cached": True}
 
 
-        model = genai.GenerativeModel(config.config.LLM_EXTRACTION_MODEL)
+        model = genai.GenerativeModel(config.LLM_EXTRACTION_MODEL)
         try:
             chatHistory = [{"role": "user", "parts": [{"text": prompt_with_text}]}]
+            # Add this before the API call in extract_metadata_from_chunk
+            await asyncio.sleep(1)  # Add 1 second delay between API calls
             response = await asyncio.to_thread(model.generate_content, chatHistory)
             extracted_text = response.candidates[0].content.parts[0].text
             
@@ -273,9 +284,26 @@ class MetadataEnricher:
                 chunk.metadata['summary'] = summary
                 
                 # Also extract structured metadata if enabled
-                if config.config.ENABLE_LLM_METADATA_EXTRACTION:
+                if config.ENABLE_LLM_METADATA_EXTRACTION:
                     try:
-                        extracted_metadata_dict = await self.extract_metadata_from_chunk(chunk.page_content)
+                        # Use summary for metadata extraction if original content is sparse
+                        content_for_metadata = chunk.page_content
+                        
+                        # Check if summary indicates insufficient content or error
+                        summary_indicates_error = any(phrase in summary.lower() for phrase in [
+                            "i'm sorry", "insufficient", "need more content", "error summarizing", 
+                            "summary generation disabled", "mock summary"
+                        ])
+                        
+                        if len(chunk.page_content.strip()) < 200 or "##" in chunk.page_content[:50]:
+                            if not summary_indicates_error:
+                                # For sparse content (headers, short sections), use the richer summary
+                                content_for_metadata = f"Summary of document section: {summary}"
+                            else:
+                                # If summary failed, enhance the original content with context
+                                content_for_metadata = f"Document section title or header: {chunk.page_content.strip()}"
+                        
+                        extracted_metadata_dict = await self.extract_metadata_from_chunk(content_for_metadata)
                         
                         # --- DEBUG: Print type and content BEFORE chunk.metadata.update ---
                         print(f"DEBUG: Before chunk.metadata.update - Type of extracted_metadata_dict: {type(extracted_metadata_dict)}, Content: {extracted_metadata_dict}")
