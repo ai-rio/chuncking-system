@@ -23,10 +23,10 @@ from langchain_core.documents import Document
 config = settings_module.config
 
 # Define file paths
-INPUT_FILE = os.path.join(config.INPUT_DIR, "sample_image_document.md")
-OUTPUT_CHUNKS_FILE = os.path.join(config.OUTPUT_DIR, "chunks", "sample_image_document_chunks.json")
-QUALITY_REPORT_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_image_document_quality_report.md")
-PROCESSING_SUMMARY_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_image_document_processing_summary.json")
+INPUT_FILE = os.path.join(config.INPUT_DIR, "sample_document.md")
+OUTPUT_CHUNKS_FILE = os.path.join(config.OUTPUT_DIR, "chunks", "sample_document_chunks.json")
+QUALITY_REPORT_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_document_quality_report.md")
+PROCESSING_SUMMARY_FILE = os.path.join(config.OUTPUT_DIR, "reports", "sample_document_processing_summary.json")
 
 # Define the async main function
 async def main_async():
