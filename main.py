@@ -16,8 +16,11 @@ from src.chunkers.hybrid_chunker import HybridChunker
 from src.chunkers.evaluators import ChunkQualityEvaluator
 from src.utils.file_handler import FileHandler
 from src.utils.metadata_enricher import MetadataEnricher
-from src.config.settings import config
+import src.config.settings as settings_module # Changed import statement
 from langchain_core.documents import Document
+
+# Access config instance through settings_module.config
+config = settings_module.config
 
 # Define file paths
 INPUT_FILE = os.path.join(config.INPUT_DIR, "sample_image_document.md")
