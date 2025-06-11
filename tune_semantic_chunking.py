@@ -1,11 +1,19 @@
 import os
 import json
 import asyncio
-import sys
+import sys # Keep sys here as it's used below for project_root_path
 import numpy as np
 
-# Add the parent directory to the sys.path to allow imports from src
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
+# Add the project root to the sys.path to allow imports from src
+# We need to get the absolute path of the directory where this script resides.
+project_root_path = os.path.abspath(os.path.dirname(__file__))
+
+# Corrected path logic: If tune_semantic_chunking.py is in the root, its dirname IS the root.
+# So, the line below is correct for the root.
+if project_root_path not in sys.path:
+    sys.path.insert(0, project_root_path)
+    print(f"Added '{project_root_path}' to sys.path.")
+
 
 from src.chunkers.hybrid_chunker import HybridChunker
 from src.chunkers.evaluators import ChunkQualityEvaluator
@@ -21,7 +29,6 @@ async def tune_semantic_chunking():
     print("🚀 Starting Semantic Chunking Fine-Tuning Automation...")
 
     # Define the range of thresholds to test
-    # Adjusted to explore more granularly in the lower-mid range
     threshold_values = np.arange(0.01, 0.51, 0.01).round(2)
 
     # Using sample_prose_document.md for proper semantic tuning
@@ -60,7 +67,7 @@ async def tune_semantic_chunking():
             # Chunk the document (this is async)
             raw_chunks = await chunker.chunk_document(content_to_chunk, initial_metadata)
             
-            # Manually apply post-processing steps from the removed _post_process_chunks
+            # Manually apply post-processing steps (from the removed _post_process_chunks)
             processed_chunks = []
             global_chunk_index = 0
             for raw_chunk in raw_chunks:

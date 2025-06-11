@@ -1,7 +1,17 @@
 import os
 import json
-import asyncio # Import asyncio for running async functions
-import re # Added this import for regular expressions
+import asyncio
+import re
+import sys # Import sys
+import traceback # Import the traceback module for detailed error logging
+
+# Add the project root to Python's sys.path
+project_root_path = os.path.abspath(os.path.dirname(__file__))
+if project_root_path not in sys.path:
+    sys.path.insert(0, project_root_path)
+    print(f"Added '{project_root_path}' to sys.path.")
+
+
 from src.chunkers.hybrid_chunker import HybridChunker
 from src.chunkers.evaluators import ChunkQualityEvaluator
 from src.utils.file_handler import FileHandler
@@ -27,10 +37,13 @@ async def main_async():
     os.makedirs(config.LLM_CACHE_DIR, exist_ok=True)
 
 
-    # Enable semantic and ensure LLM image description is enabled via settings
-    chunker = HybridChunker(enable_semantic=True)
-    evaluator = ChunkQualityEvaluator()
+    # Initialize MetadataEnricher first, as it's now passed to HybridChunker
     metadata_enricher = MetadataEnricher()
+    
+    # Pass the metadata_enricher instance to HybridChunker
+    chunker = HybridChunker(enable_semantic=True, metadata_enricher=metadata_enricher)
+    evaluator = ChunkQualityEvaluator()
+
 
     # Create dummy document for demonstration if it doesn't exist (adjusted for image doc)
     if not os.path.exists(INPUT_FILE):
@@ -80,35 +93,17 @@ Images play a crucial role in conveying information effectively.
         chunks = await chunker.chunk_document(content, initial_metadata)
         print(f"Generated {len(chunks)} chunks.")
 
-        # Enrich chunks with LLM-generated summaries (this is already async)
-        print("Enriching chunks with LLM summaries...")
+        # Enrich chunks with LLM-generated summaries and structured metadata
+        print("Enriching chunks with LLM summaries and structured metadata...")
         
-        # We need to explicitly call describe_image for the visual chunks.
-        # The previous loop was too generic. Let's make it smarter.
-        enriched_chunks = []
-        for i, chunk in enumerate(chunks):
-            if chunk.metadata.get('source_segment_type') == 'image':
-                # For image chunks, we need to extract alt_text and image_url from the page_content
-                # and call describe_image. The _image_aware_processing in HybridChunker already does this
-                # when it first processes the image. So, for the overall enrichment phase,
-                # we just need to ensure its summary is consistent.
-                # However, to be safe, let's re-extract and re-process through describe_image for its caching logic.
-                # This ensures the caching path is explicitly taken.
-                match = re.search(r'!\[(.*?)\]\((.*?)\)', chunk.page_content)
-                if match:
-                    alt_text = match.group(1)
-                    image_url = match.group(2)
-                    description = await metadata_enricher.describe_image(alt_text=alt_text, image_url=image_url)
-                    chunk.metadata['summary'] = description # Update summary with the description
-                    chunk.page_content = description # Replace content with description for RAG
-                enriched_chunks.append(chunk)
-            else:
-                # For non-image chunks, summarize them
-                summary = await metadata_enricher.summarize_chunk(chunk.page_content)
-                chunk.metadata['summary'] = summary
-                enriched_chunks.append(chunk)
-            print(f"Chunk processed for summary/image description: {chunk.metadata.get('chunk_index', 'N/A')}")
-        
+        # Add a try-except block here to catch the specific error
+        try:
+            enriched_chunks = await metadata_enricher.enrich_chunks_with_llm_summaries_and_metadata(chunks)
+        except Exception as e:
+            print(f"\nCRITICAL ERROR during chunk enrichment in main_async: {e}")
+            traceback.print_exc() # Print the full traceback
+            sys.exit(1) # Exit with an error code
+
         print(f"Finished enriching {len(enriched_chunks)} chunks.")
 
 
@@ -124,7 +119,7 @@ Images play a crucial role in conveying information effectively.
         processing_summary = {
             "file_name": os.path.basename(INPUT_FILE),
             "total_chunks": len(enriched_chunks),
-            "chunking_strategy_applied": "Hybrid (Table-aware, Header-Recursive, Semantic, LLM-Enriched, Image-Processed)", # Updated description
+            "chunking_strategy_applied": "Hybrid (Table-aware, Header-Recursive, Semantic, LLM-Enriched, Image-Processed, Metadata-Extracted)", # Updated description
             "average_chunk_tokens": sum(c.metadata.get('chunk_tokens', 0) for c in enriched_chunks) / len(enriched_chunks) if enriched_chunks else 0
         }
         with open(PROCESSING_SUMMARY_FILE, 'w', encoding='utf-8') as f:
@@ -134,9 +129,11 @@ Images play a crucial role in conveying information effectively.
     except FileNotFoundError:
         print(f"Error: Input file not found at {INPUT_FILE}")
     except Exception as e:
-        print(f"An unexpected error occurred: {e}")
+        # This broad catch-all is now less likely to hide critical errors from enrich_chunks,
+        # as a more specific handler is above.
+        print(f"An unexpected error occurred in main_async (general catch): {e}")
+        traceback.print_exc() # Still good to have for other potential errors
 
 # Run the async main function
 if __name__ == "__main__":
     asyncio.run(main_async())
-

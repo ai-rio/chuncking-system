@@ -202,6 +202,8 @@ data/output/*
 !data/output/.gitkeep
 data/temp/*
 !data/temp/.gitkeep
+data/cache/*
+!data/cache/.gitkeep
 
 # Logs and temporary files
 *.log

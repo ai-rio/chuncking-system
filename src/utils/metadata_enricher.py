@@ -3,6 +3,7 @@ import os
 import json
 import asyncio
 import hashlib
+import re # Import regex module
 from typing import List, Dict, Any, Optional
 from collections.abc import Iterable
 
@@ -12,6 +13,7 @@ class MetadataEnricher:
     """
     Enriches document chunks with additional metadata, such as LLM-generated summaries
     and image descriptions, with integrated caching for LLM calls.
+    Now also includes automated structured metadata extraction.
     """
 
     def __init__(self):
@@ -19,7 +21,7 @@ class MetadataEnricher:
         if config.config.GEMINI_API_KEY:
             genai.configure(api_key=config.config.GEMINI_API_KEY)
         else:
-            print("Warning: GEMINI_API_KEY not set. LLM-based features (summaries, image descriptions) will use mock data.")
+            print("Warning: GEMINI_API_KEY not set. LLM-based features (summaries, image descriptions, extraction) will use mock data.")
 
         # Ensure cache directory exists if caching is enabled
         if config.config.ENABLE_LLM_CACHE:
@@ -32,8 +34,6 @@ class MetadataEnricher:
         This now converts the entire list to a sorted JSON string for ultimate consistency.
         """
         # Convert the entire list of prompt parts to a sorted JSON string
-        # This ensures that the order and exact representation are consistent for hashing
-        # For non-dict parts, str() converts them to strings for JSON serialization.
         consistent_string = json.dumps(prompt_parts, sort_keys=True, ensure_ascii=False)
         hasher = hashlib.sha256()
         hasher.update(consistent_string.encode('utf-8'))
@@ -53,9 +53,17 @@ class MetadataEnricher:
                     response_from_cache = cached_data.get("response")
                     
                     if response_from_cache is not None:
-                        response_from_cache = response_from_cache.strip() # Strip whitespace from cached response
-
-                    return response_from_cache
+                        # Attempt to parse as JSON, but fall back to raw string if not valid JSON
+                        try:
+                            # If it was stored as a JSON string representation of a dict, load it
+                            parsed_response = json.loads(response_from_cache)
+                            if isinstance(parsed_response, dict):
+                                return response_from_cache # Return the JSON string for consistency with _write_to_cache
+                            else:
+                                return response_from_cache # Not a dict, return as is
+                        except json.JSONDecodeError:
+                            return response_from_cache # Not valid JSON, return as is
+                    return None
             except Exception as e:
                 print(f"Error reading from cache file {cache_file_path}: {e}")
                 return None
@@ -68,17 +76,49 @@ class MetadataEnricher:
 
         cache_file_path = os.path.join(config.config.LLM_CACHE_DIR, f"{cache_key}.json")
         try:
+            # Store the response as a simple string in the cache
             with open(cache_file_path, 'w', encoding='utf-8') as f:
                 json.dump({"response": response_text}, f, ensure_ascii=False, indent=2)
         except Exception as e:
             print(f"Error writing to cache file {cache_file_path}: {e}")
+
+    def _parse_json_from_llm_output(self, raw_llm_output: str) -> Optional[Dict[str, Any]]:
+        """
+        Attempts to parse JSON from the raw LLM output.
+        First tries direct parsing, then uses regex to find a JSON block.
+        """
+        try:
+            # Attempt direct parsing first
+            parsed_data = json.loads(raw_llm_output)
+            if isinstance(parsed_data, dict):
+                return parsed_data
+        except json.JSONDecodeError:
+            pass # Continue to regex attempt if direct parsing fails
+
+        # Fallback: Use regex to find a JSON-like block (e.g., between {} or ```json ... ```)
+        # This regex tries to capture the content between the first '{' and last '}'
+        # and also handles markdown code blocks for JSON.
+        match = re.search(r"```json\s*(\{.*\})\s*```", raw_llm_output, re.DOTALL)
+        if not match:
+            match = re.search(r"(\{.*\})", raw_llm_output, re.DOTALL)
+        
+        if match:
+            json_candidate = match.group(1)
+            try:
+                parsed_data = json.loads(json_candidate)
+                if isinstance(parsed_data, dict):
+                    return parsed_data
+            except json.JSONDecodeError as e:
+                print(f"Warning: Failed to parse JSON from regex extracted candidate: {json_candidate[:100]}... Error: {e}")
+
+        return None # Return None if no valid JSON could be parsed
 
     async def summarize_chunk(self, text_content: str) -> str:
         """
         Generates a concise summary for a given text chunk using an LLM,
         with integrated caching.
         """
-        if not config.config.ENABLE_LLM_METADATA_ENRICHMENT:
+        if not config.config.ENABLE_LLM_METADATA_ENRICHMENT: # Check the general enrichment flag
             return "Summary generation disabled."
 
         if not config.config.GEMINI_API_KEY:
@@ -154,16 +194,123 @@ class MetadataEnricher:
             print(f"Error generating LLM image description for '{alt_text or image_url}'. Error: {e}")
             return f"Error describing image with alt text '{alt_text or 'N/A'}'."
 
-    async def enrich_chunks_with_llm_summaries(self, chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+    async def extract_metadata_from_chunk(self, text_content: str) -> Dict[str, Any]:
         """
-        Asynchronously enriches a list of chunks with LLM-generated summaries.
-        This function iterates through the chunks and calls the summarize_chunk method.
+        Extracts structured metadata (main_topic, key_entities) from a text chunk using an LLM,
+        with integrated caching and robust JSON parsing.
+        """
+        if not config.config.ENABLE_LLM_METADATA_EXTRACTION:
+            return {"main_topic": "Metadata extraction disabled.", "key_entities": []}
+
+        if not config.config.GEMINI_API_KEY:
+            return {"main_topic": "Mock metadata extraction.", "key_entities": ["mock_entity_1", "mock_entity_2"]}
+
+        prompt_with_text = config.config.LLM_EXTRACTION_PROMPT.format(text_content=text_content)
+        prompt_parts = [prompt_with_text] # For cache key, use the formatted prompt
+        cache_key = self._get_cache_key(prompt_parts)
+
+        cached_response_str = self._read_from_cache(cache_key)
+        if cached_response_str:
+            print(f"LLM Metadata Extraction: (CACHED) for chunk: {text_content[:30]}...")
+            # Attempt to parse the cached string as JSON
+            parsed_cached_data = self._parse_json_from_llm_output(cached_response_str)
+            if parsed_cached_data:
+                return parsed_cached_data
+            else:
+                # If cached data isn't valid JSON, return it as a raw string for main_topic
+                print(f"Warning: Cached metadata for chunk {text_content[:30]}... was not valid JSON. Returning raw string.")
+                return {"main_topic": cached_response_str.strip(), "key_entities": [], "cached": True}
+
+
+        model = genai.GenerativeModel(config.config.LLM_EXTRACTION_MODEL)
+        try:
+            chatHistory = [{"role": "user", "parts": [{"text": prompt_with_text}]}]
+            response = await asyncio.to_thread(model.generate_content, chatHistory)
+            extracted_text = response.candidates[0].content.parts[0].text
+            
+            # --- DEBUG: Print raw LLM output for metadata extraction ---
+            print(f"DEBUG Metadata Extraction: Raw LLM output for chunk '{text_content[:30]}...':\n'{extracted_text}'")
+            # --- END DEBUG ---
+
+            parsed_metadata = self._parse_json_from_llm_output(extracted_text)
+
+            if parsed_metadata:
+                self._write_to_cache(cache_key, json.dumps(parsed_metadata, ensure_ascii=False)) # Cache the JSON string
+                print(f"LLM Metadata Extraction generated and parsed for chunk: {text_content[:30]}...")
+                return parsed_metadata
+            else:
+                # If JSON parsing fails, log a warning and fall back to raw text for main_topic
+                print(f"Warning: LLM output for chunk {text_content[:30]}... was not valid JSON. Falling back to raw text.")
+                main_topic_content = extracted_text.strip()
+                self._write_to_cache(cache_key, main_topic_content) # Cache the raw string
+                return {"main_topic": main_topic_content, "key_entities": [], "json_parse_error": True}
+
+        except Exception as e:
+            print(f"Error generating LLM metadata for chunk: {text_content[:30]}... Error: {e}")
+            return {"main_topic": f"Error extracting metadata: {e}", "key_entities": [], "extraction_error": True}
+
+    async def enrich_chunks_with_llm_summaries_and_metadata(self, chunks: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Asynchronously enriches a list of chunks with LLM-generated summaries and structured metadata.
+        This replaces the previous enrich_chunks_with_llm_summaries.
         """
         enriched_chunks = []
         for i, chunk in enumerate(chunks):
-            # The summarize_chunk method now handles caching internally
-            summary = await self.summarize_chunk(chunk.page_content)
-            chunk.metadata['summary'] = summary
+            # --- DEBUG: Print chunk.metadata initial state within the loop ---
+            print(f"DEBUG: Chunk {i} metadata initial state - Type: {type(chunk.metadata)}, Content: {chunk.metadata}")
+            # --- END DEBUG ---
+
+            # Determine if the chunk is text-based and not a visual, table, or code chunk
+            # This condition ensures we process only relevant text chunks for metadata and summary
+            is_text_chunk = not (
+                chunk.metadata.get('chunk_type') in ['visual', 'structural'] or
+                chunk.metadata.get('source_segment_type') in ['image', 'table', 'code']
+            )
+
+            if is_text_chunk:
+                # Process summary for this text chunk
+                summary = await self.summarize_chunk(chunk.page_content)
+                chunk.metadata['summary'] = summary
+                
+                # Also extract structured metadata if enabled
+                if config.config.ENABLE_LLM_METADATA_EXTRACTION:
+                    try:
+                        extracted_metadata_dict = await self.extract_metadata_from_chunk(chunk.page_content)
+                        
+                        # --- DEBUG: Print type and content BEFORE chunk.metadata.update ---
+                        print(f"DEBUG: Before chunk.metadata.update - Type of extracted_metadata_dict: {type(extracted_metadata_dict)}, Content: {extracted_metadata_dict}")
+                        # --- END DEBUG ---
+                        
+                        if isinstance(extracted_metadata_dict, dict):
+                            # Ensure chunk.metadata is a dictionary before updating
+                            if not isinstance(chunk.metadata, dict):
+                                print(f"CRITICAL WARNING: chunk.metadata for chunk {i} is not a dictionary ({type(chunk.metadata)}). Attempting to re-initialize.")
+                                chunk.metadata = {} # Re-initialize if it's not a dict
+                            chunk.metadata.update(extracted_metadata_dict)
+                        else:
+                            # This case should ideally not happen with the updated extract_metadata_from_chunk
+                            print(f"ERROR: Extracted metadata for chunk {i} was NOT a dictionary. Type: {type(extracted_metadata_dict)}, Content: {extracted_metadata_dict}")
+                            # Provide a default value to prevent crash
+                            chunk.metadata['main_topic'] = f"Failed to extract structured metadata (type error: {type(extracted_metadata_dict)})."
+                            chunk.metadata['key_entities'] = []
+
+                    except Exception as extraction_or_update_err:
+                        print(f"CRITICAL ERROR during metadata extraction or update for chunk {i}: {extraction_or_update_err}")
+                        print(f"Problematic extracted_metadata_dict (if available): Type={type(extracted_metadata_dict) if 'extracted_metadata_dict' in locals() else 'N/A'}, Content={extracted_metadata_dict if 'extracted_metadata_dict' in locals() else 'N/A'}")
+                        print(f"Current chunk.metadata before failed operation: {chunk.metadata}")
+                        raise # Re-raise the exception after logging for full traceback
+                
+                print(f"LLM Summary & Metadata processed for text chunk {i}.")
+            elif chunk.metadata.get('source_segment_type') == 'image' or \
+                 chunk.metadata.get('chunk_type') == 'visual':
+                # Image chunks are handled during chunking (image_aware_processing)
+                # and already have their descriptions set as summary.
+                print(f"Image chunk {i} processed (description already handled during chunking).")
+            else:
+                # Fallback for other structural chunks (table, code) - summarize only for now
+                summary = await self.summarize_chunk(chunk.page_content)
+                chunk.metadata['summary'] = summary
+                print(f"LLM Summary processed for structural chunk {i}.")
+
             enriched_chunks.append(chunk)
-            print(f"LLM Summary processed for chunk {i}.")
         return enriched_chunks

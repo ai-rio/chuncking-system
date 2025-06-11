@@ -1,0 +1,40 @@
+# Core chunking libraries (based on research recommendations)
+langchain>=0.1.0
+langchain-text-splitters>=0.0.1
+langchain-core>=0.1.0
+
+# Alternative/specialized chunking libraries
+# semchunk>=2.0.0
+# semantic-chunkers>=0.3.0
+
+# Document parsing
+mistune>=3.0.0
+markdown-it-py>=3.0.0
+# python-markdown>=3.5.0
+
+# Embeddings and LLM integration
+sentence-transformers>=2.2.0
+openai>=1.0.0
+tiktoken>=0.5.0
+google-generativeai>=0.5.0
+
+# Vector database options
+# chromadb>=0.4.0
+# pinecone-client>=2.2.0  # Uncomment if using Pinecone
+# weaviate-client>=3.24.0  # Uncomment if using Weaviate
+
+# Utilities
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+tqdm>=4.65.0
+pandas>=2.0.0
+numpy>=1.24.0
+python-dotenv>=1.0.0
+
+# Evaluation and metrics
+datasets>=2.14.0
+scikit-learn>=1.3.0
+
+# Optional: For advanced semantic chunking
+# transformers>=4.30.0 # Keep commented if not using explicitly
+psutil

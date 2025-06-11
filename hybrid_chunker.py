@@ -21,9 +21,6 @@ from sentence_transformers import SentenceTransformer, util
 import google.generativeai as genai
 import asyncio
 
-# Import MetadataEnricher here so HybridChunker can receive it
-from src.utils.metadata_enricher import MetadataEnricher
-
 class HybridChunker:
     """
     Hybrid chunking system optimized for i3/16GB hardware.
@@ -35,8 +32,7 @@ class HybridChunker:
         self,
         chunk_size: int = None,
         chunk_overlap: int = None,
-        enable_semantic: bool = False,
-        metadata_enricher: Optional[MetadataEnricher] = None # NEW: Accept MetadataEnricher instance
+        enable_semantic: bool = False
     ):
         """
         Initializes the HybridChunker with specified chunk size and overlap.
@@ -45,13 +41,11 @@ class HybridChunker:
             chunk_size (int): The target size for each text chunk.
             chunk_overlap (int): The number of characters to overlap between consecutive chunks.
             enable_semantic (bool): Flag to enable/disable semantic chunking.
-            metadata_enricher (MetadataEnricher): An instance of MetadataEnricher for LLM calls.
         """
         self.chunk_size = chunk_size or config.config.DEFAULT_CHUNK_SIZE
         self.chunk_overlap = chunk_overlap or config.config.DEFAULT_CHUNK_OVERLAP
         self.enable_semantic = enable_semantic
         self.current_document_id = None # To be set by main processing pipeline
-        self.metadata_enricher = metadata_enricher if metadata_enricher is not None else MetadataEnricher() # NEW: Store enricher instance
 
         # Configure Gemini API if key is available
         if config.config.GEMINI_API_KEY:
@@ -137,7 +131,7 @@ class HybridChunker:
         self.current_document_id = metadata.get("document_id", str(uuid.uuid4()))
         metadata = metadata or {}
         
-        # Directly return from sequential chunking, bypassing _post_process_chunks
+        # Directly return from sequential chunking, bypassing _post_process_chunks (which is now removed)
         return await self._sequential_complex_content_chunking(content, metadata)
 
 
@@ -185,7 +179,19 @@ class HybridChunker:
                     text_analysis = self._detect_content_type(text_segment)
                     
                     if text_analysis['has_headers']:
-                        all_chunks.extend(await self._header_recursive_chunking(text_segment, metadata, text_analysis))
+                        header_split_chunks = self._header_recursive_chunking(text_segment, metadata, text_analysis)
+                        
+                        for h_chunk in header_split_chunks:
+                            h_chunk_analysis = self._detect_content_type(h_chunk.page_content)
+                            if self.enable_semantic and \
+                               not h_chunk_analysis['has_headers'] and \
+                               not h_chunk_analysis['has_code'] and \
+                               not h_chunk_analysis['has_tables'] and \
+                               not h_chunk_analysis['has_lists'] and \
+                               not h_chunk_analysis['has_images']:
+                                all_chunks.extend(await self._semantic_chunking(h_chunk.page_content, h_chunk.metadata))
+                            else:
+                                all_chunks.append(h_chunk)
                     else: # No headers in this text segment
                         if self.enable_semantic:
                             all_chunks.extend(await self._semantic_chunking(text_segment, metadata))
@@ -204,11 +210,8 @@ class HybridChunker:
                 cursor = code_match.end()
             elif cursor == next_image_start and image_match:
                 image_markdown = image_match.group(0)
-                image_doc = await self._image_aware_processing(
-                    image_markdown,
-                    metadata
-                )
-                all_chunks.extend(image_doc)
+                image_chunks = await self._image_aware_processing(image_markdown, metadata)
+                all_chunks.extend(image_chunks)
                 cursor = image_match.end()
             else:
                 break
@@ -219,7 +222,18 @@ class HybridChunker:
             text_analysis = self._detect_content_type(final_text_segment)
             
             if text_analysis['has_headers']:
-                all_chunks.extend(await self._header_recursive_chunking(final_text_segment, metadata, text_analysis))
+                header_split_chunks = self._header_recursive_chunking(final_text_segment, metadata, text_analysis)
+                for h_chunk in header_split_chunks:
+                    h_chunk_analysis = self._detect_content_type(h_chunk.page_content)
+                    if self.enable_semantic and \
+                       not h_chunk_analysis['has_headers'] and \
+                       not h_chunk_analysis['has_code'] and \
+                       not h_chunk_analysis['has_tables'] and \
+                       not h_chunk_analysis['has_lists'] and \
+                       not h_chunk_analysis['has_images']:
+                        all_chunks.extend(await self._semantic_chunking(h_chunk.page_content, h_chunk.metadata))
+                    else:
+                        all_chunks.append(h_chunk)
             else:
                 if self.enable_semantic:
                     all_chunks.extend(await self._semantic_chunking(final_text_segment, metadata))
@@ -228,7 +242,7 @@ class HybridChunker:
         
         return all_chunks
 
-    async def _header_recursive_chunking( # Corrected: Added async
+    def _header_recursive_chunking(
         self,
         content: str,
         base_metadata: Dict[str, Any],
@@ -262,17 +276,10 @@ class HybridChunker:
             elif section_analysis['has_code']:
                 all_chunks.extend(self._code_aware_chunking(section_content, combined_metadata))
             elif section_analysis['has_images']:
-                # Note: This branch is for images found within header sections,
-                # so we still delegate to metadata_enricher.describe_image
-                image_match = re.search(r'!\[(.*?)\]\((.*?)\)', section_content)
-                if image_match:
-                    image_doc = await self._image_aware_processing( # THIS IS NOW CORRECTLY AWAITed
-                        image_match.group(0),
-                        combined_metadata
-                    )
-                    all_chunks.extend(image_doc)
-                else:
-                     all_chunks.extend(self._simple_recursive_chunking(section_content, combined_metadata))
+                # Note: _image_aware_processing is async, need to await if called directly here
+                # For now, it's safer to assume _sequential_complex_content_chunking handles outer logic
+                # or _image_aware_chunking placeholder takes care of it by calling recursive.
+                all_chunks.extend(self._simple_recursive_chunking(section_content, combined_metadata)) # Fallback
             else:
                 # If no specific structures, apply simple recursive chunking to the section
                 all_chunks.extend(self._simple_recursive_chunking(section_content, combined_metadata))
@@ -439,14 +446,14 @@ class HybridChunker:
             return self._simple_recursive_chunking(content, metadata)
 
 
-    async def _image_aware_processing( # This method is async
+    async def _image_aware_processing(
         self,
         image_markdown: str,
         metadata: Dict[str, Any]
     ) -> List[Document]:
         """
-        Processes image markdown by delegating to MetadataEnricher to generate an LLM description
-        and creates a Document object for the image.
+        Processes image markdown by generating an LLM description and replacing the image
+        with its description in a new chunk.
         """
         print(f"  -> Entering _image_aware_processing for image markdown: {image_markdown[:50]}...")
         
@@ -456,23 +463,53 @@ class HybridChunker:
         image_url_match = re.search(r'\]\((.*?)\)', image_markdown)
         image_url = image_url_match.group(1).strip() if image_url_match else ""
 
-        # Delegate the actual description generation and caching to self.metadata_enricher
-        image_description_content = await self.metadata_enricher.describe_image( # CORRECTLY AWAITed
-            alt_text=alt_text,
-            image_url=image_url
-        )
-        
-        # Construct the Document object for the image chunk with its metadata
-        image_doc = Document(page_content=image_description_content)
-        image_doc.metadata.update(metadata) # Inherit document-level metadata
-        image_doc.metadata['chunk_type'] = 'visual'
-        image_doc.metadata['source_segment_type'] = 'image'
-        image_doc.metadata['has_images'] = True # Explicitly mark for evaluator
-        image_doc.metadata['image_alt_text'] = alt_text # Store original alt text
-        image_doc.metadata['image_url'] = image_url # Store original image URL
-        image_doc.metadata['summary'] = image_description_content # Description acts as summary
+        if not config.config.ENABLE_LLM_IMAGE_DESCRIPTION:
+            fallback_description = f"Image description generation disabled. Mock description of {alt_text or 'N/A'}."
+            return [Document(page_content=fallback_description, metadata={**metadata, 'content_type': 'image_description_fallback', 'has_images': True})]
 
-        return [image_doc] # Return as a list containing one Document
+        if not config.config.GEMINI_API_KEY:
+            fallback_description = f"Mock description of {alt_text or 'N/A'} (API key not set)."
+            return [Document(page_content=fallback_description, metadata={**metadata, 'content_type': 'image_description_fallback', 'has_images': True})]
+
+
+        # Normalize alt_text and image_url before creating prompt_parts for consistent hashing
+        normalized_alt_text = alt_text.replace('\r', '') # Already stripped from above
+        normalized_image_url = image_url.replace('\r', '') # Already stripped from above
+
+        # Construct prompt parts consistently for caching
+        prompt_parts_for_key = [
+            config.config.LLM_IMAGE_DESCRIPTION_PROMPT,
+            f"alt_text:{normalized_alt_text}",
+            f"image_url:{normalized_image_url}"
+        ]
+
+        cache_key = self._get_cache_key(prompt_parts_for_key)
+
+        cached_description = self._read_from_cache(cache_key)
+        if cached_description:
+            print(f"LLM Image Description: (CACHED) for alt text: {alt_text or 'N/A'}")
+            return [Document(page_content=cached_description, metadata={**metadata, 'content_type': 'image_description_cached', 'has_images': True})]
+
+
+        actual_llm_prompt_parts = [config.config.LLM_IMAGE_DESCRIPTION_PROMPT]
+        if normalized_alt_text:
+            actual_llm_prompt_parts.append(f"The image's alt text is: '{normalized_alt_text}'.")
+        if normalized_image_url:
+            actual_llm_prompt_parts.append(f"The image URL is: '{normalized_image_url}'.")
+        full_prompt_to_llm = "\n".join(actual_llm_prompt_parts)
+
+        model = genai.GenerativeModel(config.config.LLM_IMAGE_MODEL)
+
+        try:
+            chatHistory = [{"role": "user", "parts": [{"text": full_prompt_to_llm}]}]
+            response = await asyncio.to_thread(model.generate_content, chatHistory)
+            description_text = response.candidates[0].content.parts[0].text
+            self._write_to_cache(cache_key, description_text)
+            print(f"LLM Image Description generated for alt text: {alt_text or 'N/A'}")
+            return [Document(page_content=description_text, metadata={**metadata, 'content_type': 'image_description_generated', 'has_images': True})]
+        except Exception as e:
+            print(f"Error generating LLM image description for '{image_markdown[:50]}...'. Error: {e}")
+            return [Document(page_content=f"Error describing image with alt text '{alt_text or 'N/A'}'.", metadata={**metadata, 'content_type': 'image_description_error', 'has_images': True})]
 
 
     async def enrich_chunks_with_llm_summaries_and_metadata(self, chunks: List[Document]) -> List[Document]:
