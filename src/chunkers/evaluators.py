@@ -144,6 +144,13 @@ class ChunkQualityEvaluator:
         """
         Analyze semantic coherence between chunks using SentenceTransformer if available,
         otherwise fall back to TF-IDF.
+        
+        Returns:
+            Dict with the following metrics:
+            - boundary_score: Measure of semantic separation between adjacent chunks (higher is better for RAG)
+            - internal_cohesion_score: Measure of semantic uniformity within each chunk (higher is better)
+            - avg_similarity: Average similarity between all chunks (for reference)
+            - similarity_std: Standard deviation of similarities (for reference)
         """
         
         # Filter for prose chunks only for semantic coherence
@@ -154,11 +161,21 @@ class ChunkQualityEvaluator:
         ]
 
         if len(prose_chunks) < 2:
-            return {'coherence_score': 1.0, 'avg_similarity': 0.0, 'similarity_std': 0.0}
+            return {
+                'boundary_score': 1.0,  # Perfect boundary score when no comparison needed
+                'internal_cohesion_score': 1.0,  # Perfect cohesion when only one chunk
+                'avg_similarity': 0.0, 
+                'similarity_std': 0.0
+            }
         
         texts = [chunk.page_content for chunk in prose_chunks if chunk.page_content.strip()]
         if len(texts) < 2:
-            return {'coherence_score': 1.0, 'avg_similarity': 0.0, 'similarity_std': 0.0}
+            return {
+                'boundary_score': 1.0,  # Perfect boundary score when no comparison needed
+                'internal_cohesion_score': 1.0,  # Perfect cohesion when only one chunk
+                'avg_similarity': 0.0, 
+                'similarity_std': 0.0
+            }
 
         try:
             if self.embedding_model:
@@ -168,11 +185,33 @@ class ChunkQualityEvaluator:
                 adjacent_similarities = util.cos_sim(chunk_embeddings[:-1], chunk_embeddings[1:]).diag().cpu().numpy()
                 
                 avg_adjacent_similarity = np.mean(adjacent_similarities) if adjacent_similarities.size > 0 else 0
-                coherence_score = avg_adjacent_similarity # Raw similarity is the coherence score
+                
+                # Calculate boundary score: 1 - adjacent_similarity
+                # Lower adjacent similarity means better semantic boundaries between chunks
+                boundary_score = 1.0 - avg_adjacent_similarity
+                
+                # Calculate internal cohesion for each chunk
+                internal_cohesion_scores = []
+                for i, text in enumerate(texts):
+                    # Split text into sentences or paragraphs for internal analysis
+                    segments = [s.strip() for s in text.split('.') if s.strip()]
+                    if len(segments) > 1:
+                        # Encode segments and calculate average similarity within the chunk
+                        segment_embeddings = self.embedding_model.encode(segments, convert_to_tensor=True)
+                        segment_similarities = util.cos_sim(segment_embeddings, segment_embeddings).cpu().numpy()
+                        # Get average of upper triangle (excluding diagonal)
+                        internal_similarity = np.mean(segment_similarities[np.triu_indices_from(segment_similarities, k=1)])
+                        internal_cohesion_scores.append(internal_similarity)
+                
+                # Average internal cohesion across all chunks
+                internal_cohesion_score = np.mean(internal_cohesion_scores) if internal_cohesion_scores else 0.5
+                
+                # Calculate overall average similarity between all chunks (for reference)
                 overall_avg_similarity = np.mean(util.cos_sim(chunk_embeddings, chunk_embeddings).cpu().numpy()[np.triu_indices_from(util.cos_sim(chunk_embeddings, chunk_embeddings).cpu().numpy(), k=1)])
                 
                 return {
-                    'coherence_score': coherence_score,
+                    'boundary_score': boundary_score,  # Higher is better (indicates distinct chunks)
+                    'internal_cohesion_score': internal_cohesion_score,  # Higher is better (indicates coherent chunks)
                     'avg_similarity': overall_avg_similarity,
                     'similarity_std': np.std(adjacent_similarities) if adjacent_similarities.size > 0 else 0
                 }
@@ -187,11 +226,28 @@ class ChunkQualityEvaluator:
                     adjacent_similarities.append(similarities[i][i + 1])
                 
                 avg_adjacent_similarity = np.mean(adjacent_similarities) if adjacent_similarities else 0
-                coherence_score = min(1.0, avg_adjacent_similarity * self.coherence_score_boost_factor) 
+                
+                # Calculate boundary score: 1 - adjacent_similarity
+                boundary_score = 1.0 - avg_adjacent_similarity
+                
+                # For TF-IDF fallback, use a simplified internal cohesion calculation
+                internal_cohesion_scores = []
+                for i, text in enumerate(texts):
+                    segments = [s.strip() for s in text.split('.') if s.strip()]
+                    if len(segments) > 1:
+                        segment_matrix = self.vectorizer.fit_transform(segments)
+                        segment_similarities = cosine_similarity(segment_matrix)
+                        internal_similarity = np.mean(segment_similarities[np.triu_indices_from(segment_similarities, k=1)])
+                        internal_cohesion_scores.append(internal_similarity)
+                
+                internal_cohesion_score = np.mean(internal_cohesion_scores) if internal_cohesion_scores else 0.5
+                
+                # Calculate overall average similarity between all chunks (for reference)
                 overall_avg_similarity = np.mean(similarities[np.triu_indices_from(similarities, k=1)])
                 
                 return {
-                    'coherence_score': coherence_score,
+                    'boundary_score': boundary_score,  # Higher is better (indicates distinct chunks)
+                    'internal_cohesion_score': internal_cohesion_score,  # Higher is better (indicates coherent chunks)
                     'avg_similarity': overall_avg_similarity,
                     'similarity_std': np.std(adjacent_similarities) if adjacent_similarities else 0
                 }
@@ -274,11 +330,21 @@ class ChunkQualityEvaluator:
         return {**structure_metrics, **structure_percentages}
     
     def _calculate_overall_score(self, metrics: Dict[str, Any]) -> float:
-        """Calculate overall quality score (0-100)"""
+        """Calculate overall quality score (0-100)
+        
+        The score now properly rewards:
+        1. Good semantic boundaries between chunks (higher boundary_score)
+        2. High internal cohesion within each chunk (higher internal_cohesion_score)
+        3. Consistent chunk sizes
+        4. Good content quality (no empty/short chunks, complete sentences)
+        5. Good structure preservation
+        """
         
         try:
+            # Size consistency score (0-20 points)
             size_score = metrics['size_distribution']['size_consistency'] * 20
             
+            # Content quality score (0-30 points)
             content_metrics = metrics['content_quality']
             content_score_raw = (
                 (100 - content_metrics['empty_chunks_pct']) * 0.6 +
@@ -287,8 +353,17 @@ class ChunkQualityEvaluator:
             )
             content_score = (content_score_raw / 100) * 30
             
-            coherence_score = metrics['semantic_coherence']['coherence_score'] * 25
+            # Semantic quality score (0-25 points)
+            # Now using boundary_score (higher is better) and internal_cohesion_score (higher is better)
+            semantic_metrics = metrics['semantic_coherence']
+            boundary_score = semantic_metrics.get('boundary_score', 0.5)  # Default if not present
+            internal_cohesion = semantic_metrics.get('internal_cohesion_score', 0.5)  # Default if not present
             
+            # Combine boundary and cohesion scores with appropriate weights
+            # Boundary score (distinct chunks) is weighted more heavily for RAG applications
+            semantic_score = (boundary_score * 0.6 + internal_cohesion * 0.4) * 25
+            
+            # Structure preservation score (0-25 points)
             structure_metrics = metrics['structural_preservation']
             structure_score_raw = (
                 structure_metrics['chunks_with_headers_pct'] * 0.25 + # Slightly reduced weight to balance
@@ -300,7 +375,8 @@ class ChunkQualityEvaluator:
             )
             structure_score = (structure_score_raw / 100) * 25
             
-            overall_score = size_score + content_score + coherence_score + structure_score
+            # Calculate overall score (0-100 points)
+            overall_score = size_score + content_score + semantic_score + structure_score
             return min(100, max(0, overall_score))
             
         except Exception as e:
@@ -329,9 +405,10 @@ class ChunkQualityEvaluator:
 - **Very Short Chunks**: {metrics['content_quality']['very_short_chunks']} ({metrics['content_quality']['very_short_chunks_pct']:.1f}%)
 - **Incomplete Sentences**: {metrics['content_quality']['incomplete_sentences']} ({metrics['content_quality']['incomplete_sentences_pct']:.1f}%)
 
-## Semantic Coherence
-- **Coherence Score**: {metrics['semantic_coherence']['coherence_score']:.3f}
-- **Average Similarity**: {metrics['semantic_coherence']['avg_similarity']:.3f}
+## Semantic Quality
+- **Boundary Score**: {metrics['semantic_coherence'].get('boundary_score', 0.0):.3f} (higher is better - indicates distinct chunks)
+- **Internal Cohesion**: {metrics['semantic_coherence'].get('internal_cohesion_score', 0.0):.3f} (higher is better - indicates coherent chunks)
+- **Average Similarity**: {metrics['semantic_coherence']['avg_similarity']:.3f} (for reference)
 
 ## Structure Preservation
 - **Chunks with Headers**: {metrics['structural_preservation']['chunks_with_headers']} ({metrics['structural_preservation']['chunks_with_headers_pct']:.1f}%)
@@ -350,8 +427,11 @@ class ChunkQualityEvaluator:
         if metrics['content_quality']['very_short_chunks_pct'] > 20:
             report += "- ⚠️  Many very short chunks. Consider increasing minimum chunk size.\n"
         
-        if metrics['semantic_coherence']['coherence_score'] < 0.3:
-            report += "- ⚠️  Low semantic coherence. Consider adjusting chunk overlap or using semantic chunking.\n"
+        if metrics['semantic_coherence'].get('boundary_score', 0.0) < 0.5:
+            report += "- ⚠️  Low semantic boundary score. Consider reducing chunk overlap to create more distinct chunks.\n"
+        
+        if metrics['semantic_coherence'].get('internal_cohesion_score', 0.0) < 0.4:
+            report += "- ⚠️  Low internal cohesion within chunks. Consider using semantic chunking to improve chunk coherence.\n"
         
         if metrics['size_distribution']['size_consistency'] < 0.5:
             report += "- ⚠️  Inconsistent chunk sizes. Consider using fixed-size chunking for more consistency.\n"
