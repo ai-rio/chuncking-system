@@ -92,7 +92,7 @@ class RAGEvaluator:
         try:
             # Initialize Gemini LLM for Ragas evaluation with minimal config
             gemini_llm = ChatGoogleGenerativeAI(
-                model="gemini-1.5-flash",
+                model="gemini-2.0-flash",
                 temperature=0.1,  # Low temperature for consistent evaluation
                 google_api_key=config.GEMINI_API_KEY,
                 max_output_tokens=1024  # Limit output tokens to avoid issues
