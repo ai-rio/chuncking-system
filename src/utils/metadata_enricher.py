@@ -342,3 +342,40 @@ class MetadataEnricher:
 
             enriched_chunks.append(chunk)
         return enriched_chunks
+
+    async def _call_llm_async(self, prompt: str) -> str:
+        """
+        General method to call the LLM with a given prompt.
+        Used by RAGEvaluator for generating questions and answers.
+        
+        Args:
+            prompt: The prompt to send to the LLM
+            
+        Returns:
+            The LLM's response as a string
+        """
+        if not config.GEMINI_API_KEY:
+            return "Mock LLM response: Unable to process request without API key."
+        
+        # Use caching for consistency
+        cache_key = self._get_cache_key([prompt])
+        cached_response = self._read_from_cache(cache_key)
+        if cached_response:
+            return cached_response
+        
+        model = genai.GenerativeModel(config.LLM_METADATA_MODEL)
+        try:
+            chatHistory = [{"role": "user", "parts": [{"text": prompt}]}]
+            # Add delay to avoid rate limiting
+            await asyncio.sleep(1)
+            response = await asyncio.to_thread(model.generate_content, chatHistory)
+            response_text = response.candidates[0].content.parts[0].text
+            
+            # Cache the response
+            self._write_to_cache(cache_key, response_text)
+            return response_text
+            
+        except Exception as e:
+            error_msg = f"Error calling LLM: {e}"
+            print(error_msg)
+            return error_msg

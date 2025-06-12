@@ -204,6 +204,10 @@ data/temp/*
 !data/temp/.gitkeep
 data/cache/*
 !data/cache/.gitkeep
+data/evaluation_results/*
+!data/evaluation_results/.gitkeep
+data/input/markdown_files/*
+!data/input/markdown_files/.gitkeep
 
 # Logs and temporary files
 *.log
@@ -226,6 +230,7 @@ data/cache/*
 # Configuration files with sensitive data
 config/local_settings.py
 config/production_settings.py
+src/config/__pycache__/
 .env.local
 .env.production
 
