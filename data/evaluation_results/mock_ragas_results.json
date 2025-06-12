@@ -1,0 +1,49 @@
+{
+  "summary": {
+    "context_precision": {
+      "mean": 0.885,
+      "min": 0.85,
+      "max": 0.92,
+      "std": 0.03500000000000003
+    },
+    "context_recall": {
+      "mean": 0.8300000000000001,
+      "min": 0.78,
+      "max": 0.88,
+      "std": 0.04999999999999999
+    },
+    "faithfulness": {
+      "mean": 0.9,
+      "min": 0.89,
+      "max": 0.91,
+      "std": 0.010000000000000009
+    },
+    "answer_relevancy": {
+      "mean": 0.9,
+      "min": 0.87,
+      "max": 0.93,
+      "std": 0.030000000000000027
+    }
+  },
+  "detailed_scores": [
+    {
+      "context_precision": 0.85,
+      "context_recall": 0.78,
+      "faithfulness": 0.91,
+      "answer_relevancy": 0.87
+    },
+    {
+      "context_precision": 0.92,
+      "context_recall": 0.88,
+      "faithfulness": 0.89,
+      "answer_relevancy": 0.93
+    }
+  ],
+  "metadata": {
+    "samples_count": 2,
+    "model": "gemini-1.5-pro",
+    "framework": "Ragas",
+    "evaluation_timestamp": "2025-06-11T18:15:02.718002",
+    "note": "Mock evaluation results demonstrating proper structured output"
+  }
+}

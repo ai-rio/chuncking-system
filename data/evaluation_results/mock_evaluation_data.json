@@ -1,0 +1,25 @@
+{
+  "timestamp": "2025-06-11T18:15:02.717991",
+  "samples": [
+    {
+      "question": "What are three ways machine learning has revolutionized healthcare?",
+      "answer": "Machine learning has revolutionized healthcare through predictive analytics, personalized treatment plans, and improved diagnostic accuracy.",
+      "contexts": [
+        "Machine learning (ML) has revolutionized healthcare by enabling predictive analytics, personalized treatment plans, and improved diagnostic accuracy."
+      ],
+      "ground_truth": "Machine learning has revolutionized healthcare through predictive analytics, personalized treatment plans, and improved diagnostic accuracy.",
+      "chunk_index": 0,
+      "main_topic": "Machine learning's role in transforming healthcare"
+    },
+    {
+      "question": "In what medical fields has ML shown success in diagnostic imaging?",
+      "answer": "ML has shown success in diagnostic imaging in radiology, pathology, and ophthalmology.",
+      "contexts": [
+        "Machine learning algorithms have shown remarkable success in medical imaging: Radiology, Pathology, and Ophthalmology."
+      ],
+      "ground_truth": "ML has shown success in diagnostic imaging in radiology, pathology, and ophthalmology.",
+      "chunk_index": 1,
+      "main_topic": "Machine learning applications in diagnostic imaging"
+    }
+  ]
+}

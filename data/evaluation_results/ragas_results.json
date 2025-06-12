@@ -1,0 +1,80 @@
+{
+  "summary": {
+    "user_input": null,
+    "retrieved_contexts": null,
+    "response": null,
+    "reference": null,
+    "context_precision": null,
+    "context_recall": null,
+    "faithfulness": null,
+    "answer_relevancy": null
+  },
+  "detailed_scores": [
+    {
+      "user_input": "According to the introduction, what are three ways machine learning has revolutionized healthcare?",
+      "retrieved_contexts": [
+        "# Machine Learning in Healthcare  \n## Introduction  \nMachine learning (ML) has revolutionized healthcare by enabling predictive analytics, personalized treatment plans, and improved diagnostic accuracy. This document explores the key applications and benefits of ML in modern healthcare systems."
+      ],
+      "response": "According to the introduction, machine learning has revolutionized healthcare by enabling predictive analytics, personalized treatment plans, and improved diagnostic accuracy.",
+      "reference": "According to the introduction, machine learning has revolutionized healthcare by enabling predictive analytics, personalized treatment plans, and improved diagnostic accuracy.",
+      "context_precision": null,
+      "context_recall": null,
+      "faithfulness": null,
+      "answer_relevancy": null
+    },
+    {
+      "user_input": "In what three medical fields has machine learning shown success in diagnostic imaging, according to the text?",
+      "retrieved_contexts": [
+        "## Key Applications  \n### Diagnostic Imaging  \nMachine learning algorithms, particularly deep learning models, have shown remarkable success in medical imaging:  \n- **Radiology**: AI systems can detect tumors, fractures, and other abnormalities in X-rays, CT scans, and MRIs with accuracy comparable to experienced radiologists.\n- **Pathology**: Computer vision models assist pathologists in identifying cancerous cells and tissue patterns.\n- **Ophthalmology**: ML models can diagnose diabetic retinopathy and other eye conditions from retinal photographs."
+      ],
+      "response": "According to the text, machine learning has shown success in diagnostic imaging in radiology, pathology, and ophthalmology.",
+      "reference": "According to the text, machine learning has shown success in diagnostic imaging in radiology, pathology, and ophthalmology.",
+      "context_precision": null,
+      "context_recall": null,
+      "faithfulness": null,
+      "answer_relevancy": null
+    },
+    {
+      "user_input": "According to the text, what are two ways the pharmaceutical industry leverages ML to accelerate drug development?",
+      "retrieved_contexts": [
+        "### Drug Discovery  \nThe pharmaceutical industry leverages ML to accelerate drug development:  \n- **Molecular Design**: AI algorithms predict molecular properties and design new drug compounds.\n- **Clinical Trial Optimization**: ML helps identify suitable patients for clinical trials and predict trial outcomes.\n- **Repurposing**: Existing drugs can be repurposed for new conditions using ML-driven analysis."
+      ],
+      "response": "According to the text, two ways the pharmaceutical industry leverages ML to accelerate drug development are molecular design (AI algorithms predict molecular properties and design new drug compounds) and clinical trial optimization (ML helps identify suitable patients for clinical trials and predict trial outcomes).",
+      "reference": "According to the text, two ways the pharmaceutical industry leverages ML to accelerate drug development are molecular design (AI algorithms predict molecular properties and design new drug compounds) and clinical trial optimization (ML helps identify suitable patients for clinical trials and predict trial outcomes).",
+      "context_precision": null,
+      "context_recall": null,
+      "faithfulness": null,
+      "answer_relevancy": null
+    },
+    {
+      "user_input": "According to the text, what are three applications of machine learning in personalized medicine?",
+      "retrieved_contexts": [
+        "### Personalized Medicine  \nML enables tailored treatment approaches:  \n- **Genomics**: Analysis of genetic data to predict disease susceptibility and treatment response.\n- **Treatment Recommendations**: AI systems suggest optimal treatment plans based on patient history and characteristics.\n- **Risk Stratification**: ML models identify high-risk patients for preventive interventions."
+      ],
+      "response": "According to the text, three applications of machine learning in personalized medicine are: analysis of genetic data to predict disease susceptibility and treatment response, suggesting optimal treatment plans based on patient history and characteristics, and identifying high-risk patients for preventive interventions.",
+      "reference": "According to the text, three applications of machine learning in personalized medicine are: analysis of genetic data to predict disease susceptibility and treatment response, suggesting optimal treatment plans based on patient history and characteristics, and identifying high-risk patients for preventive interventions.",
+      "context_precision": null,
+      "context_recall": null,
+      "faithfulness": null,
+      "answer_relevancy": null
+    },
+    {
+      "user_input": "According to the text, what are three benefits of using machine learning models that lead to improved accuracy?",
+      "retrieved_contexts": [
+        "## Benefits and Impact  \n### Improved Accuracy  \nMachine learning models can process vast amounts of data and identify patterns that might be missed by human analysis. This leads to:  \n- Earlier disease detection\n- Reduced diagnostic errors\n- More precise treatment recommendations"
+      ],
+      "response": "According to the text, three benefits of using machine learning models that lead to improved accuracy are: earlier disease detection, reduced diagnostic errors, and more precise treatment recommendations.",
+      "reference": "According to the text, three benefits of using machine learning models that lead to improved accuracy are: earlier disease detection, reduced diagnostic errors, and more precise treatment recommendations.",
+      "context_precision": null,
+      "context_recall": null,
+      "faithfulness": null,
+      "answer_relevancy": null
+    }
+  ],
+  "metadata": {
+    "samples_count": 5,
+    "model": "gemini-2.0-flash",
+    "framework": "Ragas",
+    "note": "NaN values indicate metrics that could not be calculated due to data format or model output issues"
+  }
+}
