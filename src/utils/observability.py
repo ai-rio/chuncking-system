@@ -383,9 +383,24 @@ class MetricsRegistry:
     def export_all_data(self) -> Dict[str, Any]:
         """Export all metrics data."""
         with self.lock:
+            # Convert metrics to serializable format
+            metrics_dict = {}
+            for name, metrics in self._metrics_dict.items():
+                metrics_dict[name] = []
+                for metric in metrics:
+                    metric_data = {
+                        "name": metric.name,
+                        "value": metric.value,
+                        "metric_type": metric.metric_type,
+                        "unit": metric.unit,
+                        "timestamp": metric.timestamp,
+                        "labels": metric.labels,
+                        "help_text": metric.help_text
+                    }
+                    metrics_dict[name].append(metric_data)
+            
             return {
-                "metrics": {name: [metric.__dict__ for metric in metrics] 
-                          for name, metrics in self._metrics_dict.items()},
+                "metrics": metrics_dict,
                 "export_time": datetime.now().isoformat()
             }
     
@@ -466,6 +481,33 @@ class HealthRegistry:
             results[name] = self.run_check(name, use_cache)
         return results
     
+    def run_all_health_checks(self, use_cache: bool = True) -> Dict[str, HealthCheckResult]:
+        """Run all health checks (alias for backward compatibility)."""
+        return self.run_all_checks(use_cache)
+    
+    def run_health_check(self, name: str, use_cache: bool = True) -> Optional[HealthCheckResult]:
+        """Run a specific health check (alias for backward compatibility)."""
+        return self.run_check(name, use_cache)
+    
+    def get_overall_health_status(self) -> str:
+        """Get overall system health status."""
+        results = self.run_all_checks()
+        
+        if not results:
+            return "healthy"
+        
+        # Check for any unhealthy components
+        for result in results.values():
+            if result and not result.is_healthy:
+                return "unhealthy"
+        
+        # Check for any degraded components (if status is specifically "degraded")
+        for result in results.values():
+            if result and hasattr(result, 'status') and result.status == "degraded":
+                return "degraded"
+        
+        return "healthy"
+    
     def get_dependency_status(self, component: str) -> Dict[str, Any]:
         """Get status of component dependencies."""
         if component not in self.dependencies:
@@ -496,15 +538,23 @@ class DashboardGenerator:
         dashboard = {
             "dashboard": {
                 "id": None,
-                "title": "Document Chunking System - Observability",
-                "tags": ["chunking", "monitoring", "phase4"],
+                "title": "Document Chunking System - Phase 4 Observability",
+                "tags": ["chunking", "monitoring", "phase4", "observability"],
+                "style": "dark",
                 "timezone": "browser",
+                "editable": True,
+                "graphTooltip": 0,
                 "panels": [],
                 "time": {
                     "from": "now-1h",
                     "to": "now"
                 },
-                "refresh": "5s"
+                "timepicker": {
+                    "refresh_intervals": ["5s", "10s", "30s", "1m", "5m", "15m", "30m", "1h", "2h", "1d"]
+                },
+                "refresh": "5s",
+                "schemaVersion": 30,
+                "version": 1
             }
         }
         
@@ -524,6 +574,31 @@ class DashboardGenerator:
         health_panels = self._create_health_panels(panel_id)
         dashboard["dashboard"]["panels"].extend(health_panels)
         
+        # Add system health status panel at the beginning
+        system_health_panel = {
+            "id": 0,
+            "title": "System Health Status",
+            "type": "stat",
+            "targets": [{"expr": "component_health_status", "refId": "A"}],
+            "gridPos": {"h": 8, "w": 6, "x": 18, "y": 0},
+            "fieldConfig": {
+                "defaults": {
+                    "color": {"mode": "thresholds"},
+                    "thresholds": {
+                        "steps": [
+                            {"color": "red", "value": None},
+                            {"color": "yellow", "value": 0.5},
+                            {"color": "green", "value": 0.8}
+                        ]
+                    }
+                }
+            },
+            "options": {
+                "colorMode": "background"
+            }
+        }
+        dashboard["dashboard"]["panels"].insert(0, system_health_panel)
+        
         return dashboard
     
     def _create_system_panels(self, start_id: int) -> List[Dict[str, Any]]:
@@ -533,15 +608,53 @@ class DashboardGenerator:
                 "id": start_id,
                 "title": "CPU Usage",
                 "type": "stat",
-                "targets": [{"expr": "system_cpu_percent"}],
-                "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0}
+                "targets": [{"expr": "system_cpu_percent", "refId": "A"}],
+                "gridPos": {"h": 8, "w": 6, "x": 0, "y": 0},
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {"mode": "thresholds"},
+                        "thresholds": {
+                            "steps": [
+                                {"color": "green", "value": None},
+                                {"color": "yellow", "value": 70},
+                                {"color": "red", "value": 90}
+                            ]
+                        },
+                        "unit": "percent"
+                    }
+                },
+                "options": {
+                    "colorMode": "value",
+                    "graphMode": "area",
+                    "justifyMode": "auto",
+                    "orientation": "auto"
+                }
             },
             {
                 "id": start_id + 1,
                 "title": "Memory Usage",
                 "type": "stat",
-                "targets": [{"expr": "system_memory_percent"}],
-                "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0}
+                "targets": [{"expr": "system_memory_percent", "refId": "A"}],
+                "gridPos": {"h": 8, "w": 6, "x": 6, "y": 0},
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {"mode": "thresholds"},
+                        "thresholds": {
+                            "steps": [
+                                {"color": "green", "value": None},
+                                {"color": "yellow", "value": 70},
+                                {"color": "red", "value": 90}
+                            ]
+                        },
+                        "unit": "percent"
+                    }
+                },
+                "options": {
+                    "colorMode": "value",
+                    "graphMode": "area",
+                    "justifyMode": "auto",
+                    "orientation": "auto"
+                }
             },
             {
                 "id": start_id + 2,
@@ -565,24 +678,60 @@ class DashboardGenerator:
         panels = [
             {
                 "id": start_id,
-                "title": "Chunking Operations",
+                "title": "Chunking Operations Rate",
                 "type": "graph",
-                "targets": [{"expr": "chunking_operations_total"}],
-                "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8}
+                "targets": [{"expr": "rate(chunking_operations_total[5m])", "refId": "A"}],
+                "gridPos": {"h": 8, "w": 12, "x": 0, "y": 8},
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {"mode": "palette-classic"}
+                    }
+                },
+                "options": {
+                    "legend": {"displayMode": "table", "values": ["last", "max"]}
+                }
             },
             {
                 "id": start_id + 1,
-                "title": "Average Processing Time",
+                "title": "Processing Duration",
                 "type": "graph",
-                "targets": [{"expr": "avg(chunking_duration_ms)"}],
-                "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8}
+                "targets": [
+                    {"expr": "histogram_quantile(0.95, chunking_duration_ms)", "refId": "A", "legendFormat": "95th percentile"},
+                    {"expr": "histogram_quantile(0.50, chunking_duration_ms)", "refId": "B", "legendFormat": "50th percentile"}
+                ],
+                "gridPos": {"h": 8, "w": 12, "x": 12, "y": 8},
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {"mode": "palette-classic"},
+                        "unit": "ms"
+                    }
+                },
+                "options": {
+                    "legend": {"displayMode": "table", "values": ["last", "max"]}
+                }
             },
             {
                 "id": start_id + 2,
                 "title": "Error Rate",
                 "type": "stat",
-                "targets": [{"expr": "rate(chunking_errors_total[5m])"}],
-                "gridPos": {"h": 8, "w": 8, "x": 0, "y": 16}
+                "targets": [{"expr": "rate(chunking_errors_total[5m])", "refId": "A"}],
+                "gridPos": {"h": 8, "w": 8, "x": 0, "y": 16},
+                "fieldConfig": {
+                    "defaults": {
+                        "color": {"mode": "thresholds"},
+                        "thresholds": {
+                            "steps": [
+                                {"color": "green", "value": None},
+                                {"color": "yellow", "value": 0.01},
+                                {"color": "red", "value": 0.05}
+                            ]
+                        },
+                        "unit": "reqps"
+                    }
+                },
+                "options": {
+                    "colorMode": "value"
+                }
             },
             {
                 "id": start_id + 3,
@@ -631,9 +780,38 @@ class DashboardGenerator:
                     ],
                     "metrics_path": "/metrics",
                     "scrape_interval": "5s"
+                },
+                {
+                    "job_name": "chunking-system-health",
+                    "static_configs": [
+                        {
+                            "targets": ["localhost:8000"]
+                        }
+                    ],
+                    "metrics_path": "/health",
+                    "scrape_interval": "30s"
                 }
             ],
-            "rule_files": ["chunking_alerts.yml"]
+            "rule_files": ["prometheus-alerts.yml"],
+            "alerting": {
+                "alertmanagers": [
+                    {
+                        "static_configs": [
+                            {
+                                "targets": ["localhost:9093"]
+                            }
+                        ],
+                        "timeout": "10s",
+                        "api_version": "v1",
+                        "path_prefix": "/"
+                    }
+                ]
+            },
+            "external_labels": {
+                "cluster": "chunking-system",
+                "environment": "production",
+                "service": "document-chunking"
+            }
         }
         return config
     
@@ -645,6 +823,16 @@ class DashboardGenerator:
                     "name": "chunking_system_alerts",
                     "rules": [
                         {
+                            "alert": "SystemHealthDown",
+                            "expr": "component_health_status == 0",
+                            "for": "30s",
+                            "labels": {"severity": "critical"},
+                            "annotations": {
+                                "summary": "System health check failed",
+                                "description": "System component {{ $labels.component }} is down"
+                            }
+                        },
+                        {
                             "alert": "HighErrorRate",
                             "expr": "rate(chunking_errors_total[5m]) > 0.1",
                             "for": "2m",
@@ -652,6 +840,16 @@ class DashboardGenerator:
                             "annotations": {
                                 "summary": "High error rate in chunking system",
                                 "description": "Error rate is {{ $value }} errors/sec"
+                            }
+                        },
+                        {
+                            "alert": "ProcessingLatencyHigh",
+                            "expr": "histogram_quantile(0.95, chunking_duration_ms) > 5000",
+                            "for": "5m",
+                            "labels": {"severity": "warning"},
+                            "annotations": {
+                                "summary": "High processing latency detected",
+                                "description": "95th percentile latency is {{ $value }}ms"
                             }
                         },
                         {
@@ -673,6 +871,66 @@ class DashboardGenerator:
                                 "summary": "Component health check failed",
                                 "description": "Component {{ $labels.component }} is unhealthy"
                             }
+                        }
+                    ]
+                },
+                {
+                    "name": "chunking_system_sla",
+                    "rules": [
+                        {
+                            "alert": "SLAErrorRateBreach",
+                            "expr": "rate(chunking_errors_total[1h]) > 0.05",
+                            "for": "15m",
+                            "labels": {"severity": "critical"},
+                            "annotations": {
+                                "summary": "SLA error rate breach",
+                                "description": "Hourly error rate {{ $value }} exceeds SLA threshold of 5%"
+                            }
+                        },
+                        {
+                            "alert": "SLALatencyBreach",
+                            "expr": "histogram_quantile(0.95, chunking_duration_ms) > 3000",
+                            "for": "15m",
+                            "labels": {"severity": "critical"},
+                            "annotations": {
+                                "summary": "SLA latency breach",
+                                "description": "95th percentile latency {{ $value }}ms exceeds SLA threshold"
+                            }
+                        },
+                        {
+                            "alert": "SLAAvailabilityBreach",
+                            "expr": "avg_over_time(component_health_status[1h]) < 0.99",
+                            "for": "5m",
+                            "labels": {"severity": "critical"},
+                            "annotations": {
+                                "summary": "SLA availability breach",
+                                "description": "Hourly availability {{ $value }} is below 99% SLA"
+                            }
+                        }
+                    ]
+                },
+                {
+                    "name": "chunking_system_recording_rules",
+                    "rules": [
+                        {
+                            "record": "chunking:error_rate_5m",
+                            "expr": "rate(chunking_errors_total[5m])"
+                        },
+                        {
+                            "record": "chunking:throughput_5m",
+                            "expr": "rate(chunking_operations_total[5m])"
+                        },
+                        {
+                            "record": "chunking:latency_p95_5m",
+                            "expr": "histogram_quantile(0.95, rate(chunking_duration_ms_bucket[5m]))"
+                        },
+                        {
+                            "record": "system:cpu_utilization_avg",
+                            "expr": "avg(system_cpu_percent)"
+                        },
+                        {
+                            "record": "system:memory_utilization_avg",
+                            "expr": "avg(system_memory_percent)"
                         }
                     ]
                 }
@@ -843,8 +1101,29 @@ class ObservabilityManager:
     
     def export_all_data(self) -> Dict[str, Any]:
         """Export all observability data."""
+        # Get raw metrics data directly from registry
+        metrics_data = self.metrics_registry.export_all_data()
+        
+        # Convert metrics dict to flat list for test compatibility
+        metrics_list = []
+        if "metrics" in metrics_data:
+            for metric_name, metric_objects in metrics_data["metrics"].items():
+                for metric_dict in metric_objects:
+                    # Create a simple object with the expected attributes
+                    class MetricWrapper:
+                        def __init__(self, data):
+                            self.name = data.get("name")
+                            self.value = data.get("value")
+                            self.metric_type = data.get("metric_type")
+                            self.unit = data.get("unit")
+                            self.timestamp = data.get("timestamp")
+                            self.labels = data.get("labels", {})
+                            self.help_text = data.get("help_text")
+                    
+                    metrics_list.append(MetricWrapper(metric_dict))
+        
         return {
-            "metrics": self.metrics_registry.export_all_data(),
+            "metrics": metrics_list,
             "health_checks": self.get_health_status(),
             "prometheus_format": self.metrics_registry.export_prometheus_format(),
             "system_info": {
