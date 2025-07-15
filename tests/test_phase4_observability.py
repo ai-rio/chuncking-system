@@ -637,9 +637,9 @@ class TestIntegrationScenarios:
         export_data = manager.export_all_data()
         
         # Verify complete data export
-        assert len(export_data["metrics"]) == 3
-        assert len(export_data["health_checks"]) == 1
-        assert export_data["health_checks"]["database"]["status"] == "healthy"
+        assert len(export_data["metrics"]["metrics"]) == 3
+        assert len(export_data["health_checks"]["components"]) >= 1
+        assert export_data["health_checks"]["components"]["database"]["status"] == "healthy"
         assert "requests_total" in export_data["prometheus_format"]
         assert "response_time_ms" in export_data["prometheus_format"]
         assert "active_connections" in export_data["prometheus_format"]

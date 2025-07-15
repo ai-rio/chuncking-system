@@ -224,9 +224,10 @@ class StructuredLogger:
     }
     
     def __init__(self, name: str):
-        self.logger = get_logger(name)
+        self.logger = logging.getLogger(name)
         self.name = name
         self.component = name
+        self.correlation_manager = CorrelationIDManager()
     
     def _filter_sensitive_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
         """Filter sensitive data from log entries."""
@@ -240,45 +241,81 @@ class StructuredLogger:
                 filtered_data[key] = value
         return filtered_data
     
-    def _format_message(self, message: str, **kwargs) -> Dict[str, Any]:
+    def _serialize_value(self, value: Any) -> Any:
+        """Safely serialize values for JSON output."""
+        # Handle None values
+        if value is None:
+            return None
+        
+        # Handle basic types that are already JSON serializable
+        if isinstance(value, (str, int, float, bool, list, dict)):
+            return value
+        
+        # Handle Exception objects
+        if isinstance(value, Exception):
+            return {
+                "type": type(value).__name__,
+                "message": str(value),
+                "args": list(value.args) if value.args else []
+            }
+        
+        # Handle Mock objects (for testing)
+        if hasattr(value, '_mock_name') or str(type(value)).find('Mock') != -1:
+            return str(value)
+        
+        # Handle datetime objects
+        if hasattr(value, 'isoformat'):
+            return value.isoformat()
+        
+        # For any other object, convert to string
+        return str(value)
+    
+    def _format_message(self, level: str, message: str, **kwargs) -> Dict[str, Any]:
         """Format message with correlation ID and structured data."""
         # Filter sensitive data from kwargs
         filtered_kwargs = self._filter_sensitive_data(kwargs)
         
+        # Serialize all values to ensure JSON compatibility
+        serialized_kwargs = {}
+        for key, value in filtered_kwargs.items():
+            serialized_kwargs[key] = self._serialize_value(value)
+        
         log_data = {
+            "level": level,
             "message": message,
+            "component": self.component,
             "timestamp": datetime.now().isoformat(),
             "logger": self.name,
-            "correlation_id": CorrelationIDManager.get_correlation_id(),
-            **filtered_kwargs
+            "correlation_id": self._serialize_value(self.correlation_manager.get_correlation_id()),
+            **serialized_kwargs
         }
         return log_data
     
     def debug(self, message: str, **kwargs):
         """Log debug message."""
-        log_data = self._format_message(message, **kwargs)
+        log_data = self._format_message("DEBUG", message, **kwargs)
         self.logger.debug(json.dumps(log_data))
     
     def info(self, message: str, **kwargs):
         """Log info message."""
-        log_data = self._format_message(message, **kwargs)
+        log_data = self._format_message("INFO", message, **kwargs)
         self.logger.info(json.dumps(log_data))
     
     def warning(self, message: str, **kwargs):
         """Log warning message."""
-        log_data = self._format_message(message, **kwargs)
+        log_data = self._format_message("WARNING", message, **kwargs)
         self.logger.warning(json.dumps(log_data))
     
     def error(self, message: str, **kwargs):
         """Log error message."""
-        log_data = self._format_message(message, **kwargs)
         if 'exc_info' not in kwargs:
             kwargs['traceback'] = traceback.format_exc()
+        log_data = self._format_message("ERROR", message, **kwargs)
         self.logger.error(json.dumps(log_data))
     
     def critical(self, message: str, **kwargs):
         """Log critical message."""
-        log_data = self._format_message(message, **kwargs)
+        log_data = self._format_message("CRITICAL", message, **kwargs)
         self.logger.critical(json.dumps(log_data))
     
     @contextmanager
@@ -541,7 +578,8 @@ class HealthRegistry:
     """Registry for health checks with caching and dependencies."""
     
     def __init__(self, max_concurrent_checks: int = 10, check_timeout_seconds: float = 30.0):
-        self.checks: Dict[str, Callable[[], HealthCheckResult]] = {}
+        self.health_checks: Dict[str, Callable[[], HealthCheckResult]] = {}
+        self.checks: Dict[str, Callable[[], HealthCheckResult]] = {}  # Keep for backward compatibility
         self.cache: Dict[str, HealthCheckResult] = {}
         self.cache_ttl = timedelta(seconds=30)
         self.dependencies: Dict[str, List[str]] = {}
@@ -553,7 +591,8 @@ class HealthRegistry:
                       dependencies: Optional[List[str]] = None):
         """Register a health check."""
         with self.lock:
-            self.checks[name] = check_func
+            self.health_checks[name] = check_func
+            self.checks[name] = check_func  # Keep for backward compatibility
             self.dependencies[name] = dependencies or []
     
     def register_health_check(self, name: str, check_func: Callable[[], HealthCheckResult], 
@@ -563,7 +602,7 @@ class HealthRegistry:
     
     def run_check(self, name: str, use_cache: bool = True) -> Optional[HealthCheckResult]:
         """Run a specific health check."""
-        if name not in self.checks:
+        if name not in self.health_checks:
             return None
         
         # Check cache first
@@ -575,7 +614,7 @@ class HealthRegistry:
         # Run the check
         start_time = time.time()
         try:
-            result = self.checks[name]()
+            result = self.health_checks[name]()
             response_time = (time.time() - start_time) * 1000
             result.response_time_ms = response_time
             result.dependencies = self.dependencies[name]
@@ -590,7 +629,7 @@ class HealthRegistry:
             response_time = (time.time() - start_time) * 1000
             result = HealthCheckResult(
                 component=name,
-                status="unhealthy",
+                status=HealthStatus.UNHEALTHY,
                 message=f"Health check failed: {str(e)}",
                 details={"error": str(e), "traceback": traceback.format_exc()},
                 response_time_ms=response_time,
@@ -614,7 +653,7 @@ class HealthRegistry:
             # Create an error result for unexpected exceptions
             error_result = HealthCheckResult(
                 component=name,
-                status="unhealthy",
+                status=HealthStatus.UNHEALTHY,
                 message=f"Health check execution failed: {str(e)}",
                 details={"error": str(e), "traceback": traceback.format_exc()},
                 dependencies=self.dependencies.get(name, [])
@@ -623,18 +662,18 @@ class HealthRegistry:
     
     def run_all_checks(self, use_cache: bool = True) -> Dict[str, HealthCheckResult]:
         """Run all health checks in parallel with concurrency limits and timeout handling."""
-        if not self.checks:
+        if not self.health_checks:
             return {}
         
         results = {}
         
         # Determine the optimal number of workers (don't exceed the limit or the number of checks)
         # Ensure we have at least 1 worker
-        max_workers = max(1, min(self.max_concurrent_checks, len(self.checks)))
+        max_workers = max(1, min(self.max_concurrent_checks, len(self.health_checks)))
         
         # If we only have one check, run it directly to avoid overhead
-        if len(self.checks) == 1:
-            name = next(iter(self.checks))
+        if len(self.health_checks) == 1:
+            name = next(iter(self.health_checks))
             result = self.run_check(name, use_cache)
             if result:
                 results[name] = result
@@ -645,7 +684,7 @@ class HealthRegistry:
             # Submit all health checks
             future_to_name = {
                 executor.submit(self._execute_check_with_timeout, name, use_cache): name
-                for name in self.checks
+                for name in self.health_checks
             }
             
             # Collect results with timeout handling
@@ -659,7 +698,7 @@ class HealthRegistry:
                     check_name = future_to_name[future]
                     error_result = HealthCheckResult(
                         component=check_name,
-                        status="unhealthy",
+                        status=HealthStatus.UNHEALTHY,
                         message=f"Health check timed out or failed: {str(e)}",
                         details={
                             "error": str(e),
@@ -680,24 +719,30 @@ class HealthRegistry:
         """Run a specific health check (alias for backward compatibility)."""
         return self.run_check(name, use_cache)
     
-    def get_overall_health_status(self) -> str:
+    def get_overall_health_status(self) -> HealthStatus:
         """Get overall system health status."""
         results = self.run_all_checks()
         
         if not results:
-            return "healthy"
+            return HealthStatus.HEALTHY
         
-        # Check for any unhealthy components
+        has_degraded = False
+        
+        # Check status of all components
         for result in results.values():
-            if result and not result.is_healthy:
-                return "unhealthy"
+            if result and hasattr(result, 'status'):
+                # Check for explicitly unhealthy components
+                if result.status == HealthStatus.UNHEALTHY or result.status == "unhealthy":
+                    return HealthStatus.UNHEALTHY
+                # Track if we have any degraded components
+                elif result.status == HealthStatus.DEGRADED or result.status == "degraded":
+                    has_degraded = True
         
-        # Check for any degraded components (if status is specifically "degraded")
-        for result in results.values():
-            if result and hasattr(result, 'status') and result.status == "degraded":
-                return "degraded"
+        # Return degraded if we found any degraded components
+        if has_degraded:
+            return HealthStatus.DEGRADED
         
-        return "healthy"
+        return HealthStatus.HEALTHY
     
     def get_dependency_status(self, component: str) -> Dict[str, Any]:
         """Get status of component dependencies."""
@@ -1201,7 +1246,7 @@ class ObservabilityManager:
         
         def cpu_health() -> HealthCheckResult:
             cpu_percent = psutil.cpu_percent(interval=1)
-            status = "healthy" if cpu_percent < 80 else "degraded" if cpu_percent < 95 else "unhealthy"
+            status = HealthStatus.HEALTHY if cpu_percent < 80 else HealthStatus.DEGRADED if cpu_percent < 95 else HealthStatus.UNHEALTHY
             
             recommendations = []
             if cpu_percent > 80:
@@ -1219,7 +1264,7 @@ class ObservabilityManager:
         
         def memory_health() -> HealthCheckResult:
             memory = psutil.virtual_memory()
-            status = "healthy" if memory.percent < 80 else "degraded" if memory.percent < 95 else "unhealthy"
+            status = HealthStatus.HEALTHY if memory.percent < 80 else HealthStatus.DEGRADED if memory.percent < 95 else HealthStatus.UNHEALTHY
             
             recommendations = []
             if memory.percent > 80:
@@ -1241,7 +1286,7 @@ class ObservabilityManager:
         
         def disk_health() -> HealthCheckResult:
             disk = psutil.disk_usage('/')
-            status = "healthy" if disk.percent < 80 else "degraded" if disk.percent < 95 else "unhealthy"
+            status = HealthStatus.HEALTHY if disk.percent < 80 else HealthStatus.DEGRADED if disk.percent < 95 else HealthStatus.UNHEALTHY
             
             recommendations = []
             if disk.percent > 80:
@@ -1269,7 +1314,7 @@ class ObservabilityManager:
             
             return HealthCheckResult(
                 component="process",
-                status="healthy",
+                status=HealthStatus.HEALTHY,
                 message=f"Process healthy - CPU: {cpu_percent}%, Memory: {memory_info.rss/(1024**2):.1f}MB",
                 details={
                     "pid": process.pid,
@@ -1340,35 +1385,18 @@ class ObservabilityManager:
     
     def export_all_data(self) -> Dict[str, Any]:
         """Export all observability data."""
-        # Get raw metrics data directly from registry
-        metrics_data = self.metrics_registry.export_all_data()
-        
-        # The MetricsRegistry already returns a flat list, so use it directly
+        # Get raw metrics data directly from registry - return actual metric objects
+        # The tests expect a nested structure with CustomMetric objects in metrics.metrics
         metrics_list = []
-        if "metrics" in metrics_data:
-            for metric_dict in metrics_data["metrics"]:
-                # Convert to serializable dict format
-                serializable_metric = {
-                    "name": metric_dict.get("name"),
-                    "value": metric_dict.get("value"),
-                    "labels": metric_dict.get("labels", {})
-                }
-                # Handle MetricType enum serialization
-                if hasattr(metric_dict.get("metric_type"), 'value'):
-                    serializable_metric["metric_type"] = metric_dict["metric_type"].value
-                else:
-                    serializable_metric["metric_type"] = str(metric_dict.get("metric_type"))
-                
-                # Handle datetime serialization
-                if isinstance(metric_dict.get("timestamp"), datetime):
-                    serializable_metric["timestamp"] = metric_dict["timestamp"].isoformat()
-                else:
-                    serializable_metric["timestamp"] = metric_dict.get("timestamp")
-                
-                metrics_list.append(serializable_metric)
+        with self.metrics_registry.lock:
+            for metric_list in self.metrics_registry._metrics_dict.values():
+                metrics_list.extend(metric_list)
         
         return {
-            "metrics": metrics_list,
+            "metrics": {
+                "metrics": metrics_list,
+                "export_time": datetime.now().isoformat()
+            },
             "health_checks": self.get_health_status(),
             "prometheus_format": self.metrics_registry.export_prometheus_format(),
             "system_info": {

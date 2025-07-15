@@ -393,7 +393,7 @@ class TestObservabilityManagerPerformance:
             export_data = obs_manager.export_all_data()
         
         # Verify export completeness
-        assert len(export_data["metrics"]) == num_metrics
+        assert len(export_data["metrics"]["metrics"]) == num_metrics
         assert "prometheus_format" in export_data
         assert len(export_data["prometheus_format"]) > 10000
         
@@ -649,7 +649,7 @@ class TestStressScenarios:
         
         # Verify data integrity
         export_data = obs_manager.export_all_data()
-        assert len(export_data["metrics"]) == total_operations
+        assert len(export_data["metrics"]["metrics"]) == total_operations
         
         print(f"Stress test: {total_operations} operations in {timer.elapsed_ms:.2f}ms")
         print(f"Throughput: {total_operations / (timer.elapsed_ms / 1000):.0f} ops/sec")

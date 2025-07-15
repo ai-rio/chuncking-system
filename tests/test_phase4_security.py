@@ -664,7 +664,7 @@ class TestSecurityMonitoring:
         
         # Verify security metrics are recorded
         export_data = obs_manager.export_all_data()
-        security_metrics = [m for m in export_data["metrics"] 
+        security_metrics = [m for m in export_data["metrics"]["metrics"] 
                           if "security_event" in m["name"]]
         
         assert len(security_metrics) == len(security_events)
@@ -730,7 +730,7 @@ class TestComplianceAndAuditing:
         
         # Verify audit trail exists
         export_data = obs_manager.export_all_data()
-        audit_metrics = [m for m in export_data["metrics"] if "audit_" in m["name"]]
+        audit_metrics = [m for m in export_data["metrics"]["metrics"] if "audit_" in m["name"]]
         
         assert len(audit_metrics) == len(auditable_events)
         

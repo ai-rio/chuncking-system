@@ -78,11 +78,11 @@ class TestObservabilityPipelineIntegration:
         export_data = obs_manager.export_all_data()
         
         # Verify complete workflow data
-        assert len(export_data["metrics"]) >= 5
+        assert len(export_data["metrics"]["metrics"]) >= 5
         assert "prometheus_format" in export_data
         
         # Verify metrics contain expected data
-        metric_names = [m.name for m in export_data["metrics"]]
+        metric_names = [m.name for m in export_data["metrics"]["metrics"]]
         expected_metrics = [
             "document_processing_started",
             "document_size_bytes", 
@@ -186,7 +186,7 @@ class TestObservabilityPipelineIntegration:
         export_data = obs_manager.export_all_data()
         
         # Verify counter aggregation
-        counter_metrics = [m for m in export_data["metrics"] if m.metric_type == MetricType.COUNTER]
+        counter_metrics = [m for m in export_data["metrics"]["metrics"] if m.metric_type == MetricType.COUNTER]
         success_counter = sum(m.value for m in counter_metrics 
                             if m.name == "documents_processed" and 
                             m.labels.get("status") == "success")
@@ -198,7 +198,7 @@ class TestObservabilityPipelineIntegration:
         assert error_counter == 1
         
         # Verify histogram data collection
-        duration_metrics = [m for m in export_data["metrics"] 
+        duration_metrics = [m for m in export_data["metrics"]["metrics"] 
                           if m.name == "processing_duration_ms"]
         assert len(duration_metrics) == 5
         
@@ -585,9 +585,9 @@ class TestPerformanceIntegration:
         
         # Verify all metrics recorded
         export_data = obs_manager.export_all_data()
-        counter_metrics = [m for m in export_data["metrics"] 
+        counter_metrics = [m for m in export_data["metrics"]["metrics"] 
                           if m.name == "high_throughput_counter"]
-        histogram_metrics = [m for m in export_data["metrics"]
+        histogram_metrics = [m for m in export_data["metrics"]["metrics"]
                             if m.name == "operation_duration"]
         
         assert len(counter_metrics) == num_operations
@@ -674,7 +674,7 @@ class TestRealWorldScenarios:
         export_data = obs_manager.export_all_data()
         
         # Verify comprehensive metrics
-        metric_names = [m.name for m in export_data["metrics"]]
+        metric_names = [m.name for m in export_data["metrics"]["metrics"]]
         expected_metrics = [
             "document_received",
             "chunk_created", 
@@ -689,11 +689,11 @@ class TestRealWorldScenarios:
             assert expected in metric_names
         
         # Verify chunk count
-        chunk_count = len([m for m in export_data["metrics"] if m.name == "chunk_created"])
+        chunk_count = len([m for m in export_data["metrics"]["metrics"] if m.name == "chunk_created"])
         assert chunk_count == len(chunk_sizes)
         
         # Verify quality metrics
-        quality_metrics = [m for m in export_data["metrics"] if m.name == "chunk_quality_score"]
+        quality_metrics = [m for m in export_data["metrics"]["metrics"] if m.name == "chunk_quality_score"]
         assert len(quality_metrics) == len(quality_scores)
         
         # Clean up
