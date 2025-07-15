@@ -283,7 +283,13 @@ class StructuredLogger:
     @contextmanager
     def trace_operation(self, operation_name: str, **tags) -> TraceContext:
         """Context manager for tracing operations."""
-        trace_ctx = TraceContext(operation_name=operation_name, labels=tags)
+        trace_id = CorrelationIDManager.generate_correlation_id()
+        span_id = CorrelationIDManager.generate_correlation_id()
+        trace_ctx = TraceContext(operation=operation_name, trace_id=trace_id, span_id=span_id)
+        
+        # Set tags after creation
+        for key, value in tags.items():
+            trace_ctx.add_tag(key, value)
         
         self.info(f"Starting operation: {operation_name}", 
                  trace_id=trace_ctx.trace_id, 
@@ -314,6 +320,10 @@ class MetricsRegistry:
         self._metrics_dict: Dict[str, List[CustomMetric]] = {}
         self.lock = threading.Lock()
         self.aggregation_window = timedelta(minutes=5)
+        # Performance optimization: only cleanup periodically
+        self._registration_count = 0
+        self._cleanup_interval = 100  # Run cleanup every 100 registrations
+        self._last_cleanup_time = datetime.now()
     
     def register_metric(self, metric: CustomMetric):
         """Register a new metric."""
@@ -323,18 +333,49 @@ class MetricsRegistry:
                 self._metrics_dict[metric.name] = []
             self._metrics_dict[metric.name].append(metric)
             
-            # Clean old metrics
-            self._cleanup_old_metrics(metric.name)
+            # Increment registration counter
+            self._registration_count += 1
+            
+            # Only run cleanup periodically to avoid O(n²) performance
+            if (self._registration_count % self._cleanup_interval == 0 or 
+                datetime.now() - self._last_cleanup_time > self.aggregation_window):
+                self._cleanup_old_metrics_all()
+                self._last_cleanup_time = datetime.now()
     
     def _cleanup_old_metrics(self, metric_name: str):
-        """Remove metrics older than aggregation window."""
+        """Remove metrics older than aggregation window for a specific metric name."""
         cutoff = datetime.now() - self.aggregation_window
-        self._metrics_dict[metric_name] = [
-            m for m in self._metrics_dict[metric_name] 
-            if m.timestamp > cutoff
-        ]
-        # Also clean main metrics list
+        if metric_name in self._metrics_dict:
+            self._metrics_dict[metric_name] = [
+                m for m in self._metrics_dict[metric_name] 
+                if m.timestamp > cutoff
+            ]
+    
+    def _cleanup_old_metrics_all(self):
+        """Remove metrics older than aggregation window for all metrics.
+        
+        This is called periodically instead of on every registration to avoid O(n²) performance.
+        """
+        cutoff = datetime.now() - self.aggregation_window
+        
+        # Clean per-metric dictionaries
+        for metric_name in list(self._metrics_dict.keys()):
+            self._metrics_dict[metric_name] = [
+                m for m in self._metrics_dict[metric_name] 
+                if m.timestamp > cutoff
+            ]
+            # Remove empty metric entries
+            if not self._metrics_dict[metric_name]:
+                del self._metrics_dict[metric_name]
+        
+        # Clean main metrics list
         self.metrics = [m for m in self.metrics if m.timestamp > cutoff]
+    
+    def force_cleanup(self):
+        """Force immediate cleanup of old metrics. Use sparingly for performance."""
+        with self.lock:
+            self._cleanup_old_metrics_all()
+            self._last_cleanup_time = datetime.now()
     
     def get_metric_summary(self, metric_name: str) -> Optional[Dict[str, Any]]:
         """Get aggregated summary of a metric."""
@@ -1303,7 +1344,8 @@ class ObservabilityManager:
         """Get current trace context."""
         correlation_id = CorrelationIDManager.get_correlation_id()
         if correlation_id:
-            return TraceContext(trace_id=correlation_id)
+            span_id = CorrelationIDManager.generate_correlation_id()
+            return TraceContext(operation="get_trace_context", trace_id=correlation_id, span_id=span_id)
         return None
     
     @contextmanager
