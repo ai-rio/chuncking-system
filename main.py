@@ -8,6 +8,7 @@ with consideration for Gemini token constraints.
 
 import os
 import sys
+import logging
 from pathlib import Path
 from typing import List, Dict, Any
 import argparse
@@ -16,6 +17,17 @@ import json
 
 # Add src to path for module imports
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s',
+    handlers=[
+        logging.FileHandler('logs/chunking_system.log'),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
+logger = logging.getLogger(__name__)
 
 # Import necessary components (ensure these imports are correct and accessible)
 from src.chunkers.hybrid_chunker import HybridMarkdownChunker
@@ -26,10 +38,10 @@ from src.config.settings import config
 
 def progress_callback(current: int, total: int, filename: str):
     """Callback for progress tracking during file processing."""
-    print(f"Progress: {current}/{total} - Processing: {os.path.basename(filename)}")
+    logger.info(f"Progress: {current}/{total} - Processing: {os.path.basename(filename)}")
 
 def main():
-    print("--- Starting main function execution ---") # Debug point 1
+    logger.info("Starting document chunking system")
     parser = argparse.ArgumentParser(description="Document Chunking System for Books")
     parser.add_argument(
         '--input-file',
@@ -54,16 +66,16 @@ def main():
     )
     
     args = parser.parse_args()
-    print(f"--- Arguments parsed: {args} ---") # Debug point 2
+    logger.debug(f"Arguments parsed: {args}")
 
     if not args.input_file:
-        print("❌ Error: An input book file must be specified using --input-file.")
-        print("Example: python main.py --input-file data/input/markdown_files/decoupling_book.md")
+        logger.error("An input book file must be specified using --input-file")
+        logger.info("Example: python main.py --input-file data/input/markdown_files/decoupling_book.md")
         return
 
     book_file_path = args.input_file
     if not os.path.exists(book_file_path):
-        print(f"❌ Error: Input file not found at {book_file_path}")
+        logger.error(f"Input file not found at {book_file_path}")
         return
 
     # Setup output directories
@@ -71,12 +83,12 @@ def main():
     Path(os.path.join(args.output_dir, 'chunks')).mkdir(parents=True, exist_ok=True)
     Path(os.path.join(args.output_dir, 'reports')).mkdir(parents=True, exist_ok=True)
 
-    print("🚀 Document Chunking System Starting for Book Processing...")
-    print(f"📚 Input Book File: {book_file_path}")
-    print(f"📁 Output Directory: {args.output_dir}")
-    print(f"⚙️  Target Chunk Size: {args.chunk_size} tokens (for Gemini constraint)")
-    print(f"📄 Output Format: {args.format}")
-    print("--- Initializing chunker and evaluator... ---") # Debug point 3
+    logger.info("🚀 Document Chunking System Starting for Book Processing...")
+    logger.info(f"📚 Input Book File: {book_file_path}")
+    logger.info(f"📁 Output Directory: {args.output_dir}")
+    logger.info(f"⚙️  Target Chunk Size: {args.chunk_size} tokens (for Gemini constraint)")
+    logger.info(f"📄 Output Format: {args.format}")
+    logger.debug("Initializing chunker and evaluator...")
 
     try:
         # Initialize chunker and evaluator
@@ -85,24 +97,23 @@ def main():
             # enable_semantic=False # Explicitly set to False as libraries are not installed
         )
         evaluator = ChunkQualityEvaluator()
-        print("--- Chunker and evaluator initialized successfully. ---") # Debug point 4
+        logger.debug("Chunker and evaluator initialized successfully")
     except Exception as e:
-        print(f"❌ Error during chunker/evaluator initialization: {e}")
-        import traceback
-        traceback.print_exc() # Print full traceback
+        logger.error(f"Error during chunker/evaluator initialization: {e}")
+        logger.debug("Full traceback:", exc_info=True)
         return
 
-    print("\n🔄 Processing book file...")
+    logger.info("🔄 Processing book file...")
 
     total_chunks = 0
     all_chunks_for_evaluation = [] # Collect all chunks for overall quality evaluation
     
     try:
         # Read the entire book content
-        print(f"--- Attempting to read file: {book_file_path} ---") # Debug point 5
+        logger.debug(f"Attempting to read file: {book_file_path}")
         with open(book_file_path, 'r', encoding='utf-8') as f:
             book_content = f.read()
-        print("--- File read successfully. ---") # Debug point 6
+        logger.debug("File read successfully")
 
         # Prepare base metadata for the book
         book_metadata = {
@@ -113,19 +124,19 @@ def main():
         }
 
         # Chunk the entire book content
-        print("--- Starting document chunking... ---") # Debug point 7
+        logger.info("Starting document chunking...")
         chunks = chunker.chunk_document(book_content, book_metadata)
-        print(f"--- Document chunking completed. Generated {len(chunks)} chunks. ---") # Debug point 8
+        logger.info(f"Document chunking completed. Generated {len(chunks)} chunks")
 
         # Enrich metadata for each chunk
         enriched_chunks = []
-        print("--- Enriching metadata... ---") # Debug point 9
+        logger.debug("Enriching metadata...")
         for chunk in chunks:
             # The chunk's metadata already contains 'Header X' from MarkdownHeaderTextSplitter
             # Add general book metadata as well
             enriched_chunk = MetadataEnricher.enrich_chunk(chunk, book_metadata)
             enriched_chunks.append(enriched_chunk)
-        print("--- Metadata enrichment completed. ---") # Debug point 10
+        logger.debug("Metadata enrichment completed")
         
         all_chunks_for_evaluation.extend(enriched_chunks) # Add to list for overall evaluation
 
@@ -133,43 +144,41 @@ def main():
         output_filename = f"{Path(book_file_path).stem}_chunks.{args.format}"
         output_path = os.path.join(args.output_dir, 'chunks', output_filename)
         
-        print(f"--- Attempting to save chunks to: {output_path} ---") # Debug point 11
+        logger.debug(f"Attempting to save chunks to: {output_path}")
         FileHandler.save_chunks(enriched_chunks, output_path, args.format)
-        print("--- Chunks saved successfully. ---") # Debug point 12
+        logger.debug("Chunks saved successfully")
 
         # Update statistics
         total_chunks += len(enriched_chunks)
-        print(f"   ✅ Generated {len(enriched_chunks)} chunks for '{os.path.basename(book_file_path)}'")
+        logger.info(f"✅ Generated {len(enriched_chunks)} chunks for '{os.path.basename(book_file_path)}'")
 
     except Exception as e:
-        print(f"❌ Error during file processing of {book_file_path}: {e}")
-        import traceback
-        traceback.print_exc() # Print full traceback
+        logger.error(f"Error during file processing of {book_file_path}: {e}")
+        logger.debug("Full traceback:", exc_info=True)
     
-    print(f"\n✅ Book processing completed!")
-    print(f"📊 Total chunks generated: {total_chunks}")
+    logger.info(f"✅ Book processing completed!")
+    logger.info(f"📊 Total chunks generated: {total_chunks}")
 
     # Perform overall quality evaluation on all generated chunks
     if all_chunks_for_evaluation:
-        print("--- Starting overall quality evaluation... ---") # Debug point 13
+        logger.info("Starting overall quality evaluation...")
         try:
             overall_evaluation_metrics = evaluator.evaluate_chunks(all_chunks_for_evaluation)
-            print(f"📈 Overall Chunk Quality Score: {overall_evaluation_metrics.get('overall_score', 0):.1f}/100")
+            logger.info(f"📈 Overall Chunk Quality Score: {overall_evaluation_metrics.get('overall_score', 0):.1f}/100")
             
             # Save a detailed overall evaluation report
             overall_report_path = os.path.join(args.output_dir, 'reports', f"{Path(book_file_path).stem}_quality_report.md")
             evaluator.generate_report(all_chunks_for_evaluation, overall_report_path)
-            print("--- Overall quality evaluation completed and report generated. ---") # Debug point 14
+            logger.info("Overall quality evaluation completed and report generated")
         except Exception as e:
-            print(f"❌ Error during overall quality evaluation: {e}")
-            import traceback
-            traceback.print_exc() # Print full traceback
+            logger.error(f"Error during overall quality evaluation: {e}")
+            logger.debug("Full traceback:", exc_info=True)
     else:
-        print("⚠️ No chunks generated, skipping overall quality evaluation.")
+        logger.warning("No chunks generated, skipping overall quality evaluation")
 
     # Save a simple processing summary JSON for this book
     processing_summary_path = os.path.join(args.output_dir, 'reports', f"{Path(book_file_path).stem}_processing_summary.json")
-    print(f"--- Attempting to save processing summary to: {processing_summary_path} ---") # Debug point 15
+    logger.debug(f"Attempting to save processing summary to: {processing_summary_path}")
     try:
         with open(processing_summary_path, 'w') as f:
             json.dump([
@@ -180,14 +189,13 @@ def main():
                     'quality_score': overall_evaluation_metrics.get('overall_score', 0) if all_chunks_for_evaluation else 0
                 }
             ], f, indent=2)
-        print(f"--- Processing summary saved successfully. ---") # Debug point 16
+        logger.debug("Processing summary saved successfully")
     except Exception as e:
-        print(f"❌ Error saving processing summary: {e}")
-        import traceback
-        traceback.print_exc() # Print full traceback
+        logger.error(f"Error saving processing summary: {e}")
+        logger.debug("Full traceback:", exc_info=True)
     
-    print(f"📋 Processing report saved to: {processing_summary_path}")
-    print("--- End of main function execution ---") # Debug point 17
+    logger.info(f"📋 Processing report saved to: {processing_summary_path}")
+    logger.info("Document chunking system completed successfully")
 
 
 if __name__ == "__main__":
