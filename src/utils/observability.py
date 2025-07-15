@@ -554,9 +554,9 @@ class MetricsRegistry:
                     metric_data = {
                         "name": metric.name,
                         "value": metric.value,
-                        "metric_type": metric.metric_type,
+                        "type": metric.metric_type.value if hasattr(metric.metric_type, 'value') else str(metric.metric_type),
                         "unit": metric.unit,
-                        "timestamp": metric.timestamp,
+                        "timestamp": metric.timestamp.isoformat() if hasattr(metric.timestamp, 'isoformat') else str(metric.timestamp),
                         "labels": filtered_labels,
                         "help_text": metric.help_text
                     }
@@ -1385,17 +1385,13 @@ class ObservabilityManager:
     
     def export_all_data(self) -> Dict[str, Any]:
         """Export all observability data."""
-        # Get raw metrics data directly from registry - return actual metric objects
-        # The tests expect a nested structure with CustomMetric objects in metrics.metrics
-        metrics_list = []
-        with self.metrics_registry.lock:
-            for metric_list in self.metrics_registry._metrics_dict.values():
-                metrics_list.extend(metric_list)
+        # Use MetricsRegistry's export method which includes sensitive data filtering
+        metrics_data = self.metrics_registry.export_all_data()
         
         return {
             "metrics": {
-                "metrics": metrics_list,
-                "export_time": datetime.now().isoformat()
+                "metrics": metrics_data["metrics"],
+                "export_time": metrics_data["export_time"]
             },
             "health_checks": self.get_health_status(),
             "prometheus_format": self.metrics_registry.export_prometheus_format(),

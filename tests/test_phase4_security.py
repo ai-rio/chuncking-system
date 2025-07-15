@@ -264,7 +264,7 @@ class TestDataProtection:
     
     def test_structured_logger_sensitive_data_filtering(self):
         """Test structured logger filters sensitive data."""
-        with patch('src.utils.observability.get_logger') as mock_get_logger:
+        with patch('logging.getLogger') as mock_get_logger:
             mock_logger = Mock()
             mock_get_logger.return_value = mock_logger
             
