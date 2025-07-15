@@ -1,4 +1,4 @@
-from typing import List, Dict, Any, Optional
+from typing import List, Dict, Any, Optional, Tuple
 from langchain_text_splitters import (
     MarkdownHeaderTextSplitter,
     RecursiveCharacterTextSplitter,
@@ -8,7 +8,19 @@ from langchain_core.documents import Document
 import re
 import tiktoken
 from src.config.settings import config
+from src.exceptions import (
+    TokenizationError,
+    ProcessingError,
+    ValidationError,
+    FileHandlingError,
+    ConfigurationError,
+    MemoryError,
+    BatchProcessingError
+)
+from src.utils.performance import PerformanceMonitor, MemoryOptimizer, BatchProcessor, monitor_performance
 import os # Import os for basename in batch_process_files
+import gc
+from src.utils.logger import get_logger
 
 class HybridMarkdownChunker:
     """
@@ -25,42 +37,84 @@ class HybridMarkdownChunker:
         self.chunk_size = chunk_size or config.DEFAULT_CHUNK_SIZE
         self.chunk_overlap = chunk_overlap or config.DEFAULT_CHUNK_OVERLAP
         self.enable_semantic = enable_semantic
+        
+        # Initialize logger
+        self.logger = get_logger(__name__)
 
         # Initialize tokenizer for accurate token counting
         try:
             self.tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
-        except:
-            self.tokenizer = tiktoken.get_encoding("cl100k_base")
+        except Exception as e:
+            try:
+                self.tokenizer = tiktoken.get_encoding("cl100k_base")
+            except Exception as fallback_error:
+                raise TokenizationError(
+                    "Failed to initialize tokenizer",
+                    model="gpt-3.5-turbo or cl100k_base"
+                ) from fallback_error
 
+        # Initialize performance monitoring
+        self.performance_monitor = PerformanceMonitor()
+        self.memory_optimizer = MemoryOptimizer()
+        self.batch_processor = BatchProcessor(
+            batch_size=config.BATCH_SIZE,
+            memory_optimizer=self.memory_optimizer
+        )
+        
         # Initialize splitters
         self._init_splitters()
 
     def _init_splitters(self):
         """Initialize all text splitters"""
+        try:
+            # Validate configuration
+            if self.chunk_size <= 0:
+                raise ConfigurationError(
+                    "Chunk size must be positive",
+                    config_key="chunk_size",
+                    config_value=self.chunk_size
+                )
+            
+            if self.chunk_overlap >= self.chunk_size:
+                raise ConfigurationError(
+                    "Chunk overlap must be smaller than chunk size",
+                    config_key="chunk_overlap",
+                    config_value=self.chunk_overlap
+                )
 
-        # Header-based splitter for Markdown structure
-        self.header_splitter = MarkdownHeaderTextSplitter(
-            headers_to_split_on=config.HEADER_LEVELS,
-            strip_headers=False
-        )
+            # Header-based splitter for Markdown structure
+            self.header_splitter = MarkdownHeaderTextSplitter(
+                headers_to_split_on=config.HEADER_LEVELS,
+                strip_headers=False
+            )
 
-        # Recursive splitter for general text
-        self.recursive_splitter = RecursiveCharacterTextSplitter(
-            chunk_size=self.chunk_size,
-            chunk_overlap=self.chunk_overlap,
-            length_function=self._token_length,
-            separators=config.SEPARATORS
-        )
+            # Recursive splitter for general text
+            self.recursive_splitter = RecursiveCharacterTextSplitter(
+                chunk_size=self.chunk_size,
+                chunk_overlap=self.chunk_overlap,
+                length_function=self._token_length,
+                separators=config.SEPARATORS
+            )
 
-        # Code-specific splitter
-        self.code_splitter = PythonCodeTextSplitter(
-            chunk_size=self.chunk_size,
-            chunk_overlap=self.chunk_overlap
-        )
+            # Code-specific splitter
+            self.code_splitter = PythonCodeTextSplitter(
+                chunk_size=self.chunk_size,
+                chunk_overlap=self.chunk_overlap
+            )
+        except Exception as e:
+            raise ConfigurationError(
+                f"Failed to initialize text splitters: {str(e)}"
+            ) from e
 
     def _token_length(self, text: str) -> int:
         """Calculate token length using tiktoken"""
-        return len(self.tokenizer.encode(text))
+        try:
+            return len(self.tokenizer.encode(text))
+        except Exception as e:
+            raise TokenizationError(
+                "Failed to calculate token length",
+                text_length=len(text)
+            ) from e
 
     def _detect_content_type(self, content: str) -> Dict[str, bool]:
         """Analyze content to determine optimal chunking strategy"""
@@ -80,19 +134,54 @@ class HybridMarkdownChunker:
         """
         Main chunking method using hybrid approach
         """
-        if not content.strip():
-            return []
+        try:
+            with self.performance_monitor.monitor_operation(
+                "chunk_document",
+                content_length=len(content) if isinstance(content, str) else 0,
+                chunk_size=self.chunk_size
+            ):
+                # Input validation
+                if not isinstance(content, str):
+                    raise ValidationError(
+                        "Content must be a string",
+                        field="content",
+                        value=type(content)
+                    )
+                
+                if not content.strip():
+                    return []
 
-        metadata = metadata or {}
-        content_analysis = self._detect_content_type(content)
+                metadata = metadata or {}
+                
+                # Validate metadata
+                if not isinstance(metadata, dict):
+                    raise ValidationError(
+                        "Metadata must be a dictionary",
+                        field="metadata",
+                        value=type(metadata)
+                    )
 
-        # Choose strategy based on content analysis
-        if content_analysis['has_headers']:
-            return self._header_recursive_chunking(content, metadata, content_analysis)
-        elif content_analysis['has_code']:
-            return self._code_aware_chunking(content, metadata)
-        else:
-            return self._simple_recursive_chunking(content, metadata)
+                # Check memory usage before processing
+                self.memory_optimizer.cleanup_if_needed()
+
+                content_analysis = self._detect_content_type(content)
+
+                # Choose strategy based on content analysis
+                if content_analysis['has_headers']:
+                    return self._header_recursive_chunking(content, metadata, content_analysis)
+                elif content_analysis['has_code']:
+                    return self._code_aware_chunking(content, metadata)
+                else:
+                    return self._simple_recursive_chunking(content, metadata)
+                
+        except (ValidationError, ConfigurationError, TokenizationError) as e:
+            # Re-raise known exceptions
+            raise
+        except Exception as e:
+            raise ProcessingError(
+                f"Document chunking failed: {str(e)}",
+                stage="chunk_document"
+            ) from e
 
     def _header_recursive_chunking(
         self,
@@ -106,8 +195,10 @@ class HybridMarkdownChunker:
         try:
             header_chunks = self.header_splitter.split_text(content)
         except Exception as e:
-            print(f"Header splitting failed: {e}. Falling back to recursive.")
-            return self._simple_recursive_chunking(content, metadata)
+            raise ProcessingError(
+                f"Header splitting failed: {str(e)}. Falling back to recursive.",
+                stage="header_splitting"
+            ) from e
 
         # Phase 2: Refine large sections
         final_chunks = []
@@ -209,33 +300,176 @@ class HybridMarkdownChunker:
         file_paths: List[str],
         progress_callback=None
     ) -> Dict[str, List[Document]]:
-        """Process multiple files efficiently for i3/16GB system"""
+        """Process multiple files efficiently using BatchProcessor with optimized memory management"""
 
-        results = {}
+        if not file_paths:
+            return {}
 
-        for i, file_path in enumerate(file_paths):
+        # Validate input
+        if not isinstance(file_paths, list):
+            raise ValidationError(
+                "file_paths must be a list",
+                field="file_paths",
+                value=type(file_paths)
+            )
+
+        def process_single_file(file_path: str) -> Tuple[str, List[Document]]:
+            """Process a single file and return file path with chunks"""
             try:
-                with open(file_path, 'r', encoding='utf-8') as f:
-                    content = f.read()
+                # Validate file path
+                if not isinstance(file_path, str):
+                    raise ValidationError(
+                        "File path must be a string",
+                        field="file_path",
+                        value=type(file_path)
+                    )
 
+                if not os.path.exists(file_path):
+                    raise FileHandlingError(
+                        f"File not found: {file_path}",
+                        file_path=file_path
+                    )
+
+                # Read file content
+                try:
+                    with open(file_path, 'r', encoding='utf-8') as f:
+                        content = f.read()
+                except Exception as e:
+                    raise FileHandlingError(
+                        f"Failed to read file: {file_path}",
+                        file_path=file_path,
+                        original_error=str(e)
+                    ) from e
+
+                # Prepare metadata
                 metadata = {
                     'source': file_path,
-                    'file_name': os.path.basename(file_path)
+                    'file_name': os.path.basename(file_path),
+                    'file_size': len(content)
                 }
 
+                # Process the document
                 chunks = self.chunk_document(content, metadata)
-                results[file_path] = chunks
+                
+                self.logger.debug(
+                    "File processed successfully",
+                    file_path=file_path,
+                    chunks_created=len(chunks),
+                    content_size=len(content)
+                )
 
-                if progress_callback:
-                    progress_callback(i + 1, len(file_paths), file_path)
+                return file_path, chunks
 
-                # Memory cleanup for i3 system
-                if i % config.BATCH_SIZE == 0:
-                    import gc
-                    gc.collect()
-
+            except (ValidationError, FileHandlingError, ProcessingError) as e:
+                # Re-raise known exceptions
+                self.logger.error(
+                    "Known error processing file during batch processing",
+                    file_path=file_path,
+                    error=str(e),
+                    error_type=type(e).__name__
+                )
+                raise BatchProcessingError(
+                    f"Failed to process file {file_path}: {str(e)}",
+                    file_path=file_path,
+                    original_error=e
+                ) from e
             except Exception as e:
-                print(f"Error processing {file_path}: {e}")
-                results[file_path] = []
+                # Handle unexpected errors
+                self.logger.error(
+                    "Unexpected error processing file during batch processing",
+                    file_path=file_path,
+                    error=str(e),
+                    error_type=type(e).__name__
+                )
+                raise BatchProcessingError(
+                    f"Unexpected error processing file {file_path}: {str(e)}",
+                    file_path=file_path,
+                    original_error=e
+                ) from e
 
-        return results
+        # Create progress callback wrapper for BatchProcessor
+        def batch_progress_callback(processed_count: int, total_count: int):
+            if progress_callback:
+                # Find the current file being processed (approximate)
+                current_file = file_paths[min(processed_count - 1, len(file_paths) - 1)] if processed_count > 0 else ""
+                progress_callback(processed_count, total_count, current_file)
+
+        try:
+            # Use BatchProcessor for optimized processing
+            batch_results = self.batch_processor.process_batches(
+                items=file_paths,
+                processor_func=process_single_file,
+                progress_callback=batch_progress_callback
+            )
+
+            # Convert results to the expected format
+            results = {}
+            for i, result in enumerate(batch_results):
+                file_path = file_paths[i]
+                if result is not None:
+                    # result is a tuple of (file_path, chunks)
+                    _, chunks = result
+                    results[file_path] = chunks
+                else:
+                    # Processing failed, store empty list
+                    results[file_path] = []
+                    self.logger.warning(
+                        "File processing failed, stored empty result",
+                        file_path=file_path
+                    )
+
+            self.logger.info(
+                "Batch processing completed",
+                total_files=len(file_paths),
+                successful_files=sum(1 for chunks in results.values() if chunks),
+                total_chunks=sum(len(chunks) for chunks in results.values())
+            )
+
+            return results
+
+        except Exception as e:
+            self.logger.error(
+                "Batch processing failed",
+                error=str(e),
+                error_type=type(e).__name__
+            )
+            raise BatchProcessingError(
+                f"Batch processing failed: {str(e)}"
+            ) from e
+    
+    def get_performance_report(self) -> str:
+        """
+        Get comprehensive performance report for chunking operations.
+        
+        Returns:
+            Markdown formatted performance report
+        """
+        chunker_report = self.performance_monitor.generate_performance_report()
+        batch_report = self.batch_processor.get_performance_report()
+        
+        combined_report = f"""
+# Chunking System Performance Report
+
+## Chunker Performance
+{chunker_report}
+
+## Batch Processing Performance  
+{batch_report}
+"""
+        return combined_report
+    
+    def clear_performance_metrics(self):
+        """
+        Clear all performance metrics.
+        """
+        self.performance_monitor.clear_metrics()
+        self.batch_processor.performance_monitor.clear_metrics()
+
+    def get_batch_performance_report(self) -> str:
+        """
+        Get performance report for batch processing operations.
+        
+        Returns:
+            Performance report as formatted string
+        """
+        return self.batch_processor.get_performance_report()

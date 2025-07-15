@@ -4,11 +4,15 @@ from langchain_core.documents import Document
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 import re
+from src.utils.logger import get_logger
 
 class ChunkQualityEvaluator:
     """Evaluate the quality of document chunks"""
     
     def __init__(self): # Removed document_type='general' from init for now, as it's not used elsewhere.
+        # Initialize logger
+        self.logger = get_logger(__name__)
+        
         self.vectorizer = TfidfVectorizer(
             max_features=1000,
             stop_words='english',
@@ -145,7 +149,12 @@ class ChunkQualityEvaluator:
             }
             
         except Exception as e:
-            print(f"Error in semantic analysis: {e}")
+            self.logger.error(
+                "Error in semantic analysis during chunk evaluation",
+                error=str(e),
+                error_type=type(e).__name__,
+                num_chunks=len(chunks)
+            )
             return {'coherence_score': 0.0, 'avg_similarity': 0.0, 'error': str(e), 'similarity_std': 0.0}
     
     def _analyze_overlap(self, chunks: List[Document]) -> Dict[str, Any]:
@@ -242,7 +251,11 @@ class ChunkQualityEvaluator:
             return min(100, max(0, overall_score))
             
         except Exception as e:
-            print(f"Error calculating overall score: {e}")
+            self.logger.error(
+                "Error calculating overall quality score",
+                error=str(e),
+                error_type=type(e).__name__
+            )
             return 0.0
     
     def generate_report(self, chunks: List[Document], output_path: str = None) -> str:
@@ -302,6 +315,10 @@ class ChunkQualityEvaluator:
         if output_path:
             with open(output_path, 'w', encoding='utf-8') as f:
                 f.write(report)
-            print(f"📊 Evaluation report saved to: {output_path}")
+            self.logger.info(
+                "Evaluation report saved successfully",
+                output_path=output_path,
+                report_size_chars=len(report)
+            )
         
         return report
