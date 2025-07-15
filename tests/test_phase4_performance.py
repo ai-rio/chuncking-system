@@ -124,12 +124,12 @@ class TestMetricsPerformance:
         
         # Performance assertions
         assert timer.elapsed_ms < 5000  # Should complete in under 5 seconds
-        assert len(metrics_registry.metrics) == num_metrics
+        assert len(metrics_registry.metrics) == num_metrics * 3  # 3 metrics per iteration (counter, gauge, histogram)
         
         # Memory assertions
         assert profiler.memory_increase_mb < 100  # Should not use more than 100MB
         
-        print(f"Collected {num_metrics} metrics in {timer.elapsed_ms:.2f}ms")
+        print(f"Collected {len(metrics_registry.metrics)} metrics ({num_metrics} iterations × 3 types) in {timer.elapsed_ms:.2f}ms")
         print(f"Memory increase: {profiler.memory_increase_mb:.2f}MB")
         print(f"Peak memory: {profiler.peak_memory_mb:.2f}MB")
     

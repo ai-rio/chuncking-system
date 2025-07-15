@@ -832,6 +832,65 @@ class SystemMonitor:
         self.metrics_collector.record_gauge("system.disk.usage_percent", disk_usage_percent)
         self.metrics_collector.record_gauge("system.disk.free_gb", disk.free / (1024**3))
     
+    def get_system_metrics(self) -> Dict[str, Any]:
+        """
+        Get current system metrics in a structured format.
+        
+        Returns:
+            Dictionary containing system metrics compatible with performance_stats() endpoint
+        """
+        try:
+            # Get current system metrics
+            memory = psutil.virtual_memory()
+            cpu_percent = psutil.cpu_percent(interval=0.1)  # Quick CPU check
+            disk = psutil.disk_usage('/')
+            disk_usage_percent = (disk.used / disk.total) * 100
+            
+            # Get load average if available (Unix-like systems)
+            load_average = None
+            if hasattr(os, 'getloadavg'):
+                try:
+                    load_average = list(os.getloadavg())
+                except (OSError, AttributeError):
+                    load_average = [0.0, 0.0, 0.0]
+            else:
+                # Fallback for systems without getloadavg (like Windows)
+                load_average = [0.0, 0.0, 0.0]
+            
+            return {
+                "cpu_percent": cpu_percent,
+                "memory_percent": memory.percent,
+                "disk_percent": disk_usage_percent,
+                "load_average": load_average,
+                "memory_total_gb": memory.total / (1024**3),
+                "memory_available_gb": memory.available / (1024**3),
+                "memory_used_gb": memory.used / (1024**3),
+                "disk_total_gb": disk.total / (1024**3),
+                "disk_free_gb": disk.free / (1024**3),
+                "disk_used_gb": disk.used / (1024**3),
+                "cpu_count": psutil.cpu_count(),
+                "timestamp": datetime.now().isoformat()
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Failed to collect system metrics: {e}")
+            # Return fallback values to prevent endpoint failures
+            return {
+                "cpu_percent": 0.0,
+                "memory_percent": 0.0,
+                "disk_percent": 0.0,
+                "load_average": [0.0, 0.0, 0.0],
+                "memory_total_gb": 0.0,
+                "memory_available_gb": 0.0,
+                "memory_used_gb": 0.0,
+                "disk_total_gb": 0.0,
+                "disk_free_gb": 0.0,
+                "disk_used_gb": 0.0,
+                "cpu_count": 1,
+                "timestamp": datetime.now().isoformat(),
+                "error": str(e)
+            }
+    
     @contextmanager
     def monitor_operation(self, operation_name: str, labels: Optional[Dict[str, str]] = None):
         """Context manager for monitoring operations."""
