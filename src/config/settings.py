@@ -11,6 +11,10 @@ class ChunkingConfig(BaseSettings):
     MIN_CHUNK_SIZE: int = 50
     MIN_CHUNK_WORDS: int = 10
     MAX_CHUNK_WORDS: int = 600
+    
+    # Allow dynamic chunk size and overlap parameters
+    chunk_size: Optional[int] = None
+    chunk_overlap: Optional[int] = None
 
     # Markdown header levels
     HEADER_LEVELS: List[tuple] = [

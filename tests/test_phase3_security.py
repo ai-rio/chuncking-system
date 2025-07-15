@@ -12,6 +12,7 @@ from src.utils.security import (
 )
 from src.config.settings import ChunkingConfig
 from src.exceptions import ValidationError, SecurityError
+from src.chunking_system import DocumentChunker
 
 
 class TestSecurityConfig:

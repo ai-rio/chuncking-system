@@ -23,9 +23,12 @@ class SecurityConfig:
     max_total_size_mb: int = 1000
     allowed_extensions: Set[str] = None
     blocked_extensions: Set[str] = None
+    blocked_paths: Set[str] = None
     max_path_length: int = 260
     allow_hidden_files: bool = False
     enable_content_validation: bool = True
+    enable_checksum_validation: bool = True
+    enable_content_scanning: bool = True
     max_filename_length: int = 255
     
     def __post_init__(self):
@@ -40,6 +43,12 @@ class SecurityConfig:
                 '.exe', '.bat', '.cmd', '.com', '.scr',
                 '.pif', '.vbs', '.js', '.jar', '.app',
                 '.deb', '.pkg', '.dmg', '.iso'
+            }
+        
+        if self.blocked_paths is None:
+            self.blocked_paths = {
+                '/etc', '/proc', '/sys', '/dev', '/root',
+                '/boot', '/var/log', '/usr/bin', '/sbin'
             }
 
 
@@ -71,6 +80,17 @@ class PathSanitizer:
         Raises:
             ValidationError: If path is invalid or dangerous
         """
+        # Store original path for traversal check
+        original_path_str = str(path)
+        
+        # Check for path traversal first (before resolving)
+        if '..' in original_path_str:
+            raise ValidationError(
+                f"Path traversal detected",
+                field="path",
+                value=original_path_str
+            )
+        
         if isinstance(path, str):
             path = Path(path)
         
@@ -96,16 +116,27 @@ class PathSanitizer:
                 value=path.name
             )
         
-        # Check for dangerous patterns
+        # Check for other dangerous patterns
         path_str = str(path)
         for pattern in self.dangerous_patterns:
             if re.search(pattern, path_str, re.IGNORECASE):
                 if pattern == r'^\.' and self.config.allow_hidden_files:
                     continue
+                if pattern == r'\.\.':  # Skip as we already handled this above
+                    continue
                 raise ValidationError(
                     f"Dangerous path pattern detected: {pattern}",
                     field="path",
                     value=path_str
+                )
+        
+        # Check blocked paths
+        for blocked_path in self.config.blocked_paths:
+            if str(path).startswith(blocked_path):
+                raise ValidationError(
+                    f"Access to blocked path: {blocked_path}",
+                    field="path",
+                    value=str(path)
                 )
         
         # Check file extension (skip for directories)
@@ -127,6 +158,14 @@ class PathSanitizer:
                 )
         
         return path
+    
+    def is_safe_path(self, path: Union[str, Path]) -> bool:
+        """Check if path is safe without raising exceptions."""
+        try:
+            self.sanitize_path(path)
+            return True
+        except ValidationError:
+            return False
     
     def validate_directory_traversal(self, path: Path, base_dir: Path) -> bool:
         """
@@ -250,6 +289,32 @@ class FileValidator:
         
         return mime_type
     
+    def validate_file(self, file_path: Path) -> None:
+        """Comprehensive file validation."""
+        self.validate_file_size(file_path)
+        self.validate_mime_type(file_path)
+        self.validate_content_safety(file_path)
+    
+    def validate_file_extension(self, file_path: Path) -> None:
+        """Validate file extension."""
+        extension = file_path.suffix.lower()
+        
+        # Check against blocked extensions
+        if extension in self.config.blocked_extensions:
+            raise ValidationError(
+                f"File extension not allowed: {extension}",
+                field="extension",
+                value=extension
+            )
+        
+        # Check against allowed extensions
+        if self.config.allowed_extensions and extension not in self.config.allowed_extensions:
+            raise ValidationError(
+                f"File extension not allowed: {extension}",
+                field="extension",
+                value=extension
+            )
+    
     def validate_content_safety(self, file_path: Path) -> None:
         """
         Validate file content for safety (basic checks).
@@ -296,6 +361,10 @@ class ChecksumValidator:
     def __init__(self):
         self.logger = get_logger(__name__)
     
+    def calculate_checksum(self, file_path: Path, algorithm: str = 'sha256') -> str:
+        """Calculate checksum (alias for calculate_file_hash)."""
+        return self.calculate_file_hash(file_path, algorithm)
+    
     def calculate_file_hash(self, file_path: Path, algorithm: str = 'sha256') -> str:
         """
         Calculate hash of file content.
@@ -317,6 +386,10 @@ class ChecksumValidator:
             raise FileHandlingError(f"Cannot read file for hashing: {e}", file_path=str(file_path))
         
         return hash_obj.hexdigest()
+    
+    def validate_checksum(self, file_path: Path, expected_hash: str, algorithm: str = 'sha256') -> bool:
+        """Validate checksum (alias for verify_file_integrity)."""
+        return self.verify_file_integrity(file_path, expected_hash, algorithm)
     
     def verify_file_integrity(self, file_path: Path, expected_hash: str, algorithm: str = 'sha256') -> bool:
         """
@@ -436,6 +509,8 @@ class SecurityAuditor:
                     file_hash = self.checksum_validator.calculate_file_hash(file_path)
                     audit_report['checks']['integrity'] = 'passed'
                     audit_report['file_hash'] = file_hash
+                    audit_report['is_safe'] = True
+                    audit_report['issues'] = []
                 except Exception as e:
                     audit_report['checks']['integrity'] = 'failed'
                     audit_report['errors'].append(f"Integrity check: {e}")
@@ -447,17 +522,66 @@ class SecurityAuditor:
             # Determine overall status
             if audit_report['errors']:
                 audit_report['overall_status'] = 'failed'
+                audit_report['is_safe'] = False
+                audit_report['issues'] = audit_report['errors']
             elif audit_report['warnings']:
                 audit_report['overall_status'] = 'warning'
+                audit_report['is_safe'] = True
+                audit_report['issues'] = audit_report['warnings']
             else:
                 audit_report['overall_status'] = 'passed'
+                audit_report['is_safe'] = True
+                audit_report['issues'] = []
         
         except Exception as e:
             audit_report['overall_status'] = 'error'
             audit_report['errors'].append(f"Audit error: {e}")
+            audit_report['is_safe'] = False
+            audit_report['issues'] = audit_report['errors']
             self.logger.error(f"Security audit failed: {e}", file_path=str(file_path))
         
         return audit_report
+    
+    def generate_audit_summary(self, audit_reports) -> Dict[str, Any]:
+        """Generate summary from multiple audit reports."""
+        # Handle if audit_reports is a string (single report)
+        if isinstance(audit_reports, str):
+            audit_reports = [audit_reports]
+        
+        # Handle if audit_reports is a dict (single report)
+        if isinstance(audit_reports, dict):
+            audit_reports = [audit_reports]
+        
+        summary = {
+            'total_files': len(audit_reports),
+            'passed': 0,
+            'failed': 0,
+            'warnings': 0,
+            'errors': 0,
+            'common_issues': {},
+            'timestamp': datetime.now().isoformat()
+        }
+        
+        for report in audit_reports:
+            if isinstance(report, dict):
+                status = report.get('overall_status', 'unknown')
+                if status == 'passed':
+                    summary['passed'] += 1
+                elif status == 'failed':
+                    summary['failed'] += 1
+                elif status == 'warning':
+                    summary['warnings'] += 1
+                else:
+                    summary['errors'] += 1
+                
+                # Track common issues
+                for error in report.get('errors', []):
+                    error_type = error.split(':')[0]
+                    if error_type not in summary['common_issues']:
+                        summary['common_issues'][error_type] = 0
+                    summary['common_issues'][error_type] += 1
+        
+        return summary
     
     def audit_directory(self, directory_path: Union[str, Path], recursive: bool = True) -> Dict[str, Any]:
         """
