@@ -108,22 +108,23 @@ class PathSanitizer:
                     value=path_str
                 )
         
-        # Check file extension
-        extension = path.suffix.lower()
-        
-        if extension in self.config.blocked_extensions:
-            raise ValidationError(
-                f"Blocked file extension: {extension}",
-                field="extension",
-                value=extension
-            )
-        
-        if self.config.allowed_extensions and extension not in self.config.allowed_extensions:
-            raise ValidationError(
-                f"File extension not allowed: {extension}",
-                field="extension",
-                value=extension
-            )
+        # Check file extension (skip for directories)
+        if not path.is_dir():
+            extension = path.suffix.lower()
+            
+            if extension in self.config.blocked_extensions:
+                raise ValidationError(
+                    f"Blocked file extension: {extension}",
+                    field="extension",
+                    value=extension
+                )
+            
+            if self.config.allowed_extensions and extension not in self.config.allowed_extensions:
+                raise ValidationError(
+                    f"File extension not allowed: {extension}",
+                    field="extension",
+                    value=extension
+                )
         
         return path
     

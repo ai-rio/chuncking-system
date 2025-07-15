@@ -791,25 +791,29 @@ class SystemMonitor:
     def _monitoring_loop(self):
         """Main monitoring loop."""
         while not self.stop_monitoring.wait(self.check_interval):
-            try:
-                # Run health checks
-                health_results = self.health_checker.run_all_checks()
-                
-                # Collect system metrics
-                self._collect_system_metrics()
-                
-                # Evaluate alert rules
-                context = {
-                    'health_results': health_results,
-                    'timestamp': datetime.now()
-                }
-                self.alert_manager.evaluate_rules(context)
-                
-                # Clean up old data
-                self.metrics_collector.clear_metrics(timedelta(hours=24))
-                
-            except Exception as e:
-                self.logger.error(f"Monitoring loop error: {e}")
+            self._run_single_monitoring_cycle()
+    
+    def _run_single_monitoring_cycle(self):
+        """Run a single monitoring cycle."""
+        try:
+            # Run health checks
+            health_results = self.health_checker.run_all_checks()
+            
+            # Collect system metrics
+            self._collect_system_metrics()
+            
+            # Evaluate alert rules
+            context = {
+                'health_results': health_results,
+                'timestamp': datetime.now()
+            }
+            self.alert_manager.evaluate_rules(context)
+            
+            # Clean up old data
+            self.metrics_collector.clear_metrics(timedelta(hours=24))
+            
+        except Exception as e:
+            self.logger.error(f"Monitoring loop error: {e}")
     
     def _collect_system_metrics(self):
         """Collect system-level metrics."""

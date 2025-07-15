@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 
 from src.utils.monitoring import (
     HealthStatus, MetricPoint, Alert,
-    HealthChecker, MetricsCollector, AlertManager, SystemMonitor
+    HealthChecker, MetricsCollector, AlertManager, SystemMonitor, PerformanceMonitor
 )
 from src.config.settings import ChunkingConfig
 from src.chunking_system import DocumentChunker
@@ -697,12 +697,12 @@ class TestSystemMonitor:
         
         monitor.alert_manager.add_alert_rule(test_rule)
         
-        # Run monitoring cycle
-        monitor._monitoring_loop()
+        # Run single monitoring cycle
+        monitor._run_single_monitoring_cycle()
         
         # Should have recorded system metrics
-        cpu_metrics = monitor.metrics_collector.get_metrics("system.cpu_percent")
-        memory_metrics = monitor.metrics_collector.get_metrics("system.memory_percent")
+        cpu_metrics = monitor.metrics_collector.get_metrics("system.cpu.usage_percent")
+        memory_metrics = monitor.metrics_collector.get_metrics("system.memory.usage_percent")
         
         assert len(cpu_metrics) >= 1
         assert len(memory_metrics) >= 1
@@ -903,9 +903,9 @@ def monitoring_test_data():
             MetricPoint("disk_usage", 45.0, "percent")
         ],
         "health_statuses": [
-            HealthStatus("database", True, "Connected"),
-            HealthStatus("cache", True, "Operational"),
-            HealthStatus("api", False, "Timeout")
+            HealthStatus("database", "Connected", is_healthy=True),
+            HealthStatus("cache", "Operational", is_healthy=True),
+            HealthStatus("api", "Timeout", is_healthy=False)
         ]
     }
 
@@ -936,21 +936,34 @@ class TestMonitoringIntegration:
             monitor.metrics_collector.record_gauge(metric.name, metric.value, labels={"unit": metric.unit})
         
         # Register alert rule
-        def high_cpu_rule(metrics):
-            cpu_metrics = [m for m in metrics if m.name == "cpu_usage"]
-            if cpu_metrics and cpu_metrics[-1].value > 70:
-                return monitor.create_alert(
-                    severity="medium",
-                    component="system",
-                    message="High CPU usage detected"
-                )
+        def high_cpu_rule(context):
+            metrics_container = context.get("metrics")
+            if metrics_container:
+                # Find CPU usage metric key (it might be 'cpu_usage[unit=]')
+                cpu_key = None
+                for key in metrics_container.keys():
+                    if key.startswith('cpu_usage'):
+                        cpu_key = key
+                        break
+                
+                if cpu_key:
+                    cpu_metrics = list(metrics_container[cpu_key])
+                    if cpu_metrics and cpu_metrics[-1].value > 70:
+                        return Alert(
+                            id="cpu_high",
+                            severity="medium",
+                            title="High CPU Usage",
+                            component="system",
+                            message="High CPU usage detected",
+                            timestamp=datetime.now()
+                        )
             return None
         
-        monitor.alert_manager.register_rule("high_cpu", high_cpu_rule)
+        monitor.alert_manager.add_alert_rule(high_cpu_rule)
         
         # Evaluate rules
         current_metrics = monitor.metrics_collector.metrics
-        new_alerts = monitor.alert_manager.evaluate_rules(current_metrics)
+        monitor.alert_manager.evaluate_rules({"metrics": current_metrics})
         
         # Get system status
         status = monitor.get_system_status()
@@ -959,7 +972,6 @@ class TestMonitoringIntegration:
         assert status["health"]["overall_healthy"] is False  # API is down
         assert status["metrics_count"] == 3
         assert status["active_alerts"] >= 1  # High CPU alert
-        assert len(new_alerts) >= 1
     
     def test_monitoring_with_chunking_workflow(self, tmp_path):
         """Test monitoring integration with chunking workflow."""
