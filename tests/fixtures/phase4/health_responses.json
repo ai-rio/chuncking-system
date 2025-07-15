@@ -1,0 +1,150 @@
+{
+  "basic_health": {
+    "status": "healthy",
+    "message": "All systems operational",
+    "timestamp": "2024-01-15T10:30:00Z",
+    "uptime": "72h 15m 30s",
+    "checks_passed": 4,
+    "checks_total": 4
+  },
+  "detailed_health": {
+    "overall_status": "healthy",
+    "timestamp": "2024-01-15T10:30:00Z",
+    "components": {
+      "chunking_service": {
+        "status": "healthy",
+        "message": "Chunking service operational",
+        "response_time_ms": 15.5,
+        "details": {
+          "processed_documents": 1250,
+          "average_processing_time_ms": 850,
+          "error_rate": 0.02
+        }
+      },
+      "quality_evaluator": {
+        "status": "healthy", 
+        "message": "Quality evaluation service online",
+        "response_time_ms": 8.2,
+        "details": {
+          "evaluations_completed": 1250,
+          "average_quality_score": 87.5,
+          "evaluation_time_ms": 25
+        }
+      },
+      "cache_system": {
+        "status": "degraded",
+        "message": "Cache hit rate below optimal threshold",
+        "response_time_ms": 45.0,
+        "details": {
+          "hit_rate": 75.5,
+          "miss_rate": 24.5,
+          "cache_size_mb": 512,
+          "evictions_per_hour": 150
+        }
+      },
+      "database": {
+        "status": "healthy",
+        "message": "Database connections stable",
+        "response_time_ms": 12.0,
+        "details": {
+          "active_connections": 25,
+          "max_connections": 100,
+          "query_response_time_ms": 8.5,
+          "connection_pool_utilization": 0.25
+        }
+      },
+      "file_storage": {
+        "status": "healthy",
+        "message": "File storage system operational",
+        "response_time_ms": 20.0,
+        "details": {
+          "disk_usage_percent": 45.0,
+          "available_space_gb": 550,
+          "io_operations_per_sec": 1200
+        }
+      }
+    }
+  },
+  "readiness_check": {
+    "ready": true,
+    "message": "System ready to serve traffic",
+    "timestamp": "2024-01-15T10:30:00Z",
+    "dependencies": {
+      "database": "connected",
+      "cache": "available", 
+      "storage": "mounted"
+    }
+  },
+  "liveness_check": {
+    "alive": true,
+    "message": "System is responding",
+    "timestamp": "2024-01-15T10:30:00Z",
+    "uptime": "72h 15m 30s",
+    "memory_usage_percent": 72.0,
+    "cpu_usage_percent": 65.0
+  },
+  "component_health": {
+    "api_gateway": {
+      "status": "healthy",
+      "message": "API Gateway operational",
+      "response_time_ms": 5.0,
+      "details": {
+        "requests_per_second": 150,
+        "error_rate": 0.001,
+        "uptime_percent": 99.95
+      }
+    },
+    "load_balancer": {
+      "status": "healthy",
+      "message": "Load balancer distributing traffic",
+      "response_time_ms": 2.0,
+      "details": {
+        "active_backends": 3,
+        "health_checks_passing": 3,
+        "connection_count": 150
+      }
+    },
+    "monitoring_service": {
+      "status": "healthy",
+      "message": "Monitoring and observability active",
+      "response_time_ms": 10.0,
+      "details": {
+        "metrics_collected": 15000,
+        "alerts_active": 0,
+        "dashboards_available": 5
+      }
+    }
+  },
+  "unhealthy_scenarios": {
+    "database_down": {
+      "status": "unhealthy",
+      "message": "Database connection failed",
+      "timestamp": "2024-01-15T10:30:00Z",
+      "error": "Connection timeout after 30 seconds",
+      "affected_services": ["chunking", "quality_evaluation", "user_sessions"]
+    },
+    "high_error_rate": {
+      "status": "degraded",
+      "message": "High error rate detected",
+      "timestamp": "2024-01-15T10:30:00Z",
+      "error_rate": 0.15,
+      "threshold": 0.05,
+      "recent_errors": [
+        "Validation failed for document chunk",
+        "Quality evaluation timeout",
+        "Cache miss for processing rule"
+      ]
+    },
+    "resource_exhaustion": {
+      "status": "unhealthy",
+      "message": "System resources exhausted",
+      "timestamp": "2024-01-15T10:30:00Z",
+      "details": {
+        "memory_usage_percent": 95.0,
+        "cpu_usage_percent": 98.0,
+        "disk_usage_percent": 90.0,
+        "swap_usage_percent": 85.0
+      }
+    }
+  }
+}

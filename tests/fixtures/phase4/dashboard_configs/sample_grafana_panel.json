@@ -1,0 +1,196 @@
+{
+  "sample_grafana_panels": [
+    {
+      "id": 1,
+      "title": "System Health Status",
+      "type": "stat",
+      "gridPos": {
+        "h": 4,
+        "w": 6,
+        "x": 0,
+        "y": 0
+      },
+      "targets": [
+        {
+          "expr": "chunking_system_health_status",
+          "legendFormat": "Health Status",
+          "refId": "A"
+        }
+      ],
+      "fieldConfig": {
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "mappings": [
+            {
+              "options": {
+                "0": {
+                  "text": "UNHEALTHY",
+                  "color": "red"
+                },
+                "1": {
+                  "text": "HEALTHY", 
+                  "color": "green"
+                }
+              },
+              "type": "value"
+            }
+          ],
+          "thresholds": {
+            "steps": [
+              {
+                "color": "red",
+                "value": null
+              },
+              {
+                "color": "green",
+                "value": 1
+              }
+            ]
+          },
+          "unit": "none"
+        }
+      },
+      "options": {
+        "colorMode": "background",
+        "graphMode": "none",
+        "justifyMode": "center",
+        "orientation": "horizontal",
+        "reduceOptions": {
+          "calcs": ["lastNotNull"],
+          "fields": "",
+          "values": false
+        },
+        "textMode": "auto"
+      }
+    },
+    {
+      "id": 2,
+      "title": "Processing Rate",
+      "type": "graph",
+      "gridPos": {
+        "h": 8,
+        "w": 12,
+        "x": 0,
+        "y": 4
+      },
+      "targets": [
+        {
+          "expr": "rate(chunking_operations_total[5m])",
+          "legendFormat": "Operations/sec",
+          "refId": "A"
+        }
+      ],
+      "xAxis": {
+        "mode": "time",
+        "show": true
+      },
+      "yAxes": [
+        {
+          "label": "Operations/sec",
+          "max": null,
+          "min": 0,
+          "show": true
+        }
+      ],
+      "legend": {
+        "alignAsTable": true,
+        "avg": true,
+        "current": true,
+        "max": true,
+        "min": false,
+        "show": true,
+        "total": false,
+        "values": true
+      }
+    },
+    {
+      "id": 3,
+      "title": "Error Rate",
+      "type": "graph",
+      "gridPos": {
+        "h": 6,
+        "w": 8,
+        "x": 0,
+        "y": 12
+      },
+      "targets": [
+        {
+          "expr": "rate(chunking_errors_total[5m])",
+          "legendFormat": "Errors/sec",
+          "refId": "A"
+        }
+      ],
+      "thresholds": [
+        {
+          "colorMode": "critical",
+          "fill": true,
+          "line": true,
+          "op": "gt",
+          "value": 0.1
+        }
+      ],
+      "yAxes": [
+        {
+          "label": "Errors/sec",
+          "max": null,
+          "min": 0,
+          "show": true
+        }
+      ]
+    }
+  ],
+  "sample_prometheus_queries": [
+    {
+      "name": "system_health",
+      "query": "chunking_system_health_status",
+      "description": "Overall system health status (0=unhealthy, 1=healthy)"
+    },
+    {
+      "name": "operations_rate",
+      "query": "rate(chunking_operations_total[5m])",
+      "description": "Rate of chunking operations per second"
+    },
+    {
+      "name": "error_rate", 
+      "query": "rate(chunking_errors_total[5m])",
+      "description": "Rate of errors per second"
+    },
+    {
+      "name": "processing_latency_p95",
+      "query": "histogram_quantile(0.95, rate(chunking_duration_ms_bucket[5m]))",
+      "description": "95th percentile processing latency in milliseconds"
+    },
+    {
+      "name": "cpu_usage",
+      "query": "system_cpu_percent",
+      "description": "Current CPU usage percentage"
+    },
+    {
+      "name": "memory_usage",
+      "query": "system_memory_percent", 
+      "description": "Current memory usage percentage"
+    },
+    {
+      "name": "cache_hit_ratio",
+      "query": "cache_hit_rate / (cache_hit_rate + cache_miss_rate)",
+      "description": "Cache hit ratio as percentage"
+    },
+    {
+      "name": "queue_size",
+      "query": "processing_queue_size",
+      "description": "Current processing queue size"
+    },
+    {
+      "name": "active_connections",
+      "query": "active_connections",
+      "description": "Number of active database connections"
+    },
+    {
+      "name": "quality_score_avg",
+      "query": "avg_over_time(chunk_quality_score[1h])",
+      "description": "Average chunk quality score over 1 hour"
+    }
+  ]
+}

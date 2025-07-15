@@ -43,13 +43,20 @@ class MetricType(Enum):
     TIMER = "timer"
 
 
+class HealthStatus(Enum):
+    """Health check status levels."""
+    HEALTHY = "healthy"
+    DEGRADED = "degraded"
+    UNHEALTHY = "unhealthy"
+
+
 @dataclass
 class TraceContext:
     """Distributed tracing context with correlation IDs."""
-    trace_id: str = field(default_factory=lambda: str(uuid.uuid4()))
-    span_id: str = field(default_factory=lambda: str(uuid.uuid4()))
+    operation: str
+    trace_id: str
+    span_id: str
     parent_span_id: Optional[str] = None
-    operation_name: str = "unknown"
     start_time: datetime = field(default_factory=datetime.now)
     end_time: Optional[datetime] = None
     duration_ms: Optional[float] = None
@@ -69,19 +76,24 @@ class TraceContext:
         """Add a tag to the trace context."""
         self.tags[key] = value
     
-    def add_log(self, level: TraceLevel, message: str, extra: Optional[Dict[str, Any]] = None):
+    def add_log(self, level: str, message: str, data: Optional[Dict[str, Any]] = None):
         """Add a log entry to the trace context."""
         log_entry = {
             "timestamp": datetime.now().isoformat(),
-            "level": level.value,
+            "level": level,
             "message": message,
-            "extra": extra or {}
+            "data": data or {}
         }
         self.logs.append(log_entry)
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert trace context to dictionary."""
-        return asdict(self)
+        result = asdict(self)
+        if result.get('start_time'):
+            result['start_time'] = result['start_time'].isoformat()
+        if result.get('end_time'):
+            result['end_time'] = result['end_time'].isoformat()
+        return result
 
 
 @dataclass
@@ -92,7 +104,7 @@ class CustomMetric:
     metric_type: MetricType
     unit: str
     timestamp: datetime = field(default_factory=datetime.now)
-    tags: Dict[str, str] = field(default_factory=dict)
+    labels: Dict[str, str] = field(default_factory=dict)
     help_text: Optional[str] = None
     
     def to_dict(self) -> Dict[str, Any]:
@@ -103,7 +115,7 @@ class CustomMetric:
             "type": self.metric_type.value,
             "unit": self.unit,
             "timestamp": self.timestamp.isoformat(),
-            "tags": self.tags,
+            "labels": self.labels,
             "help_text": self.help_text
         }
 
@@ -112,7 +124,7 @@ class CustomMetric:
 class HealthCheckResult:
     """Enhanced health check result with detailed diagnostics."""
     component: str
-    status: str  # "healthy", "degraded", "unhealthy"
+    status: HealthStatus
     message: str
     details: Dict[str, Any] = field(default_factory=dict)
     timestamp: datetime = field(default_factory=datetime.now)
@@ -123,11 +135,13 @@ class HealthCheckResult:
     @property
     def is_healthy(self) -> bool:
         """Check if component is healthy."""
-        return self.status == "healthy"
+        return self.status == HealthStatus.HEALTHY
     
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
-        return asdict(self)
+        result = asdict(self)
+        result['status'] = self.status.value  # Convert enum to string
+        return result
 
 
 class CorrelationIDManager:
@@ -147,10 +161,14 @@ class CorrelationIDManager:
     
     @classmethod
     def generate_correlation_id(cls) -> str:
-        """Generate and set new correlation ID."""
-        correlation_id = str(uuid.uuid4())
-        cls.set_correlation_id(correlation_id)
-        return correlation_id
+        """Generate a new correlation ID."""
+        return str(uuid.uuid4()).replace('-', '')  # Remove hyphens for compactness
+    
+    @classmethod
+    def clear_correlation_id(cls):
+        """Clear correlation ID for current thread."""
+        if hasattr(cls._context, 'correlation_id'):
+            delattr(cls._context, 'correlation_id')
     
     @classmethod
     @contextmanager
@@ -166,7 +184,7 @@ class CorrelationIDManager:
             if old_id:
                 cls.set_correlation_id(old_id)
             else:
-                cls._context.correlation_id = None
+                cls.clear_correlation_id()
 
 
 class StructuredLogger:

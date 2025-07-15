@@ -1,0 +1,91 @@
+groups:
+  - name: chunking_system_test_alerts
+    rules:
+      # Test critical alerts
+      - alert: TestSystemHealthDown
+        expr: chunking_system_health_status == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: system
+          environment: test
+        annotations:
+          summary: "Test - Document Chunking System is unhealthy"
+          description: "The document chunking system health check is failing in test environment"
+
+      - alert: TestHighErrorRate
+        expr: rate(chunking_errors_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          component: processing
+          environment: test
+        annotations:
+          summary: "Test - High error rate in document processing"
+          description: "Error rate is {{ $value | humanize }} errors/sec over the last 5 minutes"
+
+      # Test warning alerts
+      - alert: TestHighCPUUsage
+        expr: system_cpu_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+          environment: test
+        annotations:
+          summary: "Test - High CPU usage"
+          description: "CPU usage is {{ $value | humanize }}% for more than 5 minutes"
+
+      - alert: TestLowCacheHitRate
+        expr: cache_hit_rate < 50
+        for: 10m
+        labels:
+          severity: warning
+          component: cache
+          environment: test
+        annotations:
+          summary: "Test - Low cache hit rate"
+          description: "Cache hit rate is {{ $value | humanize }}% for more than 10 minutes"
+
+  - name: chunking_system_test_sla
+    rules:
+      # Test SLA alerts
+      - alert: TestSLAErrorRateBreach
+        expr: (rate(chunking_errors_total[1h]) / rate(chunking_operations_total[1h])) * 100 > 1
+        for: 5m
+        labels:
+          severity: critical
+          component: sla
+          sla: error_rate
+          environment: test
+        annotations:
+          summary: "Test - SLA breach: Error rate above 1%"
+          description: "Error rate is {{ $value | printf \"%.2f\" }}% over the last hour (SLA: <1%)"
+
+      - alert: TestSLALatencyBreach
+        expr: quantile(0.95, chunking_duration_ms) > 5000
+        for: 10m
+        labels:
+          severity: critical
+          component: sla
+          sla: latency
+          environment: test
+        annotations:
+          summary: "Test - SLA breach: 95th percentile latency above 5s"
+          description: "95th percentile latency is {{ $value | humanize }}ms (SLA: <5000ms)"
+
+# Test recording rules
+  - name: chunking_system_test_recording_rules
+    interval: 30s
+    rules:
+      - record: test:chunking:error_rate:5m
+        expr: rate(chunking_errors_total[5m])
+
+      - record: test:chunking:success_rate:5m
+        expr: rate(chunking_operations_total[5m]) - rate(chunking_errors_total[5m])
+
+      - record: test:chunking:latency_p95:5m
+        expr: histogram_quantile(0.95, rate(chunking_duration_ms_bucket[5m]))
+
+      - record: test:system:resource_utilization:5m
+        expr: (system_cpu_percent + system_memory_percent) / 2

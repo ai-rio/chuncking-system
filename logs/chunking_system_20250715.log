@@ -97,3 +97,498 @@
 2025-07-15 00:21:48,011 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
 2025-07-15 00:21:48,012 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
 2025-07-15 00:21:48,012 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:48:51,403 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:48:51.402971", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:48:51,425 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:48:51.424572", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:48:51,449 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:48:51.449153", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:48:51,453 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:48:51.452522", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:48:51,466 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:48:51.465788", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:49:41,239 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:41,239 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:41,240 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:41,240 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:42,821 - src.chunkers.evaluators - ERROR - _log_with_context:89 - Error in semantic analysis during chunk evaluation | Context: {"error": "TF-IDF failed", "error_type": "Exception", "num_chunks": 2}
+2025-07-15 00:49:42,841 - src.chunkers.evaluators - ERROR - _log_with_context:89 - Error calculating overall quality score | Context: {"error": "'size_consistency'", "error_type": "KeyError"}
+2025-07-15 00:49:42,848 - src.chunkers.evaluators - INFO - _log_with_context:89 - Evaluation report saved successfully | Context: {"output_path": "/tmp/tmptyee2vtq/test_report.md", "report_size_chars": 781}
+2025-07-15 00:49:44,052 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.425, "memory_before_mb": 278.0078125, "memory_after_mb": 278.265625, "memory_peak_mb": 278.0078125, "success": true}
+2025-07-15 00:49:44,054 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 0.8170000000000001, "memory_before_mb": 278.265625, "memory_after_mb": 278.265625, "memory_peak_mb": 278.265625, "success": true}
+2025-07-15 00:49:44,065 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 5.503, "memory_before_mb": 278.265625, "memory_after_mb": 278.265625, "memory_peak_mb": 278.265625, "success": true}
+2025-07-15 00:49:44,071 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.535, "memory_before_mb": 278.265625, "memory_after_mb": 278.265625, "memory_peak_mb": 278.265625, "success": true}
+2025-07-15 00:49:44,077 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.814, "memory_before_mb": 278.265625, "memory_after_mb": 278.515625, "memory_peak_mb": 278.515625, "success": true}
+2025-07-15 00:49:44,394 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.428, "memory_before_mb": 284.08203125, "memory_after_mb": 284.08203125, "memory_peak_mb": 284.08203125, "success": true}
+2025-07-15 00:49:44,396 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.317, "memory_before_mb": 284.08203125, "memory_after_mb": 284.08203125, "memory_peak_mb": 284.08203125, "success": true}
+2025-07-15 00:49:44,397 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_item_processing", "duration_ms": 5.21, "memory_before_mb": 284.08203125, "memory_after_mb": 284.08203125, "memory_peak_mb": 284.08203125, "success": true}
+2025-07-15 00:49:44,398 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_processing", "duration_ms": 7.391, "memory_before_mb": 284.08203125, "memory_after_mb": 284.08203125, "memory_peak_mb": 284.08203125, "success": true}
+2025-07-15 00:49:44,398 - src.chunkers.hybrid_chunker - INFO - _log_with_context:89 - Batch processing completed | Context: {"total_files": 2, "successful_files": 2, "total_chunks": 2}
+2025-07-15 00:49:44,419 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.575, "memory_before_mb": 284.08203125, "memory_after_mb": 284.08203125, "memory_peak_mb": 284.08203125, "success": true}
+2025-07-15 00:49:44,419 - src.chunkers.hybrid_chunker - ERROR - _log_with_context:89 - Known error processing file during batch processing | Context: {"file_path": "/tmp/tmpoi3g80k_/nonexistent.md", "error": "File not found: /tmp/tmpoi3g80k_/nonexistent.md (Details: file_path=/tmp/tmpoi3g80k_/nonexistent.md)", "error_type": "FileHandlingError"}
+2025-07-15 00:49:44,420 - src.utils.performance - ERROR - _log_with_context:89 - Failed to process item | Context: {"error": "BatchProcessingError.__init__() got an unexpected keyword argument 'file_path'", "item": "/tmp/tmpoi3g80k_/nonexistent.md"}
+2025-07-15 00:49:44,420 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_item_processing", "duration_ms": 3.8600000000000003, "memory_before_mb": 284.08203125, "memory_after_mb": 284.08203125, "memory_peak_mb": 284.08203125, "success": true}
+2025-07-15 00:49:44,421 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_processing", "duration_ms": 5.771, "memory_before_mb": 284.08203125, "memory_after_mb": 284.08203125, "memory_peak_mb": 284.08203125, "success": true}
+2025-07-15 00:49:44,421 - src.chunkers.hybrid_chunker - WARNING - _log_with_context:89 - File processing failed, stored empty result | Context: {"file_path": "/tmp/tmpoi3g80k_/nonexistent.md"}
+2025-07-15 00:49:44,422 - src.chunkers.hybrid_chunker - INFO - _log_with_context:89 - Batch processing completed | Context: {"total_files": 2, "successful_files": 1, "total_chunks": 1}
+2025-07-15 00:49:44,431 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.572, "memory_before_mb": 286.08203125, "memory_after_mb": 286.08203125, "memory_peak_mb": 286.08203125, "success": true}
+2025-07-15 00:49:44,434 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.595, "memory_before_mb": 286.08203125, "memory_after_mb": 286.08203125, "memory_peak_mb": 286.08203125, "success": true}
+2025-07-15 00:49:44,436 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.683, "memory_before_mb": 286.08203125, "memory_after_mb": 286.08203125, "memory_peak_mb": 286.08203125, "success": true}
+2025-07-15 00:49:44,438 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.518, "memory_before_mb": 286.08203125, "memory_after_mb": 286.08203125, "memory_peak_mb": 286.08203125, "success": true}
+2025-07-15 00:49:44,440 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.4760000000000002, "memory_before_mb": 286.08203125, "memory_after_mb": 286.08203125, "memory_peak_mb": 286.08203125, "success": true}
+2025-07-15 00:49:44,442 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.256, "memory_before_mb": 286.08203125, "memory_after_mb": 286.08203125, "memory_peak_mb": 286.08203125, "success": true}
+2025-07-15 00:49:44,453 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 10.488000000000001, "memory_before_mb": 286.08203125, "memory_after_mb": 288.08203125, "memory_peak_mb": 286.08203125, "success": true}
+2025-07-15 00:49:44,456 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.878, "memory_before_mb": 288.08203125, "memory_after_mb": 288.08203125, "memory_peak_mb": 288.08203125, "success": true}
+2025-07-15 00:49:44,459 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.7810000000000001, "memory_before_mb": 288.08203125, "memory_after_mb": 288.08203125, "memory_peak_mb": 288.08203125, "success": true}
+2025-07-15 00:49:44,461 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.469, "memory_before_mb": 288.08203125, "memory_after_mb": 288.08203125, "memory_peak_mb": 288.08203125, "success": true}
+2025-07-15 00:49:44,462 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_item_processing", "duration_ms": 32.518, "memory_before_mb": 286.08203125, "memory_after_mb": 288.08203125, "memory_peak_mb": 286.08203125, "success": true}
+2025-07-15 00:49:44,465 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.766, "memory_before_mb": 288.08203125, "memory_after_mb": 288.08203125, "memory_peak_mb": 288.08203125, "success": true}
+2025-07-15 00:49:44,466 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_item_processing", "duration_ms": 3.0869999999999997, "memory_before_mb": 288.08203125, "memory_after_mb": 288.08203125, "memory_peak_mb": 286.08203125, "success": true}
+2025-07-15 00:49:44,467 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_processing", "duration_ms": 38.798, "memory_before_mb": 284.08203125, "memory_after_mb": 288.08203125, "memory_peak_mb": 286.08203125, "success": true}
+2025-07-15 00:49:44,467 - src.chunkers.hybrid_chunker - INFO - _log_with_context:89 - Batch processing completed | Context: {"total_files": 11, "successful_files": 11, "total_chunks": 11}
+2025-07-15 00:49:44,486 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.676, "memory_before_mb": 288.08203125, "memory_after_mb": 288.08203125, "memory_peak_mb": 288.08203125, "success": true}
+2025-07-15 00:49:44,491 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 4.218999999999999, "memory_before_mb": 288.08203125, "memory_after_mb": 288.08203125, "memory_peak_mb": 288.08203125, "success": true}
+2025-07-15 00:49:44,497 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.599, "memory_before_mb": 288.09375, "memory_after_mb": 288.10546875, "memory_peak_mb": 288.10546875, "success": true}
+2025-07-15 00:49:44,511 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 0.837, "memory_before_mb": 288.10546875, "memory_after_mb": 288.10546875, "memory_peak_mb": 288.10546875, "success": true}
+2025-07-15 00:49:44,512 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 0.531, "memory_before_mb": 288.10546875, "memory_after_mb": 288.10546875, "memory_peak_mb": 288.10546875, "success": true}
+2025-07-15 00:49:44,513 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.135, "memory_before_mb": 288.10546875, "memory_after_mb": 290.10546875, "memory_peak_mb": 290.10546875, "success": true}
+2025-07-15 00:49:44,515 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.127, "memory_before_mb": 290.10546875, "memory_after_mb": 290.10546875, "memory_peak_mb": 290.10546875, "success": true}
+2025-07-15 00:49:44,516 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.108, "memory_before_mb": 290.10546875, "memory_after_mb": 290.10546875, "memory_peak_mb": 290.10546875, "success": true}
+2025-07-15 00:49:44,518 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.036, "memory_before_mb": 290.1171875, "memory_after_mb": 290.1171875, "memory_peak_mb": 290.1171875, "success": true}
+2025-07-15 00:49:44,520 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.213, "memory_before_mb": 290.13671875, "memory_after_mb": 290.13671875, "memory_peak_mb": 290.13671875, "success": true}
+2025-07-15 00:49:44,521 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.1360000000000001, "memory_before_mb": 290.13671875, "memory_after_mb": 290.13671875, "memory_peak_mb": 290.13671875, "success": true}
+2025-07-15 00:49:44,534 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 12.718, "memory_before_mb": 290.13671875, "memory_after_mb": 288.2109375, "memory_peak_mb": 290.13671875, "success": true}
+2025-07-15 00:49:44,542 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.373, "memory_before_mb": 288.23828125, "memory_after_mb": 288.2578125, "memory_peak_mb": 288.23828125, "success": true}
+2025-07-15 00:49:44,548 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.564, "memory_before_mb": 288.2578125, "memory_after_mb": 288.2578125, "memory_peak_mb": 288.2578125, "success": true}
+2025-07-15 00:49:44,560 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.056, "memory_before_mb": 286.30078125, "memory_after_mb": 286.3203125, "memory_peak_mb": 286.3203125, "success": true}
+2025-07-15 00:49:44,569 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 0.963, "memory_before_mb": 286.3359375, "memory_after_mb": 286.3359375, "memory_peak_mb": 286.3359375, "success": true}
+2025-07-15 00:49:44,571 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.088, "memory_before_mb": 286.3359375, "memory_after_mb": 286.3359375, "memory_peak_mb": 286.3359375, "success": true}
+2025-07-15 00:49:44,636 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.395, "memory_before_mb": 284.34765625, "memory_after_mb": 284.34765625, "memory_peak_mb": 284.34765625, "success": true}
+2025-07-15 00:49:44,649 - src.chunkers.evaluators - INFO - _log_with_context:89 - Evaluation report saved successfully | Context: {"output_path": "/tmp/tmpxwanxc_2/quality_report.md", "report_size_chars": 782}
+2025-07-15 00:49:44,654 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 0.925, "memory_before_mb": 284.359375, "memory_after_mb": 284.359375, "memory_peak_mb": 284.359375, "success": true}
+2025-07-15 00:49:44,663 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 0.929, "memory_before_mb": 284.37109375, "memory_after_mb": 284.37109375, "memory_peak_mb": 284.37109375, "success": true}
+2025-07-15 00:49:44,665 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.147, "memory_before_mb": 284.37109375, "memory_after_mb": 284.37109375, "memory_peak_mb": 284.37109375, "success": true}
+2025-07-15 00:49:44,667 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.181, "memory_before_mb": 284.37109375, "memory_after_mb": 284.37109375, "memory_peak_mb": 284.37109375, "success": true}
+2025-07-15 00:49:44,669 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.036, "memory_before_mb": 284.37109375, "memory_after_mb": 284.37109375, "memory_peak_mb": 284.37109375, "success": true}
+2025-07-15 00:49:44,671 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.478, "memory_before_mb": 284.37109375, "memory_after_mb": 284.3828125, "memory_peak_mb": 284.3828125, "success": true}
+2025-07-15 00:49:44,673 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.477, "memory_before_mb": 284.3828125, "memory_after_mb": 284.39453125, "memory_peak_mb": 284.39453125, "success": true}
+2025-07-15 00:49:44,675 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.181, "memory_before_mb": 284.39453125, "memory_after_mb": 284.39453125, "memory_peak_mb": 284.39453125, "success": true}
+2025-07-15 00:49:44,677 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.269, "memory_before_mb": 284.39453125, "memory_after_mb": 284.39453125, "memory_peak_mb": 284.39453125, "success": true}
+2025-07-15 00:49:44,678 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.176, "memory_before_mb": 284.39453125, "memory_after_mb": 284.39453125, "memory_peak_mb": 284.39453125, "success": true}
+2025-07-15 00:49:44,680 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.307, "memory_before_mb": 284.39453125, "memory_after_mb": 286.39453125, "memory_peak_mb": 286.39453125, "success": true}
+2025-07-15 00:49:44,681 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_item_processing", "duration_ms": 18.931, "memory_before_mb": 284.37109375, "memory_after_mb": 286.39453125, "memory_peak_mb": 284.37109375, "success": true}
+2025-07-15 00:49:44,683 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.288, "memory_before_mb": 286.39453125, "memory_after_mb": 286.39453125, "memory_peak_mb": 286.39453125, "success": true}
+2025-07-15 00:49:44,685 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.138, "memory_before_mb": 286.39453125, "memory_after_mb": 286.39453125, "memory_peak_mb": 286.39453125, "success": true}
+2025-07-15 00:49:44,687 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.2730000000000001, "memory_before_mb": 286.39453125, "memory_after_mb": 286.62890625, "memory_peak_mb": 286.62890625, "success": true}
+2025-07-15 00:49:44,690 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.0509999999999997, "memory_before_mb": 286.62890625, "memory_after_mb": 286.62890625, "memory_peak_mb": 286.62890625, "success": true}
+2025-07-15 00:49:44,691 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.206, "memory_before_mb": 286.62890625, "memory_after_mb": 288.62890625, "memory_peak_mb": 288.62890625, "success": true}
+2025-07-15 00:49:44,692 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_item_processing", "duration_ms": 10.491, "memory_before_mb": 286.39453125, "memory_after_mb": 288.62890625, "memory_peak_mb": 284.37109375, "success": true}
+2025-07-15 00:49:44,692 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_processing", "duration_ms": 31.169, "memory_before_mb": 284.37109375, "memory_after_mb": 288.62890625, "memory_peak_mb": 284.37109375, "success": true}
+2025-07-15 00:49:44,693 - src.chunkers.hybrid_chunker - INFO - _log_with_context:89 - Batch processing completed | Context: {"total_files": 15, "successful_files": 15, "total_chunks": 15}
+2025-07-15 00:49:44,714 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.751, "memory_before_mb": 288.62890625, "memory_after_mb": 288.62890625, "memory_peak_mb": 288.62890625, "success": true}
+2025-07-15 00:49:44,727 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 4.305, "memory_before_mb": 288.62890625, "memory_after_mb": 288.62890625, "memory_peak_mb": 288.62890625, "success": true}
+2025-07-15 00:49:47,670 - src.utils.cache - INFO - _log_with_context:89 - All caches cleared
+2025-07-15 00:49:47,674 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:49:47,676 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 0.992, "memory_before_mb": 284.66015625, "memory_after_mb": 284.66015625, "memory_peak_mb": 284.66015625, "success": true}
+2025-07-15 00:49:47,677 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_chunker_with_caching_enab0/test.md", "chunk_count": 1, "processing_time_ms": 2.4547576904296875, "quality_score": 85.0}
+2025-07-15 00:49:47,677 - src.chunking_system - INFO - _log_with_context:89 - Cache hit for file | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_chunker_with_caching_enab0/test.md"}
+2025-07-15 00:49:47,681 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:49:47,682 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 0.98, "memory_before_mb": 284.66015625, "memory_after_mb": 284.66015625, "memory_peak_mb": 284.66015625, "success": true}
+2025-07-15 00:49:47,683 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_chunker_with_caching_disa0/test.md", "chunk_count": 1, "processing_time_ms": 1.8990039825439453, "quality_score": 76.0}
+2025-07-15 00:49:47,685 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 0.9510000000000001, "memory_before_mb": 284.66015625, "memory_after_mb": 284.66015625, "memory_peak_mb": 284.66015625, "success": true}
+2025-07-15 00:49:47,686 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_chunker_with_caching_disa0/test.md", "chunk_count": 1, "processing_time_ms": 2.138853073120117, "quality_score": 76.0}
+2025-07-15 00:49:47,690 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:49:47,693 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.5430000000000001, "memory_before_mb": 284.66015625, "memory_after_mb": 284.66015625, "memory_peak_mb": 284.66015625, "success": true}
+2025-07-15 00:49:47,694 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_cache_invalidation_on_fil0/test.md", "chunk_count": 1, "processing_time_ms": 2.830028533935547, "quality_score": 76.0}
+2025-07-15 00:49:47,694 - src.chunking_system - INFO - _log_with_context:89 - Cache hit for file | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_cache_invalidation_on_fil0/test.md"}
+2025-07-15 00:49:47,797 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.303, "memory_before_mb": 284.66015625, "memory_after_mb": 284.66015625, "memory_peak_mb": 284.66015625, "success": true}
+2025-07-15 00:49:47,798 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_cache_invalidation_on_fil0/test.md", "chunk_count": 1, "processing_time_ms": 3.0853748321533203, "quality_score": 76.0}
+2025-07-15 00:49:47,801 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:49:47,803 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.073, "memory_before_mb": 284.66015625, "memory_after_mb": 284.66015625, "memory_peak_mb": 284.66015625, "success": true}
+2025-07-15 00:49:47,805 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_cache_clear0/test.md", "chunk_count": 1, "processing_time_ms": 2.2554397583007812, "quality_score": 76.0}
+2025-07-15 00:49:47,805 - src.chunking_system - INFO - _log_with_context:89 - Cache hit for file | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_cache_clear0/test.md"}
+2025-07-15 00:49:47,805 - src.utils.cache - INFO - _log_with_context:89 - All caches cleared
+2025-07-15 00:49:47,806 - src.chunking_system - INFO - _log_with_context:89 - Cache cleared
+2025-07-15 00:49:47,808 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.48, "memory_before_mb": 284.66015625, "memory_after_mb": 284.66015625, "memory_peak_mb": 284.66015625, "success": true}
+2025-07-15 00:49:47,809 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_cache_clear0/test.md", "chunk_count": 1, "processing_time_ms": 2.6454925537109375, "quality_score": 76.0}
+2025-07-15 00:49:47,947 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:47,972 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.0399999999999998, "memory_before_mb": 284.7734375, "memory_after_mb": 284.7734375, "memory_peak_mb": 284.7734375, "success": true}
+2025-07-15 00:49:47,974 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_cache_invalidation_with_s0/changing_file.md", "chunk_count": 1, "processing_time_ms": 10.323524475097656, "quality_score": 76.0}
+2025-07-15 00:49:47,975 - src.chunking_system - INFO - _log_with_context:89 - Cache hit for file | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_cache_invalidation_with_s0/changing_file.md"}
+2025-07-15 00:49:48,080 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.992, "memory_before_mb": 284.7734375, "memory_after_mb": 284.7734375, "memory_peak_mb": 284.7734375, "success": true}
+2025-07-15 00:49:48,082 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_cache_invalidation_with_s0/changing_file.md", "chunk_count": 1, "processing_time_ms": 5.222797393798828, "quality_score": 76.0}
+2025-07-15 00:49:48,086 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:48,087 - src.chunking_system - ERROR - _log_with_context:89 - Directory chunking failed | Context: {"directory": "/tmp/pytest-of-root/pytest-20/test_performance_monitoring_wi0", "error": "Directory security validation failed for /tmp/pytest-of-root/pytest-20/test_performance_monitoring_wi0: File extension not allowed:  (Details: field=extension, value=) (Details: file_path=/tmp/pytest-of-root/pytest-20/test_performance_monitoring_wi0)"}
+2025-07-15 00:49:48,117 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:48,117 - src.chunking_system - ERROR - _log_with_context:89 - File chunking failed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_error_handling_with_all_f0/nonexistent.md", "error": "Security validation failed for /tmp/pytest-of-root/pytest-20/test_error_handling_with_all_f0/nonexistent.md: File does not exist: /tmp/pytest-of-root/pytest-20/test_error_handling_with_all_f0/nonexistent.md (Details: file_path=/tmp/pytest-of-root/pytest-20/test_error_handling_with_all_f0/nonexistent.md) (Details: file_path=/tmp/pytest-of-root/pytest-20/test_error_handling_with_all_f0/nonexistent.md)", "error_type": "SecurityError"}
+2025-07-15 00:49:48,141 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:48,142 - src.chunking_system - ERROR - _log_with_context:89 - Directory chunking failed | Context: {"directory": "/tmp/pytest-of-root/pytest-20/test_memory_optimization_durin0", "error": "Directory security validation failed for /tmp/pytest-of-root/pytest-20/test_memory_optimization_durin0: File extension not allowed:  (Details: field=extension, value=) (Details: file_path=/tmp/pytest-of-root/pytest-20/test_memory_optimization_durin0)"}
+2025-07-15 00:49:48,166 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:48,168 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.139, "memory_before_mb": 284.7734375, "memory_after_mb": 284.7734375, "memory_peak_mb": 284.7734375, "success": true}
+2025-07-15 00:49:48,169 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_concurrent_access_simulat0/concurrent_test.md", "chunk_count": 1, "processing_time_ms": 2.6302337646484375, "quality_score": 76.0}
+2025-07-15 00:49:48,170 - src.chunking_system - INFO - _log_with_context:89 - Cache hit for file | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_concurrent_access_simulat0/concurrent_test.md"}
+2025-07-15 00:49:48,170 - src.chunking_system - INFO - _log_with_context:89 - Cache hit for file | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_concurrent_access_simulat0/concurrent_test.md"}
+2025-07-15 00:49:48,171 - src.chunking_system - INFO - _log_with_context:89 - Cache hit for file | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_concurrent_access_simulat0/concurrent_test.md"}
+2025-07-15 00:49:48,171 - src.chunking_system - INFO - _log_with_context:89 - Cache hit for file | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_concurrent_access_simulat0/concurrent_test.md"}
+2025-07-15 00:49:48,195 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:48,196 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: chunker
+2025-07-15 00:49:48,198 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.1800000000000002, "memory_before_mb": 284.7734375, "memory_after_mb": 284.7734375, "memory_peak_mb": 284.7734375, "success": true}
+2025-07-15 00:49:48,199 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_system_monitoring_integra0/monitoring_test.md", "chunk_count": 1, "processing_time_ms": 2.8848648071289062, "quality_score": 76.0}
+2025-07-15 00:49:49,203 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:50,207 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:50,267 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:49:50,270 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.353, "memory_before_mb": 284.7734375, "memory_after_mb": 284.7734375, "memory_peak_mb": 284.7734375, "success": true}
+2025-07-15 00:49:50,271 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_caching_only_configuratio0/cache_only.md", "chunk_count": 1, "processing_time_ms": 2.5424957275390625, "quality_score": 76.0}
+2025-07-15 00:49:50,301 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": true, "monitoring_enabled": false}
+2025-07-15 00:49:50,303 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.056, "memory_before_mb": 284.7734375, "memory_after_mb": 284.7734375, "memory_peak_mb": 284.7734375, "success": true}
+2025-07-15 00:49:50,305 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_security_only_configurati0/security_only.md", "chunk_count": 1, "processing_time_ms": 2.8150081634521484, "quality_score": 76.0}
+2025-07-15 00:49:50,331 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 00:49:50,333 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.0679999999999998, "memory_before_mb": 284.7734375, "memory_after_mb": 284.7734375, "memory_peak_mb": 284.7734375, "success": true}
+2025-07-15 00:49:50,334 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_monitoring_only_configura0/monitoring_only.md", "chunk_count": 1, "processing_time_ms": 2.3109912872314453, "quality_score": 76.0}
+2025-07-15 00:49:50,361 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:49:50,363 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.037, "memory_before_mb": 284.7734375, "memory_after_mb": 284.7734375, "memory_peak_mb": 284.7734375, "success": true}
+2025-07-15 00:49:50,365 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_all_disabled_configuratio0/all_disabled.md", "chunk_count": 1, "processing_time_ms": 2.866983413696289, "quality_score": 85.0}
+2025-07-15 00:49:50,391 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:49:50,393 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 0.9600000000000001, "memory_before_mb": 284.78125, "memory_after_mb": 284.78125, "memory_peak_mb": 284.78125, "success": true}
+2025-07-15 00:49:50,394 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_cache_corruption_handling0/cache_corruption.md", "chunk_count": 1, "processing_time_ms": 1.9061565399169922, "quality_score": 76.0}
+2025-07-15 00:49:50,395 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.21, "memory_before_mb": 284.78125, "memory_after_mb": 284.78125, "memory_peak_mb": 284.78125, "success": true}
+2025-07-15 00:49:50,396 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_cache_corruption_handling0/cache_corruption.md", "chunk_count": 1, "processing_time_ms": 2.3446083068847656, "quality_score": 76.0}
+2025-07-15 00:49:50,400 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:50,402 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.092, "memory_before_mb": 284.78125, "memory_after_mb": 284.78125, "memory_peak_mb": 284.78125, "success": true}
+2025-07-15 00:49:50,403 - src.chunking_system - ERROR - _log_with_context:89 - Security audit failed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_security_validation_excep0/security_exception.md", "error": "Security error"}
+2025-07-15 00:49:50,404 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_security_validation_excep0/security_exception.md", "chunk_count": 1, "processing_time_ms": 2.5985240936279297, "quality_score": 76.0}
+2025-07-15 00:49:50,427 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 00:49:50,596 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:50,598 - src.chunking_system - ERROR - _log_with_context:89 - File chunking failed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_empty_file_handling0/empty.md", "error": "Cannot read file: File is empty or contains only whitespace (Details: field=file_content, value=empty) (Details: file_path=/tmp/pytest-of-root/pytest-20/test_empty_file_handling0/empty.md, operation=read_file)", "error_type": "FileHandlingError"}
+2025-07-15 00:49:50,651 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:50,658 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 5.882, "memory_before_mb": 285.98046875, "memory_after_mb": 285.98046875, "memory_peak_mb": 285.98046875, "success": true}
+2025-07-15 00:49:50,665 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_caching_performance_benef0/performance_test.md", "chunk_count": 14, "processing_time_ms": 12.853860855102539, "quality_score": 61.78110122448977}
+2025-07-15 00:49:50,666 - src.chunking_system - INFO - _log_with_context:89 - Cache hit for file | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_caching_performance_benef0/performance_test.md"}
+2025-07-15 00:49:50,669 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:50,671 - src.chunking_system - ERROR - _log_with_context:89 - Directory chunking failed | Context: {"directory": "/tmp/pytest-of-root/pytest-20/test_batch_processing_performa0", "error": "Directory security validation failed for /tmp/pytest-of-root/pytest-20/test_batch_processing_performa0: File extension not allowed:  (Details: field=extension, value=) (Details: file_path=/tmp/pytest-of-root/pytest-20/test_batch_processing_performa0)"}
+2025-07-15 00:49:50,694 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:50,739 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 42.585, "memory_before_mb": 285.98046875, "memory_after_mb": 285.98046875, "memory_peak_mb": 285.98046875, "success": true}
+2025-07-15 00:49:50,760 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_memory_usage_optimization0/memory_test.md", "chunk_count": 78, "processing_time_ms": 64.8188591003418, "quality_score": 66.56402097509111}
+2025-07-15 00:49:50,794 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 00:49:50,795 - src.chunking_system - INFO - _log_with_context:89 - Starting directory chunking | Context: {"directory": "/tmp/pytest-of-root/pytest-20/test_comprehensive_directory_p0/documents", "file_count": 6, "batch_size": 10}
+2025-07-15 00:49:51,043 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 244.738, "memory_before_mb": 285.98046875, "memory_after_mb": 285.98046875, "memory_peak_mb": 285.98046875, "success": true}
+2025-07-15 00:49:51,054 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_comprehensive_directory_p0/documents/unsafe/large.md", "chunk_count": 125, "processing_time_ms": 255.74660301208496, "quality_score": 59.257386075206284}
+2025-07-15 00:49:51,056 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.3290000000000002, "memory_before_mb": 285.98046875, "memory_after_mb": 285.98046875, "memory_peak_mb": 285.98046875, "success": true}
+2025-07-15 00:49:51,058 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_comprehensive_directory_p0/documents/unsafe/script.exe", "chunk_count": 1, "processing_time_ms": 3.008604049682617, "quality_score": 60.0}
+2025-07-15 00:49:51,060 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.256, "memory_before_mb": 285.98046875, "memory_after_mb": 285.98046875, "memory_peak_mb": 285.98046875, "success": true}
+2025-07-15 00:49:51,061 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_comprehensive_directory_p0/documents/unsafe/binary.md", "chunk_count": 1, "processing_time_ms": 2.5434494018554688, "quality_score": 60.0}
+2025-07-15 00:49:51,063 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.434, "memory_before_mb": 285.98046875, "memory_after_mb": 285.98046875, "memory_peak_mb": 285.98046875, "success": true}
+2025-07-15 00:49:51,065 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_comprehensive_directory_p0/documents/safe/doc1.md", "chunk_count": 1, "processing_time_ms": 2.6569366455078125, "quality_score": 76.0}
+2025-07-15 00:49:51,067 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.629, "memory_before_mb": 285.98046875, "memory_after_mb": 287.98046875, "memory_peak_mb": 287.98046875, "success": true}
+2025-07-15 00:49:51,068 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_comprehensive_directory_p0/documents/safe/doc2.md", "chunk_count": 1, "processing_time_ms": 2.789020538330078, "quality_score": 76.0}
+2025-07-15 00:49:51,070 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.452, "memory_before_mb": 287.98046875, "memory_after_mb": 287.98046875, "memory_peak_mb": 287.98046875, "success": true}
+2025-07-15 00:49:51,072 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_comprehensive_directory_p0/documents/safe/readme.txt", "chunk_count": 1, "processing_time_ms": 3.1943321228027344, "quality_score": 66.0}
+2025-07-15 00:49:51,073 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_item_processing", "duration_ms": 276.167, "memory_before_mb": 285.98046875, "memory_after_mb": 287.98046875, "memory_peak_mb": 285.98046875, "success": true}
+2025-07-15 00:49:51,074 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_processing", "duration_ms": 278.04200000000003, "memory_before_mb": 285.98046875, "memory_after_mb": 287.98046875, "memory_peak_mb": 285.98046875, "success": true}
+2025-07-15 00:49:51,074 - src.chunking_system - INFO - _log_with_context:89 - Batch processing completed | Context: {"directory": "/tmp/pytest-of-root/pytest-20/test_comprehensive_directory_p0/documents", "files_processed": 6, "total_chunks": 130, "total_time_ms": 269.9389457702637, "cache_hits": 0, "cache_hit_rate": 0.0, "avg_quality_score": 66.20956434586772}
+2025-07-15 00:49:51,112 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:51,112 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: pipeline
+2025-07-15 00:49:51,113 - src.chunking_system - ERROR - _log_with_context:89 - Directory chunking failed | Context: {"directory": "/tmp/pytest-of-root/pytest-20/test_system_monitoring_compreh0/documents/safe", "error": "Directory security validation failed for /tmp/pytest-of-root/pytest-20/test_system_monitoring_compreh0/documents/safe: File extension not allowed:  (Details: field=extension, value=) (Details: file_path=/tmp/pytest-of-root/pytest-20/test_system_monitoring_compreh0/documents/safe)"}
+2025-07-15 00:49:51,260 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:51,261 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:51,261 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:51,261 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:51,264 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:51,264 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:51,265 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:51,265 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:51,265 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test_check
+2025-07-15 00:49:51,267 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:51,268 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:51,268 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:51,268 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:51,269 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 00:49:51,271 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:51,272 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:51,272 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:51,272 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:51,297 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:51,297 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:51,297 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:51,298 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:51,298 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: healthy
+2025-07-15 00:49:51,298 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: unhealthy
+2025-07-15 00:49:52,299 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:52,324 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:52,325 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:52,325 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:52,325 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:52,326 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check1
+2025-07-15 00:49:52,326 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check2
+2025-07-15 00:49:53,328 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:54,330 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:54,331 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check3
+2025-07-15 00:49:55,333 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:56,335 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:49:56,358 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:56,358 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:56,359 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:56,359 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:56,359 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: failing
+2025-07-15 00:49:56,359 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: failing | Context: {"error": "Check failed"}
+2025-07-15 00:49:56,716 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:56,716 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:56,717 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:56,717 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:56,738 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:56,739 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:56,739 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:56,739 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:56,740 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 00:49:56,742 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:56,742 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:56,742 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:56,743 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:56,764 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:56,764 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:56,764 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:56,765 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:56,785 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:56,786 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:56,786 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:56,786 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:56,786 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 00:49:56,807 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:56,807 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:56,808 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:56,808 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:56,809 - src.utils.monitoring - INFO - _log_with_context:89 - System monitoring started
+2025-07-15 00:49:56,829 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:56,830 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:56,830 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:56,830 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:56,850 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:49:56,850 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:49:56,851 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:49:56,851 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:49:56,851 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 00:49:56,876 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 00:49:56,878 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.0679999999999998, "memory_before_mb": 286.0, "memory_after_mb": 286.0, "memory_peak_mb": 286.0, "success": true}
+2025-07-15 00:49:56,879 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_chunker_with_monitoring_e0/test.md", "chunk_count": 1, "processing_time_ms": 2.1407604217529297, "quality_score": 85.0}
+2025-07-15 00:49:56,902 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:49:56,904 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.1, "memory_before_mb": 286.0, "memory_after_mb": 286.0, "memory_peak_mb": 286.0, "success": true}
+2025-07-15 00:49:56,904 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_chunker_with_monitoring_d0/test.md", "chunk_count": 1, "processing_time_ms": 2.0678043365478516, "quality_score": 76.0}
+2025-07-15 00:49:56,926 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 00:49:56,928 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.1689999999999998, "memory_before_mb": 286.0, "memory_after_mb": 286.0, "memory_peak_mb": 286.0, "success": true}
+2025-07-15 00:49:56,929 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_monitoring_metrics_collec0/test_0.md", "chunk_count": 1, "processing_time_ms": 2.126455307006836, "quality_score": 76.0}
+2025-07-15 00:49:56,931 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 0.858, "memory_before_mb": 286.0, "memory_after_mb": 286.0, "memory_peak_mb": 286.0, "success": true}
+2025-07-15 00:49:56,931 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_monitoring_metrics_collec0/test_1.md", "chunk_count": 1, "processing_time_ms": 1.8854141235351562, "quality_score": 76.0}
+2025-07-15 00:49:56,933 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.067, "memory_before_mb": 286.0, "memory_after_mb": 286.0, "memory_peak_mb": 286.0, "success": true}
+2025-07-15 00:49:56,934 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_monitoring_metrics_collec0/test_2.md", "chunk_count": 1, "processing_time_ms": 2.026796340942383, "quality_score": 76.0}
+2025-07-15 00:49:56,956 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 00:49:57,958 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:50:01,647 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:50:01,699 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:01,699 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:01,699 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:01,699 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:01,699 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check_0
+2025-07-15 00:50:01,700 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check_1
+2025-07-15 00:50:01,700 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check_2
+2025-07-15 00:50:01,700 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check_3
+2025-07-15 00:50:01,700 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check_4
+2025-07-15 00:50:01,700 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check_5
+2025-07-15 00:50:01,701 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check_6
+2025-07-15 00:50:01,701 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check_7
+2025-07-15 00:50:01,701 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check_8
+2025-07-15 00:50:01,701 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check_9
+2025-07-15 00:50:02,703 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:50:02,745 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:02,746 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:02,746 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:02,746 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:02,747 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: database
+2025-07-15 00:50:02,747 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: cache
+2025-07-15 00:50:02,747 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: api
+2025-07-15 00:50:02,773 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 00:50:02,774 - src.chunking_system - INFO - _log_with_context:89 - Starting directory chunking | Context: {"directory": "/tmp/pytest-of-root/pytest-20/test_monitoring_with_chunking_0", "file_count": 3, "batch_size": 10}
+2025-07-15 00:50:02,778 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.33, "memory_before_mb": 286.00390625, "memory_after_mb": 286.00390625, "memory_peak_mb": 286.00390625, "success": true}
+2025-07-15 00:50:02,780 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_monitoring_with_chunking_0/doc_1.md", "chunk_count": 1, "processing_time_ms": 3.2961368560791016, "quality_score": 76.0}
+2025-07-15 00:50:02,785 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 4.388999999999999, "memory_before_mb": 286.00390625, "memory_after_mb": 286.00390625, "memory_peak_mb": 286.00390625, "success": true}
+2025-07-15 00:50:02,787 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_monitoring_with_chunking_0/doc_2.md", "chunk_count": 1, "processing_time_ms": 6.179094314575195, "quality_score": 76.0}
+2025-07-15 00:50:02,793 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.424, "memory_before_mb": 286.00390625, "memory_after_mb": 286.00390625, "memory_peak_mb": 286.00390625, "success": true}
+2025-07-15 00:50:02,795 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_monitoring_with_chunking_0/doc_0.md", "chunk_count": 1, "processing_time_ms": 6.838321685791016, "quality_score": 76.0}
+2025-07-15 00:50:02,796 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_item_processing", "duration_ms": 20.074, "memory_before_mb": 286.00390625, "memory_after_mb": 286.00390625, "memory_peak_mb": 286.00390625, "success": true}
+2025-07-15 00:50:02,797 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "batch_processing", "duration_ms": 22.451999999999998, "memory_before_mb": 286.00390625, "memory_after_mb": 286.00390625, "memory_peak_mb": 286.00390625, "success": true}
+2025-07-15 00:50:02,798 - src.chunking_system - INFO - _log_with_context:89 - Batch processing completed | Context: {"directory": "/tmp/pytest-of-root/pytest-20/test_monitoring_with_chunking_0", "files_processed": 3, "total_chunks": 3, "total_time_ms": 16.313552856445312, "cache_hits": 0, "cache_hit_rate": 0.0, "avg_quality_score": 76.0}
+2025-07-15 00:50:03,065 - src.utils.security - WARNING - _log_with_context:89 - Suspicious content pattern detected | Context: {"pattern": "<script[^>]*>", "file_path": "/tmp/pytest-of-root/pytest-20/test_content_safety_validation0/unsafe.md"}
+2025-07-15 00:50:03,221 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": true, "monitoring_enabled": false}
+2025-07-15 00:50:03,223 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.132, "memory_before_mb": 286.0078125, "memory_after_mb": 286.0078125, "memory_peak_mb": 286.0078125, "success": true}
+2025-07-15 00:50:03,224 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_chunker_with_security_ena0/test.md", "chunk_count": 1, "processing_time_ms": 2.7208328247070312, "quality_score": 76.0}
+2025-07-15 00:50:03,259 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:50:03,261 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.166, "memory_before_mb": 286.0078125, "memory_after_mb": 286.0078125, "memory_peak_mb": 286.0078125, "success": true}
+2025-07-15 00:50:03,262 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-20/test_chunker_with_security_dis0/test.exe", "chunk_count": 1, "processing_time_ms": 2.4504661560058594, "quality_score": 60.0}
+2025-07-15 00:50:03,279 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": true, "monitoring_enabled": false}
+2025-07-15 00:50:03,280 - src.chunking_system - ERROR - _log_with_context:89 - Directory chunking failed | Context: {"directory": "/tmp/pytest-of-root/pytest-20/test_directory_chunking_with_s0", "error": "Directory security validation failed for /tmp/pytest-of-root/pytest-20/test_directory_chunking_with_s0: File extension not allowed:  (Details: field=extension, value=) (Details: file_path=/tmp/pytest-of-root/pytest-20/test_directory_chunking_with_s0)"}
+2025-07-15 00:50:06,948 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:06,949 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:06,949 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:06,949 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:06,950 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:06,950 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:06,951 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:06,951 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:06,953 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:06.951145", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:06,953 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:06,954 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:06,954 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:06,954 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:06,957 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:06,957 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:06,957 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:06,957 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:06,958 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:06,958 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:06,958 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:06,959 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:06,959 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:06,959 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:06,959 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:06,959 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:06,976 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:06,976 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:06,976 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:06,976 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:06,977 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:06,977 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:06,977 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:06,977 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:06,977 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:06,978 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:06,978 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:06,978 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:06,995 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:06,996 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:06,996 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:06,996 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:06,997 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:06,997 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:06,997 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:06,997 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:06,998 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:06,998 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:06,998 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:06,998 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:07,015 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:07,015 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:07,015 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:07,016 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:07,016 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:07,016 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:07,016 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:07,017 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:07,017 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:07,017 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:07,017 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:07,017 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:07,037 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:07,038 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:07,038 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:07,038 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:07,038 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:07,039 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:07,039 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:07,039 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:07,039 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:07,039 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:07,040 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:07,040 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:07,055 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:07,055 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:07,056 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:07,056 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:07,056 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:07,056 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:07,057 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:07,057 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:07,057 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:07,057 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:07,057 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:07,058 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:09,148 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:09.147603", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:09,155 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:09.154151", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:09,173 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:09.173233", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:09,191 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:09,192 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:09,192 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:09,192 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:09,192 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: chunker
+2025-07-15 00:50:09,192 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: cache
+2025-07-15 00:50:09,193 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: system_memory | Context: {"error": "unsupported operand type(s) for /: 'Mock' and 'int'"}
+2025-07-15 00:50:09,193 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: system_disk | Context: {"error": "unsupported operand type(s) for /: 'Mock' and 'Mock'"}
+2025-07-15 00:50:09,195 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:50:09,195 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: system_memory | Context: {"error": "unsupported operand type(s) for /: 'Mock' and 'int'"}
+2025-07-15 00:50:09,195 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: system_disk | Context: {"error": "unsupported operand type(s) for /: 'Mock' and 'Mock'"}
+2025-07-15 00:50:09,196 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:50:09,196 - src.api.health_endpoints - ERROR - _log_with_context:89 - Health check failed | Context: {"error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:09,215 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:09.214678", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:09,237 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:09.236787", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:09,256 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:09.255128", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:09,260 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:09.260309", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:09,710 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:09.709493", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:09,726 - src.api.health_endpoints - ERROR - _log_with_context:89 - Health check failed | Context: {"error": "System failure"}
+2025-07-15 00:50:09,848 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:09.848163", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:09,872 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:09.871531", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:09,898 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:09.897662", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:10,643 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:10.642732", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:10,679 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:10.679385", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:10,692 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:10.691982", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:10,713 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:10.712695", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:10,740 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:10.739988", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:10,760 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:10.759645", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:11,117 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:11.116792", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:11,135 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:11.134689", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:11,762 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:11,762 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:11,763 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:11,763 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:11,763 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:11,764 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:11,764 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:11,764 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:11,764 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:11,765 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:11,765 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:11,765 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:11,945 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:11.945121", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:11,981 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:11.979912", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:12,648 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:12,649 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:12,649 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:12,649 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:12,650 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:12,650 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:12,650 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:12,650 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:12,651 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:12,651 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:12,651 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:12,651 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:12,767 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:12,767 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:12,767 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:12,768 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:12,768 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:12,768 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:12,768 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:12,769 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:12,769 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:12,769 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:12,769 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:12,770 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:12,784 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:12,784 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:12,784 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:12,785 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:12,785 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:12,785 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:12,785 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:12,785 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:12,786 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:50:12,786 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:50:12,786 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:50:12,786 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:50:13,345 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:13.344485", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:13,363 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:13.362109", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:13,418 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:13.417457", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}
+2025-07-15 00:50:13,446 - observability_manager - ERROR - _log_with_context:89 - {"message": "Background monitoring error", "timestamp": "2025-07-15T00:50:13.445949", "logger": "observability_manager", "correlation_id": null, "error": "CustomMetric.__init__() got an unexpected keyword argument 'tags'"}

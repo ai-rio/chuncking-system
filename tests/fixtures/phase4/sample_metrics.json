@@ -1,0 +1,120 @@
+{
+  "sample_metrics": [
+    {
+      "name": "chunking_operations_total",
+      "value": 2500,
+      "type": "counter",
+      "unit": "operations",
+      "labels": {
+        "method": "hybrid",
+        "status": "success"
+      },
+      "timestamp": "2024-01-15T10:30:00Z"
+    },
+    {
+      "name": "chunking_errors_total", 
+      "value": 25,
+      "type": "counter",
+      "unit": "errors",
+      "labels": {
+        "error_type": "validation_failed",
+        "component": "chunker"
+      },
+      "timestamp": "2024-01-15T10:30:01Z"
+    },
+    {
+      "name": "chunking_duration_ms",
+      "value": 850.5,
+      "type": "histogram",
+      "unit": "milliseconds",
+      "labels": {
+        "chunk_size": "medium",
+        "document_type": "markdown"
+      },
+      "timestamp": "2024-01-15T10:30:02Z"
+    },
+    {
+      "name": "chunk_quality_score",
+      "value": 87.5,
+      "type": "gauge",
+      "unit": "score",
+      "labels": {
+        "evaluation_method": "semantic",
+        "threshold": "standard"
+      },
+      "timestamp": "2024-01-15T10:30:03Z"
+    },
+    {
+      "name": "system_cpu_percent",
+      "value": 65.0,
+      "type": "gauge", 
+      "unit": "percent",
+      "labels": {
+        "core": "average",
+        "measurement": "1min"
+      },
+      "timestamp": "2024-01-15T10:30:04Z"
+    },
+    {
+      "name": "system_memory_percent",
+      "value": 72.0,
+      "type": "gauge",
+      "unit": "percent",
+      "labels": {
+        "type": "virtual",
+        "measurement": "current"
+      },
+      "timestamp": "2024-01-15T10:30:05Z"
+    },
+    {
+      "name": "cache_hit_rate",
+      "value": 89.5,
+      "type": "gauge",
+      "unit": "percent",
+      "labels": {
+        "cache_type": "memory",
+        "ttl": "3600"
+      },
+      "timestamp": "2024-01-15T10:30:06Z"
+    },
+    {
+      "name": "cache_miss_rate",
+      "value": 10.5,
+      "type": "gauge",
+      "unit": "percent", 
+      "labels": {
+        "cache_type": "memory",
+        "ttl": "3600"
+      },
+      "timestamp": "2024-01-15T10:30:07Z"
+    },
+    {
+      "name": "active_connections",
+      "value": 45,
+      "type": "gauge",
+      "unit": "connections",
+      "labels": {
+        "connection_type": "database",
+        "pool": "primary"
+      },
+      "timestamp": "2024-01-15T10:30:08Z"
+    },
+    {
+      "name": "processing_queue_size",
+      "value": 12,
+      "type": "gauge",
+      "unit": "items",
+      "labels": {
+        "queue_type": "document_processing",
+        "priority": "normal"
+      },
+      "timestamp": "2024-01-15T10:30:09Z"
+    }
+  ],
+  "metadata": {
+    "collection_time": "2024-01-15T10:30:00Z",
+    "source": "chunking_system_test",
+    "version": "4.0.0",
+    "environment": "test"
+  }
+}
