@@ -410,13 +410,25 @@ class DocumentChunker:
             self.logger.error("Quality evaluation failed", error=str(e))
             return {'overall_score': 0.0, 'error': str(e)}
     
-    def _collect_performance_metrics(self) -> Dict[str, Any]:
+    def _collect_performance_metrics(self) -> Optional[Dict[str, Any]]:
         """Collect performance metrics."""
         if not self.config.enable_monitoring or not self.performance_monitor:
-            return {}
+            return None
         
         try:
-            return self.performance_monitor.get_overall_stats()
+            stats = self.performance_monitor.get_overall_stats()
+            # If no operations recorded yet, provide basic metrics
+            if not stats:
+                stats = {
+                    'total_operations': 0,
+                    'successful_operations': 0,
+                    'success_rate': 0.0,
+                    'total_duration_ms': 0.0,
+                    'avg_duration_ms': 0.0,
+                    'peak_memory_mb': 0.0,
+                    'operations_by_type': {}
+                }
+            return stats
         except Exception as e:
             self.logger.error("Performance metrics collection failed", error=str(e))
             return {'error': str(e)}

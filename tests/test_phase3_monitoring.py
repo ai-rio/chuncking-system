@@ -532,14 +532,17 @@ class TestAlertManager:
         """Test evaluating alert rules."""
         manager = AlertManager()
         
-        def memory_rule(metrics):
+        def memory_rule(context):
+            metrics = context.get("metrics", [])
             memory_metrics = [m for m in metrics if m.name == "memory_usage"]
             if memory_metrics and memory_metrics[-1].value > 80:
-                return manager.create_alert(
+                return Alert(
+                    id="memory_high",
                     severity="warning",
                     title="High Memory Usage",
                     component="memory",
-                    message="High memory usage"
+                    message="High memory usage",
+                    timestamp=datetime.now()
                 )
             return None
         
@@ -729,9 +732,10 @@ class TestDocumentChunkerMonitoring:
         assert result.performance_metrics is not None
         
         # Check that metrics were recorded
-        assert "duration" in result.performance_metrics
-        assert "memory_before" in result.performance_metrics
-        assert "memory_after" in result.performance_metrics
+        assert "total_duration_ms" in result.performance_metrics
+        assert "avg_duration_ms" in result.performance_metrics
+        assert "peak_memory_mb" in result.performance_metrics
+        assert "total_operations" in result.performance_metrics
     
     def test_chunker_with_monitoring_disabled(self, tmp_path):
         """Test DocumentChunker with monitoring disabled."""
@@ -771,14 +775,18 @@ class TestDocumentChunkerMonitoring:
         # Check system monitor has collected metrics
         monitor = chunker.system_monitor
         
-        # Should have system metrics
-        cpu_metrics = monitor.metrics_collector.get_metrics("system.cpu_percent")
-        memory_metrics = monitor.metrics_collector.get_metrics("system.memory_percent")
+        # Trigger system metrics collection
+        monitor._collect_system_metrics()
         
-        # May not have metrics if monitoring cycle hasn't run
-        # But the monitor should be properly initialized
+        # Should have system metrics
+        cpu_metrics = monitor.metrics_collector.get_metrics("system.cpu.usage_percent")
+        memory_metrics = monitor.metrics_collector.get_metrics("system.memory.usage_percent")
+        
+        # Should have collected metrics
         assert monitor is not None
         assert monitor.metrics_collector is not None
+        assert len(cpu_metrics) > 0
+        assert len(memory_metrics) > 0
     
     def test_monitoring_health_checks(self, tmp_path):
         """Test monitoring health checks."""

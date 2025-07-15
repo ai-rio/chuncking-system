@@ -12628,3 +12628,1133 @@
 2025-07-15 11:59:23,445 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
 2025-07-15 12:00:24,464 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
 2025-07-15 12:01:25,471 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:11:52,029 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:11:52,030 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:11:52,030 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:11:52,030 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:11:55,968 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:11:55,968 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:11:55,969 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:11:55,969 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:11:55,978 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:11:55,979 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:11:55,979 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:11:55,980 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:11:55,980 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test_check
+2025-07-15 12:11:55,984 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:11:55,985 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:11:55,985 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:11:55,985 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:11:55,985 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:11:55,996 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:11:55,997 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:11:55,997 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:11:55,998 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:11:56,003 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:11:56,003 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:11:56,004 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:11:56,004 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:11:56,004 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: healthy
+2025-07-15 12:11:56,004 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: unhealthy
+2025-07-15 12:11:57,901 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:11:58,070 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:11:58,070 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:11:58,070 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:11:58,070 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:11:58,071 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check1
+2025-07-15 12:11:58,071 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check2
+2025-07-15 12:11:59,092 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:12:00,106 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:12:00,107 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check3
+2025-07-15 12:12:01,118 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:12:02,123 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:12:02,162 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:12:02,162 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:12:02,162 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:12:02,163 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:12:02,163 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: failing
+2025-07-15 12:12:02,163 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: failing | Context: {"error": "Check failed"}
+2025-07-15 12:12:02,469 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_component_1752592322", "severity": "critical", "component": "test_component"}
+2025-07-15 12:12:02,509 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert Title | Context: {"alert_id": "test_1752592322", "severity": "warning", "component": "test"}
+2025-07-15 12:12:02,543 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 1 | Context: {"alert_id": "comp1_1752592322", "severity": "critical", "component": "comp1"}
+2025-07-15 12:12:02,543 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 2 | Context: {"alert_id": "comp2_1752592322", "severity": "warning", "component": "comp2"}
+2025-07-15 12:12:02,544 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 3 | Context: {"alert_id": "comp3_1752592322", "severity": "info", "component": "comp3"}
+2025-07-15 12:12:02,579 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: High alert | Context: {"alert_id": "comp1_1752592322", "severity": "critical", "component": "comp1"}
+2025-07-15 12:12:02,579 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Another high alert | Context: {"alert_id": "comp2_1752592322", "severity": "critical", "component": "comp2"}
+2025-07-15 12:12:02,580 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Medium alert | Context: {"alert_id": "comp3_1752592322", "severity": "warning", "component": "comp3"}
+2025-07-15 12:12:02,580 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Low alert | Context: {"alert_id": "comp4_1752592322", "severity": "info", "component": "comp4"}
+2025-07-15 12:12:02,622 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 1 | Context: {"alert_id": "chunker_1752592322", "severity": "critical", "component": "chunker"}
+2025-07-15 12:12:02,623 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 2 | Context: {"alert_id": "chunker_1752592322", "severity": "warning", "component": "chunker"}
+2025-07-15 12:12:02,623 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Cache alert | Context: {"alert_id": "cache_1752592322", "severity": "info", "component": "cache"}
+2025-07-15 12:12:02,664 - src.utils.monitoring - ERROR - _log_with_context:89 - Alert rule evaluation failed: 'str' object has no attribute 'name'
+2025-07-15 12:12:02,701 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:12:02,702 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:12:02,702 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:12:02,702 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:12:02,706 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:12:02,707 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:12:02,707 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:12:02,707 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:12:02,708 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:12:02,711 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:12:02,711 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:12:02,711 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:12:02,712 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:12:02,723 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:12:02,724 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:12:02,724 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:12:02,725 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:12:02,725 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752592322", "severity": "critical", "component": "test"}
+2025-07-15 12:12:02,729 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:12:02,729 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:12:02,730 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:12:02,730 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:12:02,731 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:12:02,776 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:12:02,776 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:12:02,776 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:12:02,776 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:12:02,777 - src.utils.monitoring - INFO - _log_with_context:89 - System monitoring started
+2025-07-15 12:12:02,781 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:12:02,782 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:12:02,782 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:12:02,783 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:12:02,789 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:12:02,791 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:12:02,792 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:12:02,793 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:12:02,793 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:13:03,809 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:13:49,394 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:49,394 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:49,396 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:49,397 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:52,734 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:52,735 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:52,735 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:52,735 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:52,740 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:52,741 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:52,741 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:52,741 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:52,742 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test_check
+2025-07-15 12:13:52,754 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:52,754 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:52,754 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:52,754 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:52,755 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:13:52,759 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:52,760 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:52,764 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:52,764 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:52,772 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:52,772 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:52,773 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:52,773 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:52,774 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: healthy
+2025-07-15 12:13:52,774 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: unhealthy
+2025-07-15 12:13:54,351 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:13:54,359 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:54,360 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:54,360 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:54,360 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:54,360 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check1
+2025-07-15 12:13:54,360 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check2
+2025-07-15 12:13:55,365 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:13:56,369 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:13:56,370 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check3
+2025-07-15 12:13:57,377 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:13:58,381 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:13:58,388 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:58,388 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:58,388 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:58,388 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:58,388 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: failing
+2025-07-15 12:13:58,389 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: failing | Context: {"error": "Check failed"}
+2025-07-15 12:13:58,491 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_component_1752592438", "severity": "critical", "component": "test_component"}
+2025-07-15 12:13:58,508 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert Title | Context: {"alert_id": "test_1752592438", "severity": "warning", "component": "test"}
+2025-07-15 12:13:58,540 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 1 | Context: {"alert_id": "comp1_1752592438", "severity": "critical", "component": "comp1"}
+2025-07-15 12:13:58,540 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 2 | Context: {"alert_id": "comp2_1752592438", "severity": "warning", "component": "comp2"}
+2025-07-15 12:13:58,541 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 3 | Context: {"alert_id": "comp3_1752592438", "severity": "info", "component": "comp3"}
+2025-07-15 12:13:58,568 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: High alert | Context: {"alert_id": "comp1_1752592438", "severity": "critical", "component": "comp1"}
+2025-07-15 12:13:58,569 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Another high alert | Context: {"alert_id": "comp2_1752592438", "severity": "critical", "component": "comp2"}
+2025-07-15 12:13:58,569 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Medium alert | Context: {"alert_id": "comp3_1752592438", "severity": "warning", "component": "comp3"}
+2025-07-15 12:13:58,570 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Low alert | Context: {"alert_id": "comp4_1752592438", "severity": "info", "component": "comp4"}
+2025-07-15 12:13:58,588 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 1 | Context: {"alert_id": "chunker_1752592438", "severity": "critical", "component": "chunker"}
+2025-07-15 12:13:58,589 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 2 | Context: {"alert_id": "chunker_1752592438", "severity": "warning", "component": "chunker"}
+2025-07-15 12:13:58,589 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Cache alert | Context: {"alert_id": "cache_1752592438", "severity": "info", "component": "cache"}
+2025-07-15 12:13:58,608 - src.utils.monitoring - ERROR - _log_with_context:89 - Alert rule evaluation failed: 'str' object has no attribute 'name'
+2025-07-15 12:13:58,622 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:58,623 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:58,623 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:58,623 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:58,638 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:58,639 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:58,639 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:58,639 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:58,639 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:13:58,644 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:58,644 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:58,645 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:58,645 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:58,657 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:58,658 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:58,658 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:58,658 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:58,659 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752592438", "severity": "critical", "component": "test"}
+2025-07-15 12:13:58,661 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:58,662 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:58,662 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:58,662 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:58,663 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:13:58,676 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:58,677 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:58,677 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:58,677 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:58,678 - src.utils.monitoring - INFO - _log_with_context:89 - System monitoring started
+2025-07-15 12:13:58,681 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:58,682 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:58,682 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:58,683 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:58,688 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:13:58,689 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:13:58,689 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:13:58,689 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:13:58,690 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:19:35,354 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:19:35,356 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:19:35,356 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:19:35,356 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:19:55,554 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:19:55,555 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:19:55,555 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:19:55,555 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:20:35,431 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:20:35,432 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:20:35,432 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:20:35,432 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:20:58,888 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:20:58,889 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:20:58,889 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:20:58,889 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:22:35,469 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:22:35,470 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:22:35,470 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:22:35,471 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:22:51,535 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:22:51,535 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:22:51,535 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:22:51,536 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:23:26,960 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:23:26,960 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:23:26,960 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:23:26,961 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:23:42,480 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:23:42,481 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:23:42,481 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:23:42,481 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:24:40,043 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:24:40,044 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:24:40,045 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:24:40,045 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:24:55,226 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:24:55,226 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:24:55,227 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:24:55,227 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:25:58,321 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:25:58,322 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:25:58,322 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:25:58,322 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:26:19,708 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:26:19,708 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:26:19,709 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:26:19,709 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:30:02,553 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:30:02,554 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:30:02,555 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:30:02,555 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:30:20,825 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:30:20,825 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:30:20,826 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:30:20,826 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:31:01,277 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:31:01,278 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:31:01,279 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:31:01,279 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:31:22,762 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:31:22,762 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:31:22,763 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:31:22,763 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:31:55,323 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:31:55,324 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:31:55,324 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:31:55,325 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:32:39,575 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:32:39,575 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:32:39,576 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:32:39,576 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:32:55,909 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:32:55,910 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:32:55,911 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:32:55,911 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:10,811 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:10,812 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:10,812 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:10,812 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:13,244 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:13,244 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:13,245 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:13,246 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:13,258 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:13,258 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:13,258 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:13,259 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:13,259 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test_check
+2025-07-15 12:33:13,265 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:13,265 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:13,266 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:13,275 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:13,276 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:33:13,280 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:13,281 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:13,281 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:13,281 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:13,292 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:13,293 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:13,294 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:13,294 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:13,295 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: healthy
+2025-07-15 12:33:13,295 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: unhealthy
+2025-07-15 12:33:14,629 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:33:14,632 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:14,633 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:14,633 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:14,633 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:14,633 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check1
+2025-07-15 12:33:14,634 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check2
+2025-07-15 12:33:15,650 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:33:16,666 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:33:16,672 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check3
+2025-07-15 12:33:17,686 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:33:18,693 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:33:18,698 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:18,698 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:18,698 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:18,699 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:18,699 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: failing
+2025-07-15 12:33:18,699 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: failing | Context: {"error": "Check failed"}
+2025-07-15 12:33:18,846 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_component_1752593598", "severity": "critical", "component": "test_component"}
+2025-07-15 12:33:18,852 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert Title | Context: {"alert_id": "test_1752593598", "severity": "warning", "component": "test"}
+2025-07-15 12:33:18,961 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 1 | Context: {"alert_id": "comp1_1752593598", "severity": "critical", "component": "comp1"}
+2025-07-15 12:33:18,962 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 2 | Context: {"alert_id": "comp2_1752593598", "severity": "warning", "component": "comp2"}
+2025-07-15 12:33:18,962 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 3 | Context: {"alert_id": "comp3_1752593598", "severity": "info", "component": "comp3"}
+2025-07-15 12:33:19,042 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: High alert | Context: {"alert_id": "comp1_1752593599", "severity": "critical", "component": "comp1"}
+2025-07-15 12:33:19,043 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Another high alert | Context: {"alert_id": "comp2_1752593599", "severity": "critical", "component": "comp2"}
+2025-07-15 12:33:19,043 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Medium alert | Context: {"alert_id": "comp3_1752593599", "severity": "warning", "component": "comp3"}
+2025-07-15 12:33:19,044 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Low alert | Context: {"alert_id": "comp4_1752593599", "severity": "info", "component": "comp4"}
+2025-07-15 12:33:19,147 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 1 | Context: {"alert_id": "chunker_1752593599", "severity": "critical", "component": "chunker"}
+2025-07-15 12:33:19,148 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 2 | Context: {"alert_id": "chunker_1752593599", "severity": "warning", "component": "chunker"}
+2025-07-15 12:33:19,148 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Cache alert | Context: {"alert_id": "cache_1752593599", "severity": "info", "component": "cache"}
+2025-07-15 12:33:19,220 - src.utils.monitoring - ERROR - _log_with_context:89 - Alert rule evaluation failed: 'str' object has no attribute 'name'
+2025-07-15 12:33:19,258 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:19,258 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:19,259 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:19,259 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:19,272 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:19,272 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:19,272 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:19,273 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:19,273 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:33:19,279 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:19,281 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:19,283 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:19,283 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:19,289 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:19,289 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:19,289 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:19,290 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:19,290 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752593599", "severity": "critical", "component": "test"}
+2025-07-15 12:33:19,302 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:19,303 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:19,303 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:19,303 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:19,304 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:33:19,339 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:19,339 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:19,339 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:19,340 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:19,341 - src.utils.monitoring - INFO - _log_with_context:89 - System monitoring started
+2025-07-15 12:33:19,347 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:19,348 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:19,348 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:19,348 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:19,352 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:33:19,353 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:33:19,353 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:33:19,353 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:33:19,354 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:35:21,597 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:21,597 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:21,597 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:21,598 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:26,520 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:26,521 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:26,521 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:26,521 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:26,526 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:26,527 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:26,528 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:26,528 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:26,529 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test_check
+2025-07-15 12:35:26,542 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:26,543 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:26,543 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:26,544 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:26,544 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:35:26,549 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:26,550 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:26,551 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:26,552 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:26,560 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:26,561 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:26,561 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:26,562 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:26,562 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: healthy
+2025-07-15 12:35:26,562 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: unhealthy
+2025-07-15 12:35:28,062 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:35:28,068 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:28,069 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:28,069 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:28,069 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:28,069 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check1
+2025-07-15 12:35:28,069 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check2
+2025-07-15 12:35:29,073 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:35:30,080 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:35:30,080 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check3
+2025-07-15 12:35:31,087 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:35:32,093 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:35:32,097 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:32,098 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:32,098 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:32,098 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:32,098 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: failing
+2025-07-15 12:35:32,099 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: failing | Context: {"error": "Check failed"}
+2025-07-15 12:35:32,325 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_component_1752593732", "severity": "critical", "component": "test_component"}
+2025-07-15 12:35:32,332 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert Title | Context: {"alert_id": "test_1752593732", "severity": "warning", "component": "test"}
+2025-07-15 12:35:32,335 - src.utils.monitoring - INFO - _log_with_context:89 - Alert resolved: Test Alert Title | Context: {"alert_id": "test_1752593732"}
+2025-07-15 12:35:32,349 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 1 | Context: {"alert_id": "comp1_1752593732", "severity": "critical", "component": "comp1"}
+2025-07-15 12:35:32,350 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 2 | Context: {"alert_id": "comp2_1752593732", "severity": "warning", "component": "comp2"}
+2025-07-15 12:35:32,359 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 3 | Context: {"alert_id": "comp3_1752593732", "severity": "info", "component": "comp3"}
+2025-07-15 12:35:32,360 - src.utils.monitoring - INFO - _log_with_context:89 - Alert resolved: Alert 2 | Context: {"alert_id": "comp2_1752593732"}
+2025-07-15 12:35:32,366 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: High alert | Context: {"alert_id": "comp1_1752593732", "severity": "critical", "component": "comp1"}
+2025-07-15 12:35:32,366 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Another high alert | Context: {"alert_id": "comp2_1752593732", "severity": "critical", "component": "comp2"}
+2025-07-15 12:35:32,367 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Medium alert | Context: {"alert_id": "comp3_1752593732", "severity": "warning", "component": "comp3"}
+2025-07-15 12:35:32,367 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Low alert | Context: {"alert_id": "comp4_1752593732", "severity": "info", "component": "comp4"}
+2025-07-15 12:35:32,381 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 1 | Context: {"alert_id": "chunker_1752593732", "severity": "critical", "component": "chunker"}
+2025-07-15 12:35:32,382 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 2 | Context: {"alert_id": "chunker_1752593732", "severity": "warning", "component": "chunker"}
+2025-07-15 12:35:32,382 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Cache alert | Context: {"alert_id": "cache_1752593732", "severity": "info", "component": "cache"}
+2025-07-15 12:35:32,402 - src.utils.monitoring - ERROR - _log_with_context:89 - Alert rule evaluation failed: 'str' object has no attribute 'name'
+2025-07-15 12:35:32,481 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:32,481 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:32,481 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:32,481 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:32,488 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:32,490 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:32,491 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:32,492 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:32,494 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:35:32,499 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:32,500 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:32,500 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:32,500 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:32,508 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:32,509 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:32,510 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:32,510 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:32,511 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752593732", "severity": "critical", "component": "test"}
+2025-07-15 12:35:32,515 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:32,516 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:32,516 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:32,516 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:32,517 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:35:32,579 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:32,579 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:32,580 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:32,580 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:32,582 - src.utils.monitoring - INFO - _log_with_context:89 - System monitoring started
+2025-07-15 12:35:32,593 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:32,594 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:32,594 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:32,594 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:32,599 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:35:32,599 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:35:32,600 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:35:32,600 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:35:32,607 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:36:53,153 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:36:53,154 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:36:53,154 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:36:53,154 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:36:55,865 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:36:55,866 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:36:55,866 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:36:55,866 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:36:55,866 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:36:55,867 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752593815", "severity": "info", "component": "test"}
+2025-07-15 12:36:57,250 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:36:58,256 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:37:25,152 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:37:25,152 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:37:25,153 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:37:25,153 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:37:25,153 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:37:25,153 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:37:25,153 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:37:25,154 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:37:25,154 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:37:25,154 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752593845", "severity": "info", "component": "test"}
+2025-07-15 12:37:28,875 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:37:29,878 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:37:30,880 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:38:10,038 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:10,039 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:10,039 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:10,039 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:12,621 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:12,622 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:12,622 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:12,622 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:12,623 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:38:12,623 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752593892", "severity": "info", "component": "test"}
+2025-07-15 12:38:14,028 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:38:15,038 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:38:29,175 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:29,175 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:29,176 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:29,176 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:33,052 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:33,052 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:33,052 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:33,052 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:33,056 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:33,057 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:33,057 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:33,058 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:33,066 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test_check
+2025-07-15 12:38:33,071 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:33,071 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:33,071 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:33,072 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:33,072 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:38:33,079 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:33,080 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:33,081 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:33,081 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:33,085 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:33,085 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:33,085 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:33,086 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:33,086 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: healthy
+2025-07-15 12:38:33,086 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: unhealthy
+2025-07-15 12:38:34,487 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:38:34,491 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:34,493 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:34,493 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:34,493 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:34,494 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check1
+2025-07-15 12:38:34,494 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check2
+2025-07-15 12:38:35,511 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:38:36,518 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:38:36,519 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check3
+2025-07-15 12:38:37,528 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:38:38,534 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:38:38,542 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:38,543 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:38,543 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:38,543 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:38,544 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: failing
+2025-07-15 12:38:38,545 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: failing | Context: {"error": "Check failed"}
+2025-07-15 12:38:38,692 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_component_1752593918", "severity": "critical", "component": "test_component"}
+2025-07-15 12:38:38,696 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert Title | Context: {"alert_id": "test_1752593918", "severity": "warning", "component": "test"}
+2025-07-15 12:38:38,697 - src.utils.monitoring - INFO - _log_with_context:89 - Alert resolved: Test Alert Title | Context: {"alert_id": "test_1752593918"}
+2025-07-15 12:38:38,712 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 1 | Context: {"alert_id": "comp1_1752593918", "severity": "critical", "component": "comp1"}
+2025-07-15 12:38:38,712 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 2 | Context: {"alert_id": "comp2_1752593918", "severity": "warning", "component": "comp2"}
+2025-07-15 12:38:38,712 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 3 | Context: {"alert_id": "comp3_1752593918", "severity": "info", "component": "comp3"}
+2025-07-15 12:38:38,713 - src.utils.monitoring - INFO - _log_with_context:89 - Alert resolved: Alert 2 | Context: {"alert_id": "comp2_1752593918"}
+2025-07-15 12:38:38,719 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: High alert | Context: {"alert_id": "comp1_1752593918", "severity": "critical", "component": "comp1"}
+2025-07-15 12:38:38,719 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Another high alert | Context: {"alert_id": "comp2_1752593918", "severity": "critical", "component": "comp2"}
+2025-07-15 12:38:38,722 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Medium alert | Context: {"alert_id": "comp3_1752593918", "severity": "warning", "component": "comp3"}
+2025-07-15 12:38:38,723 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Low alert | Context: {"alert_id": "comp4_1752593918", "severity": "info", "component": "comp4"}
+2025-07-15 12:38:38,730 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 1 | Context: {"alert_id": "chunker_1752593918", "severity": "critical", "component": "chunker"}
+2025-07-15 12:38:38,730 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 2 | Context: {"alert_id": "chunker_1752593918", "severity": "warning", "component": "chunker"}
+2025-07-15 12:38:38,730 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Cache alert | Context: {"alert_id": "cache_1752593918", "severity": "info", "component": "cache"}
+2025-07-15 12:38:38,741 - src.utils.monitoring - ERROR - _log_with_context:89 - Alert rule evaluation failed: 'str' object has no attribute 'name'
+2025-07-15 12:38:38,782 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:38,783 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:38,783 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:38,783 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:38,789 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:38,789 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:38,790 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:38,790 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:38,790 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:38:38,796 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:38,797 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:38,798 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:38,798 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:38,806 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:38,807 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:38,807 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:38,807 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:38,808 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752593918", "severity": "critical", "component": "test"}
+2025-07-15 12:38:38,812 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:38,812 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:38,812 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:38,813 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:38,813 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:38:38,813 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752593918", "severity": "info", "component": "test"}
+2025-07-15 12:38:39,821 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:38:40,828 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:38:40,847 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:40,848 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:40,848 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:40,848 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:40,850 - src.utils.monitoring - INFO - _log_with_context:89 - System monitoring started
+2025-07-15 12:38:40,863 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:40,864 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:40,875 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:40,875 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:40,893 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:38:40,893 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:38:40,894 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:38:40,894 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:38:40,895 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:39:22,326 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:39:22,329 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:39:22,329 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:39:22,329 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:39:25,272 - src.utils.monitoring - ERROR - _log_with_context:89 - Alert rule evaluation failed: 'str' object has no attribute 'name'
+2025-07-15 12:40:19,667 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:40:19,668 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:40:19,668 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:40:19,668 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:40:22,040 - src.utils.monitoring - ERROR - _log_with_context:89 - Alert rule evaluation failed: Alert.__init__() missing 1 required positional argument: 'timestamp'
+2025-07-15 12:40:57,704 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:40:57,705 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:40:57,705 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:40:57,705 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:40:57,706 - src.utils.monitoring - ERROR - _log_with_context:89 - Alert rule evaluation failed: Alert.__init__() missing 1 required positional argument: 'timestamp'
+2025-07-15 12:41:15,663 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:15,664 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:15,664 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:15,664 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:18,961 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: High Memory Usage | Context: {"alert_id": "memory_high", "severity": "warning", "component": "memory"}
+2025-07-15 12:41:30,631 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:30,632 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:30,632 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:30,633 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:33,718 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:33,718 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:33,719 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:33,719 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:33,724 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:33,725 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:33,725 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:33,726 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:33,727 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test_check
+2025-07-15 12:41:33,737 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:33,737 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:33,738 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:33,738 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:33,738 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:41:33,742 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:33,743 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:33,743 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:33,743 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:33,747 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:33,752 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:33,753 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:33,753 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:33,754 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: healthy
+2025-07-15 12:41:33,754 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: unhealthy
+2025-07-15 12:41:35,070 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:41:35,074 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:35,075 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:35,075 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:35,075 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:35,075 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check1
+2025-07-15 12:41:35,076 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check2
+2025-07-15 12:41:36,084 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:41:37,092 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:41:37,093 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check3
+2025-07-15 12:41:38,099 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:41:39,111 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:41:39,122 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:39,123 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:39,123 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:39,123 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:39,124 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: failing
+2025-07-15 12:41:39,124 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: failing | Context: {"error": "Check failed"}
+2025-07-15 12:41:39,268 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_component_1752594099", "severity": "critical", "component": "test_component"}
+2025-07-15 12:41:39,274 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert Title | Context: {"alert_id": "test_1752594099", "severity": "warning", "component": "test"}
+2025-07-15 12:41:39,274 - src.utils.monitoring - INFO - _log_with_context:89 - Alert resolved: Test Alert Title | Context: {"alert_id": "test_1752594099"}
+2025-07-15 12:41:39,290 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 1 | Context: {"alert_id": "comp1_1752594099", "severity": "critical", "component": "comp1"}
+2025-07-15 12:41:39,291 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 2 | Context: {"alert_id": "comp2_1752594099", "severity": "warning", "component": "comp2"}
+2025-07-15 12:41:39,291 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 3 | Context: {"alert_id": "comp3_1752594099", "severity": "info", "component": "comp3"}
+2025-07-15 12:41:39,291 - src.utils.monitoring - INFO - _log_with_context:89 - Alert resolved: Alert 2 | Context: {"alert_id": "comp2_1752594099"}
+2025-07-15 12:41:39,295 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: High alert | Context: {"alert_id": "comp1_1752594099", "severity": "critical", "component": "comp1"}
+2025-07-15 12:41:39,302 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Another high alert | Context: {"alert_id": "comp2_1752594099", "severity": "critical", "component": "comp2"}
+2025-07-15 12:41:39,303 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Medium alert | Context: {"alert_id": "comp3_1752594099", "severity": "warning", "component": "comp3"}
+2025-07-15 12:41:39,304 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Low alert | Context: {"alert_id": "comp4_1752594099", "severity": "info", "component": "comp4"}
+2025-07-15 12:41:39,309 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 1 | Context: {"alert_id": "chunker_1752594099", "severity": "critical", "component": "chunker"}
+2025-07-15 12:41:39,309 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 2 | Context: {"alert_id": "chunker_1752594099", "severity": "warning", "component": "chunker"}
+2025-07-15 12:41:39,309 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Cache alert | Context: {"alert_id": "cache_1752594099", "severity": "info", "component": "cache"}
+2025-07-15 12:41:39,324 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: High Memory Usage | Context: {"alert_id": "memory_high", "severity": "warning", "component": "memory"}
+2025-07-15 12:41:39,327 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:39,328 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:39,328 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:39,328 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:39,333 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:39,333 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:39,334 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:39,337 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:39,339 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:41:39,346 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:39,346 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:39,346 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:39,347 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:39,353 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:39,354 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:39,354 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:39,355 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:39,355 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752594099", "severity": "critical", "component": "test"}
+2025-07-15 12:41:39,358 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:39,360 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:39,360 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:39,361 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:39,361 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:41:39,361 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752594099", "severity": "info", "component": "test"}
+2025-07-15 12:41:40,365 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:41:41,375 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:41:41,393 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:41,394 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:41,394 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:41,394 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:41,400 - src.utils.monitoring - INFO - _log_with_context:89 - System monitoring started
+2025-07-15 12:41:41,405 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:41,405 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:41,405 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:41,406 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:41,410 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:41:41,410 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:41:41,410 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:41:41,411 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:41:41,411 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:42:28,550 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:42:28,551 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:42:28,551 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:42:28,551 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:42:32,196 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:42:32,256 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 52.181, "memory_before_mb": 277.84765625, "memory_after_mb": 277.84765625, "memory_peak_mb": 277.84765625, "success": true}
+2025-07-15 12:42:32,262 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-1/test_chunker_with_monitoring_e0/test.md", "chunk_count": 1, "processing_time_ms": 60.18686294555664, "quality_score": 85.0}
+2025-07-15 12:42:32,436 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 12:42:32,448 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.146, "memory_before_mb": 280.1015625, "memory_after_mb": 280.1015625, "memory_peak_mb": 280.1015625, "success": true}
+2025-07-15 12:42:32,450 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-1/test_chunker_with_monitoring_d0/test.md", "chunk_count": 1, "processing_time_ms": 4.758358001708984, "quality_score": 76.0}
+2025-07-15 12:42:32,497 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:42:32,507 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 7.3709999999999996, "memory_before_mb": 280.35546875, "memory_after_mb": 280.35546875, "memory_peak_mb": 280.35546875, "success": true}
+2025-07-15 12:42:32,508 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-1/test_monitoring_metrics_collec0/test_0.md", "chunk_count": 1, "processing_time_ms": 9.321928024291992, "quality_score": 76.0}
+2025-07-15 12:42:32,512 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.064, "memory_before_mb": 280.35546875, "memory_after_mb": 280.35546875, "memory_peak_mb": 280.35546875, "success": true}
+2025-07-15 12:42:32,514 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-1/test_monitoring_metrics_collec0/test_1.md", "chunk_count": 1, "processing_time_ms": 4.343748092651367, "quality_score": 76.0}
+2025-07-15 12:42:32,520 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 4.007000000000001, "memory_before_mb": 280.35546875, "memory_after_mb": 280.35546875, "memory_peak_mb": 280.35546875, "success": true}
+2025-07-15 12:42:32,521 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-1/test_monitoring_metrics_collec0/test_2.md", "chunk_count": 1, "processing_time_ms": 6.1931610107421875, "quality_score": 76.0}
+2025-07-15 12:42:32,564 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:42:33,577 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:42:34,583 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:43:12,791 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:43:12,791 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:43:12,792 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:43:12,792 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:43:15,456 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:43:15,464 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 6.844, "memory_before_mb": 275.7890625, "memory_after_mb": 276.046875, "memory_peak_mb": 276.046875, "success": true}
+2025-07-15 12:43:15,467 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-2/test_chunker_with_monitoring_e0/test.md", "chunk_count": 1, "processing_time_ms": 10.088205337524414, "quality_score": 85.0}
+2025-07-15 12:43:15,552 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 12:43:15,565 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 11.748, "memory_before_mb": 278.1640625, "memory_after_mb": 278.3125, "memory_peak_mb": 278.3125, "success": true}
+2025-07-15 12:43:15,566 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-2/test_chunker_with_monitoring_d0/test.md", "chunk_count": 1, "processing_time_ms": 13.251304626464844, "quality_score": 76.0}
+2025-07-15 12:43:15,605 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:43:15,608 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.5479999999999998, "memory_before_mb": 278.56640625, "memory_after_mb": 278.56640625, "memory_peak_mb": 278.56640625, "success": true}
+2025-07-15 12:43:15,609 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-2/test_monitoring_metrics_collec0/test_0.md", "chunk_count": 1, "processing_time_ms": 3.2792091369628906, "quality_score": 76.0}
+2025-07-15 12:43:15,614 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.09, "memory_before_mb": 278.56640625, "memory_after_mb": 278.56640625, "memory_peak_mb": 278.56640625, "success": true}
+2025-07-15 12:43:15,615 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-2/test_monitoring_metrics_collec0/test_1.md", "chunk_count": 1, "processing_time_ms": 3.866434097290039, "quality_score": 76.0}
+2025-07-15 12:43:15,619 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.7929999999999997, "memory_before_mb": 278.56640625, "memory_after_mb": 278.56640625, "memory_peak_mb": 278.56640625, "success": true}
+2025-07-15 12:43:15,621 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-2/test_monitoring_metrics_collec0/test_2.md", "chunk_count": 1, "processing_time_ms": 4.104375839233398, "quality_score": 76.0}
+2025-07-15 12:43:15,631 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:43:16,637 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:43:17,649 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:44:09,258 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:44:09,259 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:44:09,259 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:44:09,260 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:44:13,722 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:44:13,729 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 4.746, "memory_before_mb": 276.0390625, "memory_after_mb": 276.3515625, "memory_peak_mb": 276.0390625, "success": true}
+2025-07-15 12:44:13,733 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-3/test_chunker_with_monitoring_e0/test.md", "chunk_count": 1, "processing_time_ms": 8.92329216003418, "quality_score": 85.0}
+2025-07-15 12:44:13,866 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 12:44:13,872 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.645, "memory_before_mb": 278.55859375, "memory_after_mb": 278.55859375, "memory_peak_mb": 278.55859375, "success": true}
+2025-07-15 12:44:13,874 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-3/test_chunker_with_monitoring_d0/test.md", "chunk_count": 1, "processing_time_ms": 4.932165145874023, "quality_score": 76.0}
+2025-07-15 12:44:13,949 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:44:13,952 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.9620000000000002, "memory_before_mb": 278.55859375, "memory_after_mb": 278.55859375, "memory_peak_mb": 278.55859375, "success": true}
+2025-07-15 12:44:13,954 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-3/test_monitoring_metrics_collec0/test_0.md", "chunk_count": 1, "processing_time_ms": 4.30607795715332, "quality_score": 76.0}
+2025-07-15 12:44:13,968 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 5.228, "memory_before_mb": 278.55859375, "memory_after_mb": 278.55859375, "memory_peak_mb": 278.55859375, "success": true}
+2025-07-15 12:44:13,977 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-3/test_monitoring_metrics_collec0/test_1.md", "chunk_count": 1, "processing_time_ms": 7.367372512817383, "quality_score": 76.0}
+2025-07-15 12:44:13,982 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.781, "memory_before_mb": 278.55859375, "memory_after_mb": 278.55859375, "memory_peak_mb": 278.55859375, "success": true}
+2025-07-15 12:44:13,983 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-3/test_monitoring_metrics_collec0/test_2.md", "chunk_count": 1, "processing_time_ms": 4.733800888061523, "quality_score": 76.0}
+2025-07-15 12:44:14,000 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:44:15,010 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:44:16,015 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:45:33,315 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:45:33,315 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:45:33,315 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:45:33,315 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:45:36,469 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:45:36,474 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 3.7529999999999997, "memory_before_mb": 275.84765625, "memory_after_mb": 276.1015625, "memory_peak_mb": 275.84765625, "success": true}
+2025-07-15 12:45:36,477 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-4/test_chunker_with_monitoring_e0/test.md", "chunk_count": 1, "processing_time_ms": 7.150173187255859, "quality_score": 85.0}
+2025-07-15 12:45:36,563 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 12:45:36,569 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 4.535, "memory_before_mb": 278.22265625, "memory_after_mb": 278.22265625, "memory_peak_mb": 278.22265625, "success": true}
+2025-07-15 12:45:36,571 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-4/test_chunker_with_monitoring_d0/test.md", "chunk_count": 1, "processing_time_ms": 6.330013275146484, "quality_score": 76.0}
+2025-07-15 12:45:36,613 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:45:36,621 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.089, "memory_before_mb": 278.3125, "memory_after_mb": 278.3125, "memory_peak_mb": 278.3125, "success": true}
+2025-07-15 12:45:36,622 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-4/test_monitoring_metrics_collec0/test_0.md", "chunk_count": 1, "processing_time_ms": 3.841876983642578, "quality_score": 76.0}
+2025-07-15 12:45:36,625 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.863, "memory_before_mb": 278.3125, "memory_after_mb": 278.3125, "memory_peak_mb": 278.3125, "success": true}
+2025-07-15 12:45:36,627 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-4/test_monitoring_metrics_collec0/test_1.md", "chunk_count": 1, "processing_time_ms": 3.298521041870117, "quality_score": 76.0}
+2025-07-15 12:45:36,630 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.5050000000000001, "memory_before_mb": 278.3125, "memory_after_mb": 278.3125, "memory_peak_mb": 278.3125, "success": true}
+2025-07-15 12:45:36,630 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-4/test_monitoring_metrics_collec0/test_2.md", "chunk_count": 1, "processing_time_ms": 2.6803016662597656, "quality_score": 76.0}
+2025-07-15 12:45:36,642 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:45:37,647 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:45:38,654 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:46:20,696 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:46:20,705 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:46:20,705 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:46:20,706 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:46:23,606 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:46:23,614 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 6.38, "memory_before_mb": 275.59765625, "memory_after_mb": 275.8515625, "memory_peak_mb": 275.59765625, "success": true}
+2025-07-15 12:46:23,622 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-5/test_chunker_with_monitoring_e0/test.md", "chunk_count": 1, "processing_time_ms": 14.705419540405273, "quality_score": 85.0}
+2025-07-15 12:46:23,631 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 12:46:23,636 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 3.444, "memory_before_mb": 276.16796875, "memory_after_mb": 276.16796875, "memory_peak_mb": 276.16796875, "success": true}
+2025-07-15 12:46:23,638 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-5/test_chunker_with_monitoring_d0/test.md", "chunk_count": 1, "processing_time_ms": 5.334377288818359, "quality_score": 76.0}
+2025-07-15 12:46:23,800 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:46:23,813 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 11.461, "memory_before_mb": 278.1328125, "memory_after_mb": 278.1328125, "memory_peak_mb": 278.1328125, "success": true}
+2025-07-15 12:46:23,815 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-5/test_monitoring_metrics_collec0/test_0.md", "chunk_count": 1, "processing_time_ms": 13.563871383666992, "quality_score": 76.0}
+2025-07-15 12:46:23,829 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 11.482, "memory_before_mb": 278.1328125, "memory_after_mb": 278.1328125, "memory_peak_mb": 278.1328125, "success": true}
+2025-07-15 12:46:23,830 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-5/test_monitoring_metrics_collec0/test_1.md", "chunk_count": 1, "processing_time_ms": 14.156103134155273, "quality_score": 76.0}
+2025-07-15 12:46:23,839 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.5, "memory_before_mb": 278.1328125, "memory_after_mb": 278.1328125, "memory_peak_mb": 278.1328125, "success": true}
+2025-07-15 12:46:23,841 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-5/test_monitoring_metrics_collec0/test_2.md", "chunk_count": 1, "processing_time_ms": 4.6634674072265625, "quality_score": 76.0}
+2025-07-15 12:46:23,868 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:46:24,883 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:46:25,903 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:47:12,645 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:12,646 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:12,649 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:12,650 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:15,609 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:47:15,614 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 3.709, "memory_before_mb": 276.30859375, "memory_after_mb": 276.5625, "memory_peak_mb": 276.5625, "success": true}
+2025-07-15 12:47:15,618 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-6/test_chunker_with_monitoring_e0/test.md", "chunk_count": 1, "processing_time_ms": 8.590221405029297, "quality_score": 85.0}
+2025-07-15 12:47:15,625 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 12:47:15,628 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.718, "memory_before_mb": 276.5625, "memory_after_mb": 276.5625, "memory_peak_mb": 276.5625, "success": true}
+2025-07-15 12:47:15,629 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-6/test_chunker_with_monitoring_d0/test.md", "chunk_count": 1, "processing_time_ms": 3.2415390014648438, "quality_score": 76.0}
+2025-07-15 12:47:15,639 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:47:15,642 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.1870000000000003, "memory_before_mb": 276.5625, "memory_after_mb": 276.87890625, "memory_peak_mb": 276.87890625, "success": true}
+2025-07-15 12:47:15,644 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-6/test_monitoring_metrics_collec0/test_0.md", "chunk_count": 1, "processing_time_ms": 4.3201446533203125, "quality_score": 76.0}
+2025-07-15 12:47:15,648 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.4659999999999997, "memory_before_mb": 276.87890625, "memory_after_mb": 276.87890625, "memory_peak_mb": 276.87890625, "success": true}
+2025-07-15 12:47:15,650 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-6/test_monitoring_metrics_collec0/test_1.md", "chunk_count": 1, "processing_time_ms": 4.513978958129883, "quality_score": 76.0}
+2025-07-15 12:47:15,655 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.109, "memory_before_mb": 276.87890625, "memory_after_mb": 276.87890625, "memory_peak_mb": 276.87890625, "success": true}
+2025-07-15 12:47:15,656 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-6/test_monitoring_metrics_collec0/test_2.md", "chunk_count": 1, "processing_time_ms": 3.641843795776367, "quality_score": 76.0}
+2025-07-15 12:47:15,662 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:47:16,668 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:47:17,672 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:47:31,197 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:31,198 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:31,199 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:31,199 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:33,880 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:33,881 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:33,881 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:33,881 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:33,886 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:33,887 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:33,887 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:33,888 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:33,888 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test_check
+2025-07-15 12:47:33,895 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:33,895 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:33,896 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:33,896 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:33,896 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:47:33,900 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:33,901 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:33,901 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:33,901 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:33,910 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:33,911 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:33,911 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:33,911 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:33,912 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: healthy
+2025-07-15 12:47:33,913 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: unhealthy
+2025-07-15 12:47:35,235 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:47:35,240 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:35,241 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:35,241 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:35,241 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:35,242 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check1
+2025-07-15 12:47:35,242 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check2
+2025-07-15 12:47:36,248 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:47:37,263 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:47:37,264 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check3
+2025-07-15 12:47:38,269 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:47:39,277 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:47:39,287 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:39,291 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:39,291 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:39,292 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:39,292 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: failing
+2025-07-15 12:47:39,292 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: failing | Context: {"error": "Check failed"}
+2025-07-15 12:47:39,434 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_component_1752594459", "severity": "critical", "component": "test_component"}
+2025-07-15 12:47:39,447 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert Title | Context: {"alert_id": "test_1752594459", "severity": "warning", "component": "test"}
+2025-07-15 12:47:39,448 - src.utils.monitoring - INFO - _log_with_context:89 - Alert resolved: Test Alert Title | Context: {"alert_id": "test_1752594459"}
+2025-07-15 12:47:39,464 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 1 | Context: {"alert_id": "comp1_1752594459", "severity": "critical", "component": "comp1"}
+2025-07-15 12:47:39,465 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 2 | Context: {"alert_id": "comp2_1752594459", "severity": "warning", "component": "comp2"}
+2025-07-15 12:47:39,465 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 3 | Context: {"alert_id": "comp3_1752594459", "severity": "info", "component": "comp3"}
+2025-07-15 12:47:39,465 - src.utils.monitoring - INFO - _log_with_context:89 - Alert resolved: Alert 2 | Context: {"alert_id": "comp2_1752594459"}
+2025-07-15 12:47:39,470 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: High alert | Context: {"alert_id": "comp1_1752594459", "severity": "critical", "component": "comp1"}
+2025-07-15 12:47:39,471 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Another high alert | Context: {"alert_id": "comp2_1752594459", "severity": "critical", "component": "comp2"}
+2025-07-15 12:47:39,471 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Medium alert | Context: {"alert_id": "comp3_1752594459", "severity": "warning", "component": "comp3"}
+2025-07-15 12:47:39,481 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Low alert | Context: {"alert_id": "comp4_1752594459", "severity": "info", "component": "comp4"}
+2025-07-15 12:47:39,497 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 1 | Context: {"alert_id": "chunker_1752594459", "severity": "critical", "component": "chunker"}
+2025-07-15 12:47:39,498 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 2 | Context: {"alert_id": "chunker_1752594459", "severity": "warning", "component": "chunker"}
+2025-07-15 12:47:39,498 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Cache alert | Context: {"alert_id": "cache_1752594459", "severity": "info", "component": "cache"}
+2025-07-15 12:47:39,519 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: High Memory Usage | Context: {"alert_id": "memory_high", "severity": "warning", "component": "memory"}
+2025-07-15 12:47:39,533 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:39,534 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:39,534 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:39,544 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:39,550 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:39,560 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:39,561 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:39,561 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:39,562 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:47:39,577 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:39,578 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:39,578 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:39,578 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:39,594 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:39,595 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:39,595 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:39,595 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:39,596 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752594459", "severity": "critical", "component": "test"}
+2025-07-15 12:47:39,612 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:39,613 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:39,613 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:39,613 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:39,614 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:47:39,614 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752594459", "severity": "info", "component": "test"}
+2025-07-15 12:47:40,628 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:47:41,647 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:47:41,657 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:41,658 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:41,658 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:41,658 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:41,660 - src.utils.monitoring - INFO - _log_with_context:89 - System monitoring started
+2025-07-15 12:47:41,668 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:41,668 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:41,668 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:41,668 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:41,674 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:47:41,674 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:47:41,675 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:47:41,675 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:47:41,675 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:49:34,762 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:49:34,763 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:49:34,763 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:49:34,763 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:49:37,270 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:49:37,271 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:49:37,271 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:49:37,271 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:49:37,272 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: failing
+2025-07-15 12:49:37,272 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: failing | Context: {"error": "Check failed"}
+2025-07-15 12:50:42,895 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:50:42,899 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:50:42,900 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:50:42,900 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:50:45,958 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:50:45,958 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:50:45,959 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:50:45,959 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:50:45,959 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: failing
+2025-07-15 12:50:45,960 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: failing | Context: {"error": "Check failed"}
+2025-07-15 12:50:59,252 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:50:59,252 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:50:59,253 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:50:59,253 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:01,875 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:01,875 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:01,875 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:01,876 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:01,886 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:01,887 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:01,887 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:01,888 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:01,888 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test_check
+2025-07-15 12:51:01,893 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:01,894 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:01,894 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:01,895 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:01,895 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:51:01,904 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:01,904 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:01,905 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:01,905 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:01,909 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:01,909 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:01,910 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:01,910 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:01,910 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: healthy
+2025-07-15 12:51:01,910 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: unhealthy
+2025-07-15 12:51:03,225 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:51:03,233 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:03,234 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:03,234 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:03,235 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:03,236 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check1
+2025-07-15 12:51:03,236 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check2
+2025-07-15 12:51:04,246 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:51:05,257 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:51:05,258 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check3
+2025-07-15 12:51:06,262 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:51:07,272 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:51:07,285 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:07,286 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:07,286 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:07,287 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:07,287 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: failing
+2025-07-15 12:51:07,287 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: failing | Context: {"error": "Check failed"}
+2025-07-15 12:51:07,330 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_component_1752594667", "severity": "critical", "component": "test_component"}
+2025-07-15 12:51:07,338 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert Title | Context: {"alert_id": "test_1752594667", "severity": "warning", "component": "test"}
+2025-07-15 12:51:07,339 - src.utils.monitoring - INFO - _log_with_context:89 - Alert resolved: Test Alert Title | Context: {"alert_id": "test_1752594667"}
+2025-07-15 12:51:07,346 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 1 | Context: {"alert_id": "comp1_1752594667", "severity": "critical", "component": "comp1"}
+2025-07-15 12:51:07,346 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 2 | Context: {"alert_id": "comp2_1752594667", "severity": "warning", "component": "comp2"}
+2025-07-15 12:51:07,346 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Alert 3 | Context: {"alert_id": "comp3_1752594667", "severity": "info", "component": "comp3"}
+2025-07-15 12:51:07,347 - src.utils.monitoring - INFO - _log_with_context:89 - Alert resolved: Alert 2 | Context: {"alert_id": "comp2_1752594667"}
+2025-07-15 12:51:07,357 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: High alert | Context: {"alert_id": "comp1_1752594667", "severity": "critical", "component": "comp1"}
+2025-07-15 12:51:07,358 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Another high alert | Context: {"alert_id": "comp2_1752594667", "severity": "critical", "component": "comp2"}
+2025-07-15 12:51:07,363 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Medium alert | Context: {"alert_id": "comp3_1752594667", "severity": "warning", "component": "comp3"}
+2025-07-15 12:51:07,363 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Low alert | Context: {"alert_id": "comp4_1752594667", "severity": "info", "component": "comp4"}
+2025-07-15 12:51:07,369 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 1 | Context: {"alert_id": "chunker_1752594667", "severity": "critical", "component": "chunker"}
+2025-07-15 12:51:07,370 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Chunker alert 2 | Context: {"alert_id": "chunker_1752594667", "severity": "warning", "component": "chunker"}
+2025-07-15 12:51:07,370 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Cache alert | Context: {"alert_id": "cache_1752594667", "severity": "info", "component": "cache"}
+2025-07-15 12:51:07,380 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: High Memory Usage | Context: {"alert_id": "memory_high", "severity": "warning", "component": "memory"}
+2025-07-15 12:51:07,388 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:07,389 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:07,389 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:07,389 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:07,403 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:07,403 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:07,404 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:07,404 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:07,404 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:51:07,408 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:07,408 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:07,408 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:07,409 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:07,412 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:07,412 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:07,412 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:07,412 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:07,413 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752594667", "severity": "critical", "component": "test"}
+2025-07-15 12:51:07,423 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:07,423 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:07,424 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:07,424 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:07,425 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:51:07,425 - src.utils.monitoring - WARNING - _log_with_context:89 - Alert created: Test Alert | Context: {"alert_id": "test_1752594667", "severity": "info", "component": "test"}
+2025-07-15 12:51:08,431 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:51:09,439 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:51:09,447 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:09,448 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:09,448 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:09,448 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:09,450 - src.utils.monitoring - INFO - _log_with_context:89 - System monitoring started
+2025-07-15 12:51:09,454 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:09,457 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:09,457 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:09,461 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:09,468 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:09,469 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:09,469 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:09,469 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:09,470 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:51:51,260 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:51,261 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:51,261 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:51,261 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:54,077 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:54,078 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:54,078 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:54,079 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:54,092 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:54,093 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:54,093 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:54,093 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:54,094 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test_check
+2025-07-15 12:51:54,099 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:54,100 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:54,100 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:54,100 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:54,100 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: test
+2025-07-15 12:51:54,110 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:54,110 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:54,111 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:54,111 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:54,116 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:54,116 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:54,127 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:54,127 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:54,128 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: healthy
+2025-07-15 12:51:54,128 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: unhealthy
+2025-07-15 12:51:56,315 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:51:56,330 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:51:56,331 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:51:56,331 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:51:56,331 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:51:56,332 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check1
+2025-07-15 12:51:56,332 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check2
+2025-07-15 12:51:57,351 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:51:58,357 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:51:58,358 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: check3
+2025-07-15 12:51:59,362 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:52:00,366 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:52:00,369 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:52:00,370 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:52:00,370 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:52:00,370 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:52:00,370 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: failing
+2025-07-15 12:52:00,371 - src.utils.monitoring - ERROR - _log_with_context:89 - Health check failed: failing | Context: {"error": "Check failed"}
+2025-07-15 12:52:14,451 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 12:52:14,452 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 12:52:14,452 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 12:52:14,453 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 12:52:17,175 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:52:17,182 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 5.988, "memory_before_mb": 276.89453125, "memory_after_mb": 277.15234375, "memory_peak_mb": 277.15234375, "success": true}
+2025-07-15 12:52:17,186 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-7/test_chunker_with_monitoring_e0/test.md", "chunk_count": 1, "processing_time_ms": 9.795665740966797, "quality_score": 85.0}
+2025-07-15 12:52:17,193 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 12:52:17,198 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.856, "memory_before_mb": 277.515625, "memory_after_mb": 277.515625, "memory_peak_mb": 277.515625, "success": true}
+2025-07-15 12:52:17,200 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-7/test_chunker_with_monitoring_d0/test.md", "chunk_count": 1, "processing_time_ms": 5.157470703125, "quality_score": 76.0}
+2025-07-15 12:52:17,206 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:52:17,215 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 6.3870000000000005, "memory_before_mb": 277.515625, "memory_after_mb": 277.515625, "memory_peak_mb": 277.515625, "success": true}
+2025-07-15 12:52:17,216 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-7/test_monitoring_metrics_collec0/test_0.md", "chunk_count": 1, "processing_time_ms": 8.26120376586914, "quality_score": 76.0}
+2025-07-15 12:52:17,219 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.631, "memory_before_mb": 277.515625, "memory_after_mb": 277.515625, "memory_peak_mb": 277.515625, "success": true}
+2025-07-15 12:52:17,221 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-7/test_monitoring_metrics_collec0/test_1.md", "chunk_count": 1, "processing_time_ms": 3.3349990844726562, "quality_score": 76.0}
+2025-07-15 12:52:17,226 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.485, "memory_before_mb": 277.515625, "memory_after_mb": 277.515625, "memory_peak_mb": 277.515625, "success": true}
+2025-07-15 12:52:17,231 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-7/test_monitoring_metrics_collec0/test_2.md", "chunk_count": 1, "processing_time_ms": 7.851839065551758, "quality_score": 76.0}
+2025-07-15 12:52:17,241 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": true}
+2025-07-15 12:52:18,245 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 12:52:19,258 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
