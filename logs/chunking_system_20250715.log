@@ -1,0 +1,99 @@
+2025-07-15 00:03:54,600 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:03:54,601 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:03:54,601 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:03:54,601 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:04:38,248 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:04:38,250 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:04:38,250 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:04:38,251 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:04:39,416 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:05:02,541 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:05:02,542 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:05:02,543 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:05:02,543 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:05:05,390 - src.utils.cache - INFO - _log_with_context:89 - All caches cleared
+2025-07-15 00:05:06,901 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:05:06,936 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 22.699, "memory_before_mb": 267.5234375, "memory_after_mb": 267.76953125, "memory_peak_mb": 267.5234375, "success": true}
+2025-07-15 00:05:07,419 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-19/test_chunker_with_caching_enab0/test.md", "chunk_count": 1, "processing_time_ms": 515.9425735473633, "quality_score": 85.0}
+2025-07-15 00:05:07,420 - src.chunking_system - INFO - _log_with_context:89 - Cache hit for file | Context: {"file_path": "/tmp/pytest-of-root/pytest-19/test_chunker_with_caching_enab0/test.md"}
+2025-07-15 00:05:07,438 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": false, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:05:07,452 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 12.482, "memory_before_mb": 267.85546875, "memory_after_mb": 267.85546875, "memory_peak_mb": 267.85546875, "success": true}
+2025-07-15 00:05:07,455 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-19/test_chunker_with_caching_disa0/test.md", "chunk_count": 1, "processing_time_ms": 15.076398849487305, "quality_score": 76.0}
+2025-07-15 00:05:07,490 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 34.06, "memory_before_mb": 267.85546875, "memory_after_mb": 267.85546875, "memory_peak_mb": 267.85546875, "success": true}
+2025-07-15 00:05:07,518 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-19/test_chunker_with_caching_disa0/test.md", "chunk_count": 1, "processing_time_ms": 61.9053840637207, "quality_score": 76.0}
+2025-07-15 00:05:07,608 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:05:07,615 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 1.625, "memory_before_mb": 267.875, "memory_after_mb": 267.875, "memory_peak_mb": 267.875, "success": true}
+2025-07-15 00:05:07,623 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-19/test_cache_invalidation_on_fil0/test.md", "chunk_count": 1, "processing_time_ms": 12.746572494506836, "quality_score": 76.0}
+2025-07-15 00:05:07,624 - src.chunking_system - INFO - _log_with_context:89 - Cache hit for file | Context: {"file_path": "/tmp/pytest-of-root/pytest-19/test_cache_invalidation_on_fil0/test.md"}
+2025-07-15 00:05:07,796 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 57.81, "memory_before_mb": 267.875, "memory_after_mb": 267.875, "memory_peak_mb": 267.875, "success": true}
+2025-07-15 00:05:07,801 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-19/test_cache_invalidation_on_fil0/test.md", "chunk_count": 1, "processing_time_ms": 60.5621337890625, "quality_score": 76.0}
+2025-07-15 00:05:07,833 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": false, "monitoring_enabled": false}
+2025-07-15 00:05:07,838 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.594, "memory_before_mb": 267.875, "memory_after_mb": 267.875, "memory_peak_mb": 267.875, "success": true}
+2025-07-15 00:05:07,839 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-19/test_cache_clear0/test.md", "chunk_count": 1, "processing_time_ms": 4.413604736328125, "quality_score": 76.0}
+2025-07-15 00:05:07,841 - src.chunking_system - INFO - _log_with_context:89 - Cache hit for file | Context: {"file_path": "/tmp/pytest-of-root/pytest-19/test_cache_clear0/test.md"}
+2025-07-15 00:05:07,841 - src.utils.cache - INFO - _log_with_context:89 - All caches cleared
+2025-07-15 00:05:07,841 - src.chunking_system - INFO - _log_with_context:89 - Cache cleared
+2025-07-15 00:05:07,845 - src.utils.performance - INFO - _log_with_context:89 - Completed operation monitoring | Context: {"operation": "chunk_document", "duration_ms": 2.169, "memory_before_mb": 267.88671875, "memory_after_mb": 267.88671875, "memory_peak_mb": 267.88671875, "success": true}
+2025-07-15 00:05:07,853 - src.chunking_system - INFO - _log_with_context:89 - File chunking completed | Context: {"file_path": "/tmp/pytest-of-root/pytest-19/test_cache_clear0/test.md", "chunk_count": 1, "processing_time_ms": 10.695457458496094, "quality_score": 76.0}
+2025-07-15 00:05:56,998 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:05:57,008 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:05:57,012 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:05:57,013 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:06:12,884 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:06:12,884 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:06:12,884 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:06:12,884 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:06:27,359 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:06:27,367 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:06:27,368 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:06:27,369 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:17:57,209 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:17:57,209 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:17:57,209 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:17:57,209 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:18:17,197 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:18:17,197 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:18:17,197 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:18:17,197 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:18:19,022 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:18:19,022 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:18:19,022 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:18:19,022 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:20:26,383 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:20:26,383 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:20:26,384 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:20:26,384 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:20:26,384 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:20:26,384 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:20:26,384 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:20:26,385 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:20:26,386 - src.api.health_endpoints - ERROR - _log_with_context:89 - Health check failed | Context: {"error": "'HealthChecker' object has no attribute 'get_overall_health'"}
+2025-07-15 00:20:29,418 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:20:30,421 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:20:31,423 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:20:32,424 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:21:05,709 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:21:05,709 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:21:05,709 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:21:05,709 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:21:05,710 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:21:05,710 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:21:05,710 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:21:05,710 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:21:08,587 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:21:09,589 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:21:12,530 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:21:13,532 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:21:14,534 - src.chunking_system - INFO - _log_with_context:89 - DocumentChunker initialized | Context: {"caching_enabled": true, "security_enabled": true, "monitoring_enabled": true}
+2025-07-15 00:21:24,369 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:21:24,370 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:21:24,370 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:21:24,370 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:21:24,728 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:21:24,728 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:21:24,728 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:21:24,729 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status
+2025-07-15 00:21:48,011 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_memory
+2025-07-15 00:21:48,011 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_disk
+2025-07-15 00:21:48,012 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: system_cpu
+2025-07-15 00:21:48,012 - src.utils.monitoring - INFO - _log_with_context:89 - Registered health check: application_status

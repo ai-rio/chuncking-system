@@ -141,3 +141,15 @@ class SemanticProcessingError(ChunkingError):
         if similarity_method:
             details["similarity_method"] = similarity_method
         super().__init__(message, details)
+
+
+class SecurityError(ChunkingError):
+    """Raised when security validation fails."""
+    
+    def __init__(self, message: str, file_path: Optional[str] = None, security_check: Optional[str] = None):
+        details = {}
+        if file_path:
+            details["file_path"] = file_path
+        if security_check:
+            details["security_check"] = security_check
+        super().__init__(message, details)

@@ -1,0 +1,278 @@
+groups:
+  - name: chunking_system_alerts
+    rules:
+      # Critical Alerts
+      - alert: SystemHealthDown
+        expr: chunking_system_health_status == 0
+        for: 1m
+        labels:
+          severity: critical
+          component: system
+        annotations:
+          summary: "Document Chunking System is unhealthy"
+          description: "The document chunking system health check is failing. Check component status and logs."
+          runbook_url: "https://docs.chunking-system.local/runbooks/system-health"
+
+      - alert: HighErrorRate
+        expr: rate(chunking_errors_total[5m]) > 0.1
+        for: 2m
+        labels:
+          severity: critical
+          component: processing
+        annotations:
+          summary: "High error rate in document processing"
+          description: "Error rate is {{ $value | humanize }} errors/sec over the last 5 minutes"
+          runbook_url: "https://docs.chunking-system.local/runbooks/high-error-rate"
+
+      - alert: ProcessingLatencyHigh
+        expr: quantile(0.95, chunking_duration_ms) > 10000
+        for: 5m
+        labels:
+          severity: critical
+          component: performance
+        annotations:
+          summary: "High processing latency detected"
+          description: "95th percentile processing time is {{ $value | humanize }}ms"
+          runbook_url: "https://docs.chunking-system.local/runbooks/high-latency"
+
+      # Warning Alerts
+      - alert: HighCPUUsage
+        expr: system_cpu_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value | humanize }}% for more than 5 minutes"
+          runbook_url: "https://docs.chunking-system.local/runbooks/high-cpu"
+
+      - alert: HighMemoryUsage
+        expr: system_memory_percent > 80
+        for: 5m
+        labels:
+          severity: warning
+          component: system
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value | humanize }}% for more than 5 minutes"
+          runbook_url: "https://docs.chunking-system.local/runbooks/high-memory"
+
+      - alert: LowCacheHitRate
+        expr: cache_hit_rate < 50
+        for: 10m
+        labels:
+          severity: warning
+          component: cache
+        annotations:
+          summary: "Low cache hit rate"
+          description: "Cache hit rate is {{ $value | humanize }}% for more than 10 minutes"
+          runbook_url: "https://docs.chunking-system.local/runbooks/low-cache-hit-rate"
+
+      - alert: LargeProcessingQueue
+        expr: processing_queue_size > 50
+        for: 5m
+        labels:
+          severity: warning
+          component: queue
+        annotations:
+          summary: "Large processing queue"
+          description: "Processing queue size is {{ $value | humanize }} items"
+          runbook_url: "https://docs.chunking-system.local/runbooks/large-queue"
+
+      # Info Alerts
+      - alert: ComponentDegraded
+        expr: component_health_status{status="degraded"} == 1
+        for: 2m
+        labels:
+          severity: info
+          component: "{{ $labels.component }}"
+        annotations:
+          summary: "Component {{ $labels.component }} is degraded"
+          description: "Component {{ $labels.component }} health status is degraded"
+          runbook_url: "https://docs.chunking-system.local/runbooks/component-degraded"
+
+      - alert: ProcessingRateIncrease
+        expr: rate(chunking_operations_total[5m]) > 10
+        for: 1m
+        labels:
+          severity: info
+          component: performance
+        annotations:
+          summary: "High processing rate detected"
+          description: "Processing rate is {{ $value | humanize }} operations/sec"
+
+  - name: chunking_system_sla
+    rules:
+      # SLA Alerts
+      - alert: SLAErrorRateBreach
+        expr: (rate(chunking_errors_total[1h]) / rate(chunking_operations_total[1h])) * 100 > 1
+        for: 5m
+        labels:
+          severity: critical
+          component: sla
+          sla: error_rate
+        annotations:
+          summary: "SLA breach: Error rate above 1%"
+          description: "Error rate is {{ $value | printf \"%.2f\" }}% over the last hour (SLA: <1%)"
+          runbook_url: "https://docs.chunking-system.local/runbooks/sla-error-rate"
+
+      - alert: SLALatencyBreach
+        expr: quantile(0.95, chunking_duration_ms) > 5000
+        for: 10m
+        labels:
+          severity: critical
+          component: sla
+          sla: latency
+        annotations:
+          summary: "SLA breach: 95th percentile latency above 5s"
+          description: "95th percentile latency is {{ $value | humanize }}ms (SLA: <5000ms)"
+          runbook_url: "https://docs.chunking-system.local/runbooks/sla-latency"
+
+      - alert: SLAAvailabilityBreach
+        expr: avg_over_time(chunking_system_health_status[1h]) < 0.99
+        for: 1m
+        labels:
+          severity: critical
+          component: sla
+          sla: availability
+        annotations:
+          summary: "SLA breach: Availability below 99%"
+          description: "System availability is {{ $value | printf \"%.3f\" }}% over the last hour (SLA: >99%)"
+          runbook_url: "https://docs.chunking-system.local/runbooks/sla-availability"
+
+  - name: chunking_system_capacity
+    rules:
+      # Capacity Planning Alerts
+      - alert: DiskSpaceRunningLow
+        expr: system_disk_percent > 85
+        for: 5m
+        labels:
+          severity: warning
+          component: capacity
+        annotations:
+          summary: "Disk space running low"
+          description: "Disk usage is {{ $value | humanize }}%"
+          runbook_url: "https://docs.chunking-system.local/runbooks/disk-space"
+
+      - alert: MemoryLeakSuspected
+        expr: increase(system_memory_percent[1h]) > 20
+        for: 0m
+        labels:
+          severity: warning
+          component: capacity
+        annotations:
+          summary: "Potential memory leak detected"
+          description: "Memory usage increased by {{ $value | humanize }}% in the last hour"
+          runbook_url: "https://docs.chunking-system.local/runbooks/memory-leak"
+
+      - alert: HighThroughputSustained
+        expr: avg_over_time(rate(chunking_operations_total[5m])[30m:]) > 8
+        for: 5m
+        labels:
+          severity: info
+          component: capacity
+        annotations:
+          summary: "Sustained high throughput"
+          description: "Average processing rate is {{ $value | humanize }} ops/sec over 30 minutes"
+
+  - name: chunking_system_security
+    rules:
+      # Security Alerts
+      - alert: SecurityValidationFailures
+        expr: rate(security_validation_failures_total[5m]) > 0.05
+        for: 2m
+        labels:
+          severity: warning
+          component: security
+        annotations:
+          summary: "High rate of security validation failures"
+          description: "Security validation failure rate is {{ $value | humanize }} failures/sec"
+          runbook_url: "https://docs.chunking-system.local/runbooks/security-failures"
+
+      - alert: SuspiciousFileProcessing
+        expr: rate(suspicious_files_detected_total[5m]) > 0
+        for: 0m
+        labels:
+          severity: critical
+          component: security
+        annotations:
+          summary: "Suspicious files detected"
+          description: "{{ $value | humanize }} suspicious files detected per second"
+          runbook_url: "https://docs.chunking-system.local/runbooks/suspicious-files"
+
+  - name: chunking_system_business
+    rules:
+      # Business Logic Alerts
+      - alert: LowChunkQualityScore
+        expr: avg_over_time(chunk_quality_score[15m]) < 70
+        for: 5m
+        labels:
+          severity: warning
+          component: quality
+        annotations:
+          summary: "Low chunk quality score"
+          description: "Average chunk quality score is {{ $value | printf \"%.1f\" }} over 15 minutes"
+          runbook_url: "https://docs.chunking-system.local/runbooks/low-quality"
+
+      - alert: DocumentProcessingStalled
+        expr: rate(chunking_operations_total[10m]) == 0 and chunking_operations_total > 0
+        for: 5m
+        labels:
+          severity: critical
+          component: processing
+        annotations:
+          summary: "Document processing has stalled"
+          description: "No documents processed in the last 10 minutes, but system was previously active"
+          runbook_url: "https://docs.chunking-system.local/runbooks/processing-stalled"
+
+      - alert: UnusualChunkSizeDistribution
+        expr: stddev_over_time(chunk_size_bytes[1h]) > 50000
+        for: 10m
+        labels:
+          severity: info
+          component: quality
+        annotations:
+          summary: "Unusual chunk size distribution"
+          description: "High standard deviation in chunk sizes: {{ $value | humanize }} bytes"
+
+# Recording Rules for Performance
+  - name: chunking_system_recording_rules
+    interval: 30s
+    rules:
+      - record: chunking:error_rate:5m
+        expr: rate(chunking_errors_total[5m])
+
+      - record: chunking:success_rate:5m
+        expr: rate(chunking_operations_total[5m]) - rate(chunking_errors_total[5m])
+
+      - record: chunking:latency_p95:5m
+        expr: histogram_quantile(0.95, rate(chunking_duration_ms_bucket[5m]))
+
+      - record: chunking:latency_p50:5m
+        expr: histogram_quantile(0.50, rate(chunking_duration_ms_bucket[5m]))
+
+      - record: chunking:throughput:5m
+        expr: rate(chunking_operations_total[5m])
+
+      - record: system:resource_utilization:5m
+        expr: (system_cpu_percent + system_memory_percent + system_disk_percent) / 3
+
+      - record: cache:hit_ratio:5m
+        expr: rate(cache_hits_total[5m]) / (rate(cache_hits_total[5m]) + rate(cache_misses_total[5m]))
+
+# SLI Recording Rules
+  - name: chunking_system_sli
+    interval: 1m
+    rules:
+      - record: sli:availability:5m
+        expr: avg_over_time(chunking_system_health_status[5m])
+
+      - record: sli:error_rate:5m
+        expr: rate(chunking_errors_total[5m]) / rate(chunking_operations_total[5m])
+
+      - record: sli:latency_p95:5m
+        expr: histogram_quantile(0.95, rate(chunking_duration_ms_bucket[5m]))
+
+      - record: sli:throughput:5m
+        expr: rate(chunking_operations_total[5m])
