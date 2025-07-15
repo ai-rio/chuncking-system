@@ -1,5 +1,19 @@
+# Python
 __pycache__/
 *.pyc
 *.pyo
+
+# Virtual environment
+.venv/
+uv.lock
+
+# Test and coverage
 .pytest_cache/
+htmlcov/
+
+# Logs
+logs/*.log
 logs/*.json
+
+# Generated data
+data/output/
