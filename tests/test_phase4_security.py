@@ -42,8 +42,8 @@ class TestEndpointSecurity:
     """Test security aspects of health and monitoring endpoints."""
     
     @patch('src.api.health_endpoints.SystemMonitor')
-    @patch('src.api.health_endpoints.ObservabilityManager')
-    def test_health_endpoint_input_validation(self, mock_obs_manager, mock_system_monitor):
+    @patch('src.api.health_endpoints.get_observability_manager')
+    def test_health_endpoint_input_validation(self, mock_get_obs, mock_system_monitor):
         """Test health endpoint input validation and sanitization."""
         mock_monitor = Mock()
         mock_monitor.health_checker.run_check.return_value = HealthCheckResult(
@@ -52,7 +52,7 @@ class TestEndpointSecurity:
         mock_system_monitor.return_value = mock_monitor
         
         mock_obs = Mock()
-        mock_obs_manager.return_value = mock_obs
+        mock_get_obs.return_value = mock_obs
         
         endpoint = HealthEndpoint()
         
@@ -79,8 +79,8 @@ class TestEndpointSecurity:
             response_str = json.dumps(response) if isinstance(response, dict) else str(response)
             assert malicious_input not in response_str
     
-    @patch('src.api.health_endpoints.ObservabilityManager')
-    def test_metrics_endpoint_data_sanitization(self, mock_obs_manager):
+    @patch('src.api.health_endpoints.get_observability_manager')
+    def test_metrics_endpoint_data_sanitization(self, mock_get_obs):
         """Test metrics endpoint data sanitization."""
         mock_obs = Mock()
         
@@ -111,7 +111,7 @@ class TestEndpointSecurity:
         }
         
         mock_obs.export_all_data.return_value = sensitive_metrics
-        mock_obs_manager.return_value = mock_obs
+        mock_get_obs.return_value = mock_obs
         
         endpoint = MetricsEndpoint()
         response, status_code = endpoint.json_metrics()
@@ -134,14 +134,14 @@ class TestEndpointSecurity:
             assert sensitive_data not in response_str
     
     @patch('src.api.health_endpoints.SystemMonitor')
-    @patch('src.api.health_endpoints.ObservabilityManager')
-    def test_system_endpoint_information_disclosure(self, mock_obs_manager, mock_system_monitor):
+    @patch('src.api.health_endpoints.get_observability_manager')
+    def test_system_endpoint_information_disclosure(self, mock_get_obs, mock_system_monitor):
         """Test system endpoint doesn't disclose sensitive information."""
         mock_monitor = Mock()
         mock_system_monitor.return_value = mock_monitor
         
         mock_obs = Mock()
-        mock_obs_manager.return_value = mock_obs
+        mock_get_obs.return_value = mock_obs
         
         endpoint = SystemStatusEndpoint()
         
@@ -395,14 +395,14 @@ class TestInjectionPrevention:
     """Test prevention of various injection attacks."""
     
     @patch('src.api.health_endpoints.SystemMonitor')
-    @patch('src.api.health_endpoints.ObservabilityManager')
-    def test_sql_injection_prevention(self, mock_obs_manager, mock_system_monitor):
+    @patch('src.api.health_endpoints.get_observability_manager')
+    def test_sql_injection_prevention(self, mock_get_obs, mock_system_monitor):
         """Test SQL injection prevention in endpoints."""
         mock_monitor = Mock()
         mock_system_monitor.return_value = mock_monitor
         
         mock_obs = Mock()
-        mock_obs_manager.return_value = mock_obs
+        mock_get_obs.return_value = mock_obs
         
         endpoint = HealthEndpoint()
         
@@ -426,8 +426,8 @@ class TestInjectionPrevention:
             assert "syntax error" not in response_str.lower()
             assert "sql" not in response_str.lower()
     
-    @patch('src.api.health_endpoints.ObservabilityManager')
-    def test_xss_prevention(self, mock_obs_manager):
+    @patch('src.api.health_endpoints.get_observability_manager')
+    def test_xss_prevention(self, mock_get_obs):
         """Test XSS prevention in metrics endpoints."""
         mock_obs = Mock()
         
@@ -446,7 +446,7 @@ class TestInjectionPrevention:
         }
         
         mock_obs.export_all_data.return_value = xss_metrics
-        mock_obs_manager.return_value = mock_obs
+        mock_get_obs.return_value = mock_obs
         
         endpoint = MetricsEndpoint()
         response, status_code = endpoint.json_metrics()

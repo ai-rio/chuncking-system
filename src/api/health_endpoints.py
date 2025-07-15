@@ -494,6 +494,10 @@ class SystemStatusEndpoint:
             # Get application metrics
             metrics_summary = self.observability.get_metrics_summary()
             
+            # Get detailed system information
+            memory = psutil.virtual_memory()
+            disk = psutil.disk_usage('/')
+            
             response = {
                 "cpu_percent": cpu_percent,
                 "memory_percent": memory_percent,

@@ -282,8 +282,8 @@ class TestHealthEndpointIntegration:
         obs_manager.record_metric("response_time_ms", 156, MetricType.HISTOGRAM)
         
         # Test metrics endpoint
-        with patch('src.api.health_endpoints.ObservabilityManager') as mock_obs_class:
-            mock_obs_class.return_value = obs_manager
+        with patch('src.api.health_endpoints.get_observability_manager') as mock_get_obs:
+            mock_get_obs.return_value = obs_manager
             
             metrics_endpoint = MetricsEndpoint()
             

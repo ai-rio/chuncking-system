@@ -442,8 +442,8 @@ class TestEndpointPerformance:
     """Test health endpoint performance."""
     
     @patch('src.api.health_endpoints.SystemMonitor')
-    @patch('src.api.health_endpoints.ObservabilityManager')
-    def test_health_endpoint_response_time(self, mock_obs_manager, mock_system_monitor):
+    @patch('src.api.health_endpoints.get_observability_manager')
+    def test_health_endpoint_response_time(self, mock_get_obs, mock_system_monitor):
         """Test health endpoint response times."""
         # Setup mocks
         mock_monitor = Mock()
@@ -453,7 +453,7 @@ class TestEndpointPerformance:
         mock_system_monitor.return_value = mock_monitor
         
         mock_obs = Mock()
-        mock_obs_manager.return_value = mock_obs
+        mock_get_obs.return_value = mock_obs
         
         health_endpoint = HealthEndpoint()
         
@@ -478,8 +478,8 @@ class TestEndpointPerformance:
         
         print(f"Health endpoint - Avg: {avg_response_time:.2f}ms, Max: {max_response_time:.2f}ms")
     
-    @patch('src.api.health_endpoints.ObservabilityManager')
-    def test_metrics_endpoint_performance(self, mock_obs_manager):
+    @patch('src.api.health_endpoints.get_observability_manager')
+    def test_metrics_endpoint_performance(self, mock_get_obs):
         """Test metrics endpoint performance."""
         mock_obs = Mock()
         
@@ -490,7 +490,7 @@ class TestEndpointPerformance:
         large_json_data = {"metrics": [{"name": f"metric_{i}", "value": i} for i in range(1000)]}
         mock_obs.export_all_data.return_value = large_json_data
         
-        mock_obs_manager.return_value = mock_obs
+        mock_get_obs.return_value = mock_obs
         
         metrics_endpoint = MetricsEndpoint()
         
