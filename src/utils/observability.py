@@ -140,11 +140,33 @@ class HealthCheckResult:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         result = asdict(self)
+        
         # Handle both enum and string status values
         if hasattr(self.status, 'value'):
             result['status'] = self.status.value
         else:
             result['status'] = self.status
+        
+        # Handle datetime serialization
+        if isinstance(result.get('timestamp'), datetime):
+            result['timestamp'] = result['timestamp'].isoformat()
+        
+        # Filter sensitive data from details
+        if 'details' in result and isinstance(result['details'], dict):
+            sensitive_patterns = {
+                'password', 'secret', 'key', 'token', 'credential', 'auth',
+                'api_key', 'session_id', 'user_email', 'connection_string'
+            }
+            filtered_details = {}
+            for key, value in result['details'].items():
+                if any(pattern in key.lower() for pattern in sensitive_patterns):
+                    filtered_details[key] = "[FILTERED]"
+                elif isinstance(value, str) and any(pattern in value.lower() for pattern in ['password=', 'secret=', 'key=', 'token=']):
+                    filtered_details[key] = "[FILTERED]"
+                else:
+                    filtered_details[key] = value
+            result['details'] = filtered_details
+        
         return result
 
 
@@ -194,19 +216,40 @@ class CorrelationIDManager:
 class StructuredLogger:
     """Enhanced structured logger with correlation ID support."""
     
+    # Sensitive data patterns to filter
+    SENSITIVE_PATTERNS = {
+        'password', 'secret', 'key', 'token', 'credential', 'auth',
+        'api_key', 'session_id', 'user_email', 'connection_string'
+    }
+    
     def __init__(self, name: str):
         self.logger = get_logger(name)
         self.name = name
         self.component = name
     
+    def _filter_sensitive_data(self, data: Dict[str, Any]) -> Dict[str, Any]:
+        """Filter sensitive data from log entries."""
+        filtered_data = {}
+        for key, value in data.items():
+            if any(pattern in key.lower() for pattern in self.SENSITIVE_PATTERNS):
+                filtered_data[key] = "[FILTERED]"
+            elif isinstance(value, str) and any(pattern in value.lower() for pattern in ['password=', 'secret=', 'key=', 'token=']):
+                filtered_data[key] = "[FILTERED]"
+            else:
+                filtered_data[key] = value
+        return filtered_data
+    
     def _format_message(self, message: str, **kwargs) -> Dict[str, Any]:
         """Format message with correlation ID and structured data."""
+        # Filter sensitive data from kwargs
+        filtered_kwargs = self._filter_sensitive_data(kwargs)
+        
         log_data = {
             "message": message,
             "timestamp": datetime.now().isoformat(),
             "logger": self.name,
             "correlation_id": CorrelationIDManager.get_correlation_id(),
-            **kwargs
+            **filtered_kwargs
         }
         return log_data
     
@@ -328,6 +371,12 @@ class MetricsRegistry:
         """Export metrics in Prometheus format."""
         lines = []
         
+        # Sensitive label patterns to filter
+        sensitive_key_patterns = {
+            'password', 'secret', 'key', 'token', 'credential', 'auth',
+            'api_key', 'session_id', 'user_email', 'user_token', 'email', 'user_id'
+        }
+        
         for metric_name, metric_list in self._metrics_dict.items():
             if not metric_list:
                 continue
@@ -341,11 +390,26 @@ class MetricsRegistry:
             # Add type
             lines.append(f"# TYPE {metric_name} {latest_metric.metric_type.value}")
             
-            # Add metric with labels
+            # Add metric with filtered labels
             tag_string = ""
             if latest_metric.labels:
-                tag_pairs = [f'{k}="{v}"' for k, v in latest_metric.labels.items()]
-                tag_string = "{" + ",".join(tag_pairs) + "}"
+                # Filter out sensitive labels
+                filtered_labels = {}
+                for k, v in latest_metric.labels.items():
+                    # Skip if key contains sensitive patterns
+                    if any(pattern in k.lower() for pattern in sensitive_key_patterns):
+                        continue
+                    # Skip if value looks like an email address
+                    if isinstance(v, str) and '@' in v and '.' in v:
+                        continue
+                    # Skip if value contains other sensitive patterns
+                    if isinstance(v, str) and any(pattern in v.lower() for pattern in {'password', 'secret', 'token'}):
+                        continue
+                    filtered_labels[k] = v
+                
+                if filtered_labels:
+                    tag_pairs = [f'{k}="{v}"' for k, v in filtered_labels.items()]
+                    tag_string = "{" + ",".join(tag_pairs) + "}"
             
             lines.append(f"{metric_name}{tag_string} {latest_metric.value}")
         
@@ -383,24 +447,44 @@ class MetricsRegistry:
     def export_all_data(self) -> Dict[str, Any]:
         """Export all metrics data."""
         with self.lock:
-            # Convert metrics to serializable format
-            metrics_dict = {}
+            # Sensitive label patterns to filter
+            sensitive_key_patterns = {
+                'password', 'secret', 'key', 'token', 'credential', 'auth',
+                'api_key', 'session_id', 'user_email', 'user_token', 'email', 'user_id'
+            }
+            
+            # Convert metrics to serializable format as a flat list
+            metrics_list = []
             for name, metrics in self._metrics_dict.items():
-                metrics_dict[name] = []
                 for metric in metrics:
+                    # Filter out sensitive labels
+                    filtered_labels = {}
+                    if metric.labels:
+                        for k, v in metric.labels.items():
+                            # Skip if key contains sensitive patterns
+                            if any(pattern in k.lower() for pattern in sensitive_key_patterns):
+                                continue
+                            # Skip if value looks like an email address
+                            if isinstance(v, str) and '@' in v and '.' in v:
+                                continue
+                            # Skip if value contains other sensitive patterns
+                            if isinstance(v, str) and any(pattern in v.lower() for pattern in {'password', 'secret', 'token'}):
+                                continue
+                            filtered_labels[k] = v
+                    
                     metric_data = {
                         "name": metric.name,
                         "value": metric.value,
                         "metric_type": metric.metric_type,
                         "unit": metric.unit,
                         "timestamp": metric.timestamp,
-                        "labels": metric.labels,
+                        "labels": filtered_labels,
                         "help_text": metric.help_text
                     }
-                    metrics_dict[name].append(metric_data)
+                    metrics_list.append(metric_data)
             
             return {
-                "metrics": metrics_dict,
+                "metrics": metrics_list,
                 "export_time": datetime.now().isoformat()
             }
     
@@ -910,6 +994,51 @@ class DashboardGenerator:
                     ]
                 },
                 {
+                    "name": "security_alerts",
+                    "rules": [
+                        {
+                            "alert": "SecurityViolationDetected",
+                            "expr": "rate(security_violations_total[5m]) > 0",
+                            "for": "1m",
+                            "labels": {"severity": "critical"},
+                            "annotations": {
+                                "summary": "Security violation detected",
+                                "description": "Security violations detected at rate {{ $value }}/sec"
+                            }
+                        },
+                        {
+                            "alert": "UnauthorizedAccessAttempt",
+                            "expr": "rate(failed_auth_attempts[5m]) > 5",
+                            "for": "2m",
+                            "labels": {"severity": "warning"},
+                            "annotations": {
+                                "summary": "High rate of unauthorized access attempts",
+                                "description": "Failed authentication attempts at {{ $value }}/sec"
+                            }
+                        },
+                        {
+                            "alert": "SuspiciousActivityDetected",
+                            "expr": "rate(security_event_suspicious_activity[5m]) > 0",
+                            "for": "30s",
+                            "labels": {"severity": "warning"},
+                            "annotations": {
+                                "summary": "Suspicious activity detected",
+                                "description": "Suspicious security events detected"
+                            }
+                        },
+                        {
+                            "alert": "DataExfiltrationAttempt",
+                            "expr": "rate(security_event_data_exfiltration_attempt[5m]) > 0",
+                            "for": "1m",
+                            "labels": {"severity": "critical"},
+                            "annotations": {
+                                "summary": "Data exfiltration attempt detected",
+                                "description": "Potential data breach detected"
+                            }
+                        }
+                    ]
+                },
+                {
                     "name": "chunking_system_recording_rules",
                     "rules": [
                         {
@@ -1104,23 +1233,29 @@ class ObservabilityManager:
         # Get raw metrics data directly from registry
         metrics_data = self.metrics_registry.export_all_data()
         
-        # Convert metrics dict to flat list for test compatibility
+        # The MetricsRegistry already returns a flat list, so use it directly
         metrics_list = []
         if "metrics" in metrics_data:
-            for metric_name, metric_objects in metrics_data["metrics"].items():
-                for metric_dict in metric_objects:
-                    # Create a simple object with the expected attributes
-                    class MetricWrapper:
-                        def __init__(self, data):
-                            self.name = data.get("name")
-                            self.value = data.get("value")
-                            self.metric_type = data.get("metric_type")
-                            self.unit = data.get("unit")
-                            self.timestamp = data.get("timestamp")
-                            self.labels = data.get("labels", {})
-                            self.help_text = data.get("help_text")
-                    
-                    metrics_list.append(MetricWrapper(metric_dict))
+            for metric_dict in metrics_data["metrics"]:
+                # Convert to serializable dict format
+                serializable_metric = {
+                    "name": metric_dict.get("name"),
+                    "value": metric_dict.get("value"),
+                    "labels": metric_dict.get("labels", {})
+                }
+                # Handle MetricType enum serialization
+                if hasattr(metric_dict.get("metric_type"), 'value'):
+                    serializable_metric["metric_type"] = metric_dict["metric_type"].value
+                else:
+                    serializable_metric["metric_type"] = str(metric_dict.get("metric_type"))
+                
+                # Handle datetime serialization
+                if isinstance(metric_dict.get("timestamp"), datetime):
+                    serializable_metric["timestamp"] = metric_dict["timestamp"].isoformat()
+                else:
+                    serializable_metric["timestamp"] = metric_dict.get("timestamp")
+                
+                metrics_list.append(serializable_metric)
         
         return {
             "metrics": metrics_list,

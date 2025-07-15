@@ -343,15 +343,60 @@ class MetricsEndpoint:
                 if filtered_metrics:
                     pass  # Tests just check that the method was called
             
-            # Get metrics summary
-            metrics_summary = self.observability.get_metrics_summary()
+            # Get all observability data (already JSON serializable)
+            export_data = self.observability.export_all_data()
+            
+            # Filter sensitive data and XSS payloads from metrics
+            sensitive_patterns = {
+                'password', 'secret', 'key', 'token', 'credential', 'auth',
+                'api_key', 'session_id', 'user_email', 'user_token'
+            }
+            
+            # XSS patterns to filter
+            xss_patterns = [
+                '<script', '</script>', 'javascript:', 'onerror=', 'onload=',
+                'onclick=', 'onmouseover=', '<img', '<iframe', '<object',
+                '<embed', '<link', '<style', '</style>'
+            ]
+            
+            def sanitize_value(value):
+                """Sanitize value to prevent XSS."""
+                if not isinstance(value, str):
+                    return value
+                
+                sanitized = value
+                for pattern in xss_patterns:
+                    sanitized = sanitized.replace(pattern, '')
+                return sanitized
+            
+            filtered_metrics = []
+            for metric in export_data.get("metrics", []):
+                if isinstance(metric, dict):
+                    # Create filtered metric
+                    filtered_metric = metric.copy()
+                    
+                    # Sanitize metric name
+                    if 'name' in filtered_metric:
+                        filtered_metric['name'] = sanitize_value(filtered_metric['name'])
+                    
+                    # Filter sensitive labels and sanitize values
+                    if 'labels' in metric:
+                        filtered_labels = {}
+                        for k, v in metric['labels'].items():
+                            if not any(pattern in k.lower() for pattern in sensitive_patterns):
+                                filtered_labels[sanitize_value(k)] = sanitize_value(v)
+                        filtered_metric['labels'] = filtered_labels
+                    
+                    filtered_metrics.append(filtered_metric)
+                else:
+                    filtered_metrics.append(metric)
             
             # Add system status
             system_status = self.system_monitor.get_system_status()
             
             response = {
                 "timestamp": datetime.now().isoformat(),
-                "metrics": metrics_summary.get("metrics", {}),
+                "metrics": filtered_metrics,
                 "system_status": system_status,
                 "meta": {
                     "export_format": "json",

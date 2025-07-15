@@ -138,26 +138,62 @@ class TestEndpointSecurity:
     def test_system_endpoint_information_disclosure(self, mock_get_obs, mock_system_monitor):
         """Test system endpoint doesn't disclose sensitive information."""
         mock_monitor = Mock()
+        mock_monitor.get_system_status.return_value = {
+            "health": {"overall_healthy": True},
+            "metrics_count": 5,
+            "active_alerts": 0,
+            "status": "healthy",
+            "components": {"cpu": "healthy", "memory": "healthy"},
+            "overall_status": "healthy",
+            "health_checks": {},
+            "alerts": [],
+            "metrics_summary": {}
+        }
         mock_system_monitor.return_value = mock_monitor
         
         mock_obs = Mock()
+        mock_obs.get_health_status.return_value = {
+            "overall_status": "healthy",
+            "overall_healthy": True,
+            "components": {"cpu": "healthy", "memory": "healthy"},
+            "timestamp": "2024-01-01T00:00:00"
+        }
         mock_get_obs.return_value = mock_obs
         
-        endpoint = SystemStatusEndpoint()
-        
         with patch('src.api.health_endpoints.platform') as mock_platform, \
-             patch('src.api.health_endpoints.psutil') as mock_psutil:
+             patch('src.api.health_endpoints.psutil') as mock_psutil, \
+             patch('src.api.health_endpoints.time') as mock_time, \
+             patch('src.api.health_endpoints.datetime') as mock_datetime:
             
             # Mock system information
             mock_platform.system.return_value = "Linux"
             mock_platform.release.return_value = "5.4.0-production"
             mock_platform.machine.return_value = "x86_64"
             mock_platform.python_version.return_value = "3.11.0"
+            mock_platform.platform.return_value = "Linux-5.4.0-production-x86_64"
+            mock_platform.processor.return_value = "x86_64"
+            mock_platform.node.return_value = "test-host"
             
             mock_psutil.cpu_count.return_value = 8
-            mock_psutil.virtual_memory.return_value = Mock(total=16000000000)
-            mock_psutil.disk_usage.return_value = Mock(total=500000000000)
             
+            # Create proper mock objects with required attributes
+            mock_memory = Mock()
+            mock_memory.total = 16000000000
+            mock_memory.available = 8000000000
+            mock_memory.percent = 50.0
+            mock_psutil.virtual_memory.return_value = mock_memory
+            
+            mock_disk = Mock()
+            mock_disk.total = 500000000000
+            mock_disk.used = 250000000000
+            mock_disk.free = 250000000000
+            mock_psutil.disk_usage.return_value = mock_disk
+            
+            # Mock time and datetime
+            mock_time.time.return_value = 1640995200.0  # Fixed timestamp
+            mock_datetime.now.return_value.isoformat.return_value = "2024-01-01T00:00:00"
+            
+            endpoint = SystemStatusEndpoint(mock_monitor, mock_obs)
             response, status_code = endpoint.system_info()
             
             assert status_code == 200
@@ -228,7 +264,7 @@ class TestDataProtection:
     
     def test_structured_logger_sensitive_data_filtering(self):
         """Test structured logger filters sensitive data."""
-        with patch('src.utils.observability.logging.getLogger') as mock_get_logger:
+        with patch('src.utils.observability.get_logger') as mock_get_logger:
             mock_logger = Mock()
             mock_get_logger.return_value = mock_logger
             
@@ -398,10 +434,36 @@ class TestInjectionPrevention:
     @patch('src.api.health_endpoints.get_observability_manager')
     def test_sql_injection_prevention(self, mock_get_obs, mock_system_monitor):
         """Test SQL injection prevention in endpoints."""
+        from src.utils.monitoring import HealthStatus
+        from datetime import datetime
+        
         mock_monitor = Mock()
+        mock_monitor.get_system_status.return_value = {
+            "status": "healthy",
+            "cpu_percent": 25.0,
+            "memory_percent": 60.0
+        }
+        
+        # Mock health_checker.run_check to return HealthStatus
+        mock_health_status = HealthStatus(
+            component="test",
+            message="OK",
+            is_healthy=True,
+            status="healthy",
+            timestamp=datetime.now(),
+            response_time_ms=10.0,
+            details={}
+        )
+        mock_monitor.health_checker.run_check.return_value = mock_health_status
         mock_system_monitor.return_value = mock_monitor
         
         mock_obs = Mock()
+        mock_obs.run_health_check.return_value = {
+            "status": "healthy",
+            "message": "Component is healthy",
+            "timestamp": "2024-01-01T00:00:00"
+        }
+        mock_obs.record_metric = Mock()
         mock_get_obs.return_value = mock_obs
         
         endpoint = HealthEndpoint()
@@ -603,7 +665,7 @@ class TestSecurityMonitoring:
         # Verify security metrics are recorded
         export_data = obs_manager.export_all_data()
         security_metrics = [m for m in export_data["metrics"] 
-                          if "security_event" in m.name]
+                          if "security_event" in m["name"]]
         
         assert len(security_metrics) == len(security_events)
         
@@ -668,15 +730,15 @@ class TestComplianceAndAuditing:
         
         # Verify audit trail exists
         export_data = obs_manager.export_all_data()
-        audit_metrics = [m for m in export_data["metrics"] if "audit_" in m.name]
+        audit_metrics = [m for m in export_data["metrics"] if "audit_" in m["name"]]
         
         assert len(audit_metrics) == len(auditable_events)
         
         # Verify audit data integrity
         for metric in audit_metrics:
-            assert "audit_" in metric.name
-            assert hasattr(metric, 'labels')
-            assert hasattr(metric, 'timestamp')
+            assert "audit_" in metric["name"]
+            assert "labels" in metric
+            assert "timestamp" in metric
     
     def test_data_retention_compliance(self):
         """Test data retention compliance."""
