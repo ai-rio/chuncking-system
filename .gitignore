@@ -16,3 +16,7 @@ logs/
 
 # Generated data
 data/output/
+
+# Coverage 
+.coverage
+
