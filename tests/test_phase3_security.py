@@ -10,7 +10,7 @@ from src.utils.security import (
     SecurityConfig, PathSanitizer, FileValidator, 
     ChecksumValidator, SecurityAuditor
 )
-from src.chunking_system import DocumentChunker, ChunkingConfig
+from src.config.settings import ChunkingConfig
 from src.exceptions import ValidationError, SecurityError
 
 

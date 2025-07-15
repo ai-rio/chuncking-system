@@ -197,6 +197,7 @@ class StructuredLogger:
     def __init__(self, name: str):
         self.logger = get_logger(name)
         self.name = name
+        self.component = name
     
     def _format_message(self, message: str, **kwargs) -> Dict[str, Any]:
         """Format message with correlation ID and structured data."""
@@ -239,7 +240,7 @@ class StructuredLogger:
     @contextmanager
     def trace_operation(self, operation_name: str, **tags) -> TraceContext:
         """Context manager for tracing operations."""
-        trace_ctx = TraceContext(operation_name=operation_name, tags=tags)
+        trace_ctx = TraceContext(operation_name=operation_name, labels=tags)
         
         self.info(f"Starting operation: {operation_name}", 
                  trace_id=trace_ctx.trace_id, 
@@ -266,16 +267,18 @@ class MetricsRegistry:
     """Registry for custom metrics with aggregation capabilities."""
     
     def __init__(self):
-        self.metrics: Dict[str, List[CustomMetric]] = {}
+        self.metrics: List[CustomMetric] = []
+        self._metrics_dict: Dict[str, List[CustomMetric]] = {}
         self.lock = threading.Lock()
         self.aggregation_window = timedelta(minutes=5)
     
     def register_metric(self, metric: CustomMetric):
         """Register a new metric."""
         with self.lock:
-            if metric.name not in self.metrics:
-                self.metrics[metric.name] = []
-            self.metrics[metric.name].append(metric)
+            self.metrics.append(metric)
+            if metric.name not in self._metrics_dict:
+                self._metrics_dict[metric.name] = []
+            self._metrics_dict[metric.name].append(metric)
             
             # Clean old metrics
             self._cleanup_old_metrics(metric.name)
@@ -283,18 +286,20 @@ class MetricsRegistry:
     def _cleanup_old_metrics(self, metric_name: str):
         """Remove metrics older than aggregation window."""
         cutoff = datetime.now() - self.aggregation_window
-        self.metrics[metric_name] = [
-            m for m in self.metrics[metric_name] 
+        self._metrics_dict[metric_name] = [
+            m for m in self._metrics_dict[metric_name] 
             if m.timestamp > cutoff
         ]
+        # Also clean main metrics list
+        self.metrics = [m for m in self.metrics if m.timestamp > cutoff]
     
     def get_metric_summary(self, metric_name: str) -> Optional[Dict[str, Any]]:
         """Get aggregated summary of a metric."""
         with self.lock:
-            if metric_name not in self.metrics or not self.metrics[metric_name]:
+            if metric_name not in self._metrics_dict or not self._metrics_dict[metric_name]:
                 return None
             
-            metrics = self.metrics[metric_name]
+            metrics = self._metrics_dict[metric_name]
             values = [m.value for m in metrics]
             
             return {
@@ -313,7 +318,7 @@ class MetricsRegistry:
     def get_all_metrics(self) -> Dict[str, Dict[str, Any]]:
         """Get all metric summaries."""
         summaries = {}
-        for metric_name in self.metrics:
+        for metric_name in self._metrics_dict:
             summary = self.get_metric_summary(metric_name)
             if summary:
                 summaries[metric_name] = summary
@@ -323,7 +328,7 @@ class MetricsRegistry:
         """Export metrics in Prometheus format."""
         lines = []
         
-        for metric_name, metric_list in self.metrics.items():
+        for metric_name, metric_list in self._metrics_dict.items():
             if not metric_list:
                 continue
                 
@@ -347,7 +352,7 @@ class MetricsRegistry:
         return "\n".join(lines)
     
     def record_metric(self, name: str, value: Union[int, float], metric_type: MetricType, 
-                     unit: str = "units", tags: Optional[Dict[str, str]] = None,
+                     unit: str = "units", labels: Optional[Dict[str, str]] = None,
                      help_text: Optional[str] = None):
         """Record a metric (alias for register_metric)."""
         metric = CustomMetric(
@@ -355,7 +360,7 @@ class MetricsRegistry:
             value=value,
             metric_type=metric_type,
             unit=unit,
-            labels=tags or {},
+            labels=labels or {},
             help_text=help_text
         )
         self.register_metric(metric)
@@ -363,13 +368,13 @@ class MetricsRegistry:
     def get_metrics_by_name(self, name: str) -> List[CustomMetric]:
         """Get all metrics by name."""
         with self.lock:
-            return self.metrics.get(name, [])
+            return self._metrics_dict.get(name, [])
     
     def get_metrics_by_type(self, metric_type: MetricType) -> List[CustomMetric]:
         """Get all metrics by type."""
         with self.lock:
             result = []
-            for metric_list in self.metrics.values():
+            for metric_list in self._metrics_dict.values():
                 for metric in metric_list:
                     if metric.metric_type == metric_type:
                         result.append(metric)
@@ -380,9 +385,15 @@ class MetricsRegistry:
         with self.lock:
             return {
                 "metrics": {name: [metric.__dict__ for metric in metrics] 
-                          for name, metrics in self.metrics.items()},
+                          for name, metrics in self._metrics_dict.items()},
                 "export_time": datetime.now().isoformat()
             }
+    
+    def clear_metrics(self):
+        """Clear all metrics."""
+        with self.lock:
+            self.metrics.clear()
+            self._metrics_dict.clear()
 
 
 class HealthRegistry:
@@ -808,7 +819,7 @@ class ObservabilityManager:
         monitor_thread.start()
     
     def record_metric(self, name: str, value: Union[int, float], 
-                     metric_type: MetricType, unit: str = "units", tags: Optional[Dict[str, str]] = None,
+                     metric_type: MetricType, unit: str = "units", labels: Optional[Dict[str, str]] = None,
                      help_text: Optional[str] = None):
         """Record a custom metric."""
         metric = CustomMetric(
@@ -816,7 +827,7 @@ class ObservabilityManager:
             value=value,
             metric_type=metric_type,
             unit=unit,
-            labels=tags or {},
+            labels=labels or {},
             help_text=help_text
         )
         self.metrics_registry.register_metric(metric)
@@ -902,10 +913,10 @@ def get_observability_manager() -> ObservabilityManager:
 
 
 def record_metric(name: str, value: Union[int, float], metric_type: MetricType, 
-                 unit: str, tags: Optional[Dict[str, str]] = None, help_text: Optional[str] = None):
+                 unit: str, labels: Optional[Dict[str, str]] = None, help_text: Optional[str] = None):
     """Convenience function to record metrics."""
     manager = get_observability_manager()
-    manager.record_metric(name, value, metric_type, unit, tags, help_text)
+    manager.record_metric(name, value, metric_type, unit, labels, help_text)
 
 
 def get_structured_logger(name: str) -> StructuredLogger:

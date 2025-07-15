@@ -24,7 +24,8 @@ class HealthEndpoint:
     def __init__(self, system_monitor: Optional[SystemMonitor] = None):
         self.logger = get_logger(__name__)
         self.system_monitor = system_monitor or SystemMonitor()
-        self.observability = get_observability_manager()
+        self.observability_manager = get_observability_manager()
+        self.observability = self.observability_manager
         
     def health_check(self, component: Optional[str] = None) -> Tuple[Dict[str, Any], int]:
         """
@@ -253,7 +254,8 @@ class MetricsEndpoint:
     def __init__(self, system_monitor: Optional[SystemMonitor] = None):
         self.logger = get_logger(__name__)
         self.system_monitor = system_monitor or SystemMonitor()
-        self.observability = get_observability_manager()
+        self.observability_manager = get_observability_manager()
+        self.observability = self.observability_manager
     
     def prometheus_metrics(self) -> Tuple[str, int]:
         """
@@ -373,7 +375,8 @@ class SystemStatusEndpoint:
     def __init__(self, system_monitor: Optional[SystemMonitor] = None):
         self.logger = get_logger(__name__)
         self.system_monitor = system_monitor or SystemMonitor()
-        self.observability = get_observability_manager()
+        self.observability_manager = get_observability_manager()
+        self.observability = self.observability_manager
     
     def system_info(self) -> Tuple[Dict[str, Any], int]:
         """

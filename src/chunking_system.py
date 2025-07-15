@@ -48,21 +48,10 @@ class ChunkingResult:
     file_path: Optional[Path] = None
 
 
-@dataclass
-class ChunkingConfig:
-    """Configuration for document chunking."""
-    chunk_size: int = 1000
-    chunk_overlap: int = 200
-    min_chunk_words: int = 50
-    max_chunk_words: int = 2000
-    enable_caching: bool = True
-    enable_security: bool = True
-    enable_monitoring: bool = True
-    cache_ttl_hours: int = 24
-    max_file_size_mb: int = 100
-    batch_size: int = 10
-    quality_threshold: float = 0.7
 
+
+
+from src.config.settings import ChunkingConfig
 
 class DocumentChunker:
     """Enhanced document chunking system with Phase 3 improvements."""
@@ -71,15 +60,15 @@ class DocumentChunker:
                  security_config: Optional[SecurityConfig] = None):
         """Initialize the document chunker with enhanced capabilities."""
         self.config = config or ChunkingConfig()
-        self.security_config = security_config or SecurityConfig(
-            max_file_size_mb=self.config.max_file_size_mb
-        )
+        self.security_config = (security_config or 
+                               self.config.security_config or 
+                               SecurityConfig(max_file_size_mb=self.config.max_file_size_mb))
         
         # Initialize core components
         self.logger = get_logger(__name__)
         self.hybrid_chunker = HybridMarkdownChunker(
-            chunk_size=self.config.chunk_size,
-            chunk_overlap=self.config.chunk_overlap
+            chunk_size=self.config.DEFAULT_CHUNK_SIZE,
+            chunk_overlap=self.config.DEFAULT_CHUNK_OVERLAP
         )
         self.quality_evaluator = ChunkQualityEvaluator()
         
@@ -102,7 +91,7 @@ class DocumentChunker:
             self.system_monitor = get_system_monitor()
             self.performance_monitor = PerformanceMonitor()
             self.memory_optimizer = MemoryOptimizer()
-            self.batch_processor = BatchProcessor(batch_size=self.config.batch_size)
+            self.batch_processor = BatchProcessor(batch_size=self.config.BATCH_SIZE)
         else:
             self.system_monitor = None
             self.performance_monitor = None
@@ -194,14 +183,13 @@ class DocumentChunker:
                 
                 return result
         
-        except Exception as e:
+        except SecurityError as e:
             self.logger.error(
-                "File chunking failed",
+                "File chunking failed due to security violation",
                 file_path=str(file_path),
                 error=str(e),
                 error_type=type(e).__name__
             )
-            # Return failed result instead of raising exception
             return ChunkingResult(
                 chunks=[],
                 metadata={"source_file": str(file_path)},
@@ -390,10 +378,10 @@ class DocumentChunker:
             'file_modified': file_path.stat().st_mtime,
             'processing_timestamp': time.time(),
             'chunker_config': {
-                'chunk_size': self.config.chunk_size,
-                'chunk_overlap': self.config.chunk_overlap,
-                'min_chunk_words': self.config.min_chunk_words,
-                'max_chunk_words': self.config.max_chunk_words
+                'chunk_size': self.config.DEFAULT_CHUNK_SIZE,
+                'chunk_overlap': self.config.DEFAULT_CHUNK_OVERLAP,
+                'min_chunk_words': self.config.MIN_CHUNK_WORDS,
+                'max_chunk_words': self.config.MAX_CHUNK_WORDS
             }
         }
         
@@ -449,8 +437,8 @@ class DocumentChunker:
         key_data = {
             'file_path': str(file_path),
             'file_mtime': file_path.stat().st_mtime,
-            'chunk_size': self.config.chunk_size,
-            'chunk_overlap': self.config.chunk_overlap,
+            'chunk_size': self.config.DEFAULT_CHUNK_SIZE,
+            'chunk_overlap': self.config.DEFAULT_CHUNK_OVERLAP,
             'metadata': metadata or {}
         }
         

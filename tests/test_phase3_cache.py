@@ -7,7 +7,8 @@ from pathlib import Path
 from unittest.mock import Mock, patch
 
 from src.utils.cache import CacheEntry, InMemoryCache, FileCache, CacheManager
-from src.chunking_system import DocumentChunker, ChunkingConfig
+from src.chunking_system import DocumentChunker
+from src.config.settings import ChunkingConfig
 
 
 class TestCacheEntry:
@@ -274,8 +275,6 @@ class TestDocumentChunkerCaching:
     def test_chunker_with_caching_enabled(self, tmp_path):
         """Test DocumentChunker with caching enabled."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=False,
             enable_monitoring=False
@@ -300,8 +299,6 @@ class TestDocumentChunkerCaching:
     def test_chunker_with_caching_disabled(self, tmp_path):
         """Test DocumentChunker with caching disabled."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=False,
             enable_security=False,
             enable_monitoring=False
@@ -323,8 +320,6 @@ class TestDocumentChunkerCaching:
     def test_cache_invalidation_on_file_change(self, tmp_path):
         """Test that cache is invalidated when file changes."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=False,
             enable_monitoring=False
@@ -355,8 +350,6 @@ class TestDocumentChunkerCaching:
     def test_cache_clear(self, tmp_path):
         """Test cache clearing functionality."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=False,
             enable_monitoring=False

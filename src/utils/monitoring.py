@@ -46,7 +46,7 @@ class MetricPoint:
     name: str
     value: Union[int, float]
     timestamp: datetime
-    tags: Dict[str, str] = field(default_factory=dict)
+    labels: Dict[str, str] = field(default_factory=dict)
     unit: str = ""
 
 
@@ -106,6 +106,7 @@ class HealthChecker:
         return HealthStatus(
             component="system_memory",
             status=status,
+            is_healthy=(status == "healthy"),
             message=message,
             timestamp=datetime.now(),
             response_time_ms=response_time,
@@ -138,6 +139,7 @@ class HealthChecker:
         return HealthStatus(
             component="system_disk",
             status=status,
+            is_healthy=(status == "healthy"),
             message=message,
             timestamp=datetime.now(),
             response_time_ms=response_time,
@@ -168,6 +170,7 @@ class HealthChecker:
         return HealthStatus(
             component="system_cpu",
             status=status,
+            is_healthy=(status == "healthy"),
             message=message,
             timestamp=datetime.now(),
             response_time_ms=response_time,
@@ -196,6 +199,7 @@ class HealthChecker:
             return HealthStatus(
                 component="application_status",
                 status="healthy",
+                is_healthy=True,
                 message="Application components operational",
                 timestamp=datetime.now(),
                 response_time_ms=response_time,
@@ -223,6 +227,7 @@ class HealthChecker:
             return HealthStatus(
                 component=check_name,
                 status="unhealthy",
+                is_healthy=False,
                 message=f"Unknown health check: {check_name}",
                 timestamp=datetime.now()
             )
@@ -236,6 +241,7 @@ class HealthChecker:
             result = HealthStatus(
                 component=check_name,
                 status="unhealthy",
+                is_healthy=False,
                 message=f"Check failed: {str(e)}",
                 timestamp=datetime.now()
             )
@@ -294,62 +300,62 @@ class MetricsCollector:
         self.histograms: Dict[str, List[float]] = defaultdict(list)
         self._lock = threading.Lock()
     
-    def record_counter(self, name: str, value: int = 1, tags: Optional[Dict[str, str]] = None):
+    def record_counter(self, name: str, value: int = 1, labels: Optional[Dict[str, str]] = None):
         """Record a counter metric."""
         with self._lock:
-            key = self._make_key(name, tags)
+            key = self._make_key(name, labels)
             self.counters[key] += value
             
             metric_point = MetricPoint(
                 name=name,
                 value=self.counters[key],
                 timestamp=datetime.now(),
-                tags=tags or {},
+                labels=labels or {},
                 unit="count"
             )
             self.metrics[key].append(metric_point)
     
-    def record_gauge(self, name: str, value: float, tags: Optional[Dict[str, str]] = None):
+    def record_gauge(self, name: str, value: float, labels: Optional[Dict[str, str]] = None):
         """Record a gauge metric."""
         with self._lock:
-            key = self._make_key(name, tags)
+            key = self._make_key(name, labels)
             self.gauges[key] = value
             
             metric_point = MetricPoint(
                 name=name,
                 value=value,
                 timestamp=datetime.now(),
-                tags=tags or {},
+                labels=labels or {},
                 unit="gauge"
             )
             self.metrics[key].append(metric_point)
     
-    def record_histogram(self, name: str, value: float, tags: Optional[Dict[str, str]] = None):
+    def record_histogram(self, name: str, value: float, labels: Optional[Dict[str, str]] = None):
         """Record a histogram metric."""
         with self._lock:
-            key = self._make_key(name, tags)
+            key = self._make_key(name, labels)
             self.histograms[key].append(value)
             
             metric_point = MetricPoint(
                 name=name,
                 value=value,
                 timestamp=datetime.now(),
-                tags=tags or {},
+                labels=labels or {},
                 unit="histogram"
             )
             self.metrics[key].append(metric_point)
     
-    def _make_key(self, name: str, tags: Optional[Dict[str, str]]) -> str:
-        """Create a unique key for metric with tags."""
-        if not tags:
+    def _make_key(self, name: str, labels: Optional[Dict[str, str]]) -> str:
+        """Create a unique key for metric with labels."""
+        if not labels:
             return name
         
-        tag_str = ",".join(f"{k}={v}" for k, v in sorted(tags.items()))
-        return f"{name}[{tag_str}]"
+        label_str = ",".join(f"{k}={v}" for k, v in sorted(labels.items()))
+        return f"{name}[{label_str}]"
     
-    def get_metric_summary(self, name: str, tags: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+    def get_metric_summary(self, name: str, labels: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
         """Get summary statistics for a metric."""
-        key = self._make_key(name, tags)
+        key = self._make_key(name, labels)
         
         if key not in self.metrics or not self.metrics[key]:
             return {"error": "No data available"}
@@ -378,13 +384,13 @@ class MetricsCollector:
                 # Parse metric name from key
                 if '[' in key:
                     name = key.split('[')[0]
-                    tag_str = key.split('[')[1].rstrip(']')
-                    tags = dict(tag.split('=') for tag in tag_str.split(',') if tag)
+                    label_str = key.split('[')[1].rstrip(']')
+                    labels = dict(tag.split('=') for tag in label_str.split(',') if tag)
                 else:
                     name = key
-                    tags = None
+                    labels = None
                 
-                result[key] = self.get_metric_summary(name, tags)
+                result[key] = self.get_metric_summary(name, labels)
         
         return result
     
@@ -611,22 +617,22 @@ class SystemMonitor:
         self.metrics_collector.record_gauge("system.disk.free_gb", disk.free / (1024**3))
     
     @contextmanager
-    def monitor_operation(self, operation_name: str, tags: Optional[Dict[str, str]] = None):
+    def monitor_operation(self, operation_name: str, labels: Optional[Dict[str, str]] = None):
         """Context manager for monitoring operations."""
         start_time = time.time()
         
         try:
             yield
             # Record success
-            self.metrics_collector.record_counter(f"operation.{operation_name}.success", tags=tags)
+            self.metrics_collector.record_counter(f"operation.{operation_name}.success", labels=labels)
         except Exception as e:
             # Record failure
-            self.metrics_collector.record_counter(f"operation.{operation_name}.failure", tags=tags)
+            self.metrics_collector.record_counter(f"operation.{operation_name}.failure", labels=labels)
             raise
         finally:
             # Record duration
             duration = (time.time() - start_time) * 1000
-            self.metrics_collector.record_histogram(f"operation.{operation_name}.duration_ms", duration, tags=tags)
+            self.metrics_collector.record_histogram(f"operation.{operation_name}.duration_ms", duration, labels=labels)
     
     def register_health_check(self, name: str, check_func: Callable[[], HealthStatus]):
         """Register a health check function."""

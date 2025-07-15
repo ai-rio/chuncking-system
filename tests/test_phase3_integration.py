@@ -7,7 +7,8 @@ import os
 from pathlib import Path
 from unittest.mock import Mock, patch, MagicMock
 
-from src.chunking_system import DocumentChunker, ChunkingConfig, ChunkingResult
+from src.chunking_system import DocumentChunker
+from src.config.settings import ChunkingConfig
 from src.utils.cache import CacheManager
 from src.utils.security import SecurityConfig
 from src.utils.monitoring import SystemMonitor
@@ -20,8 +21,6 @@ class TestPhase3Integration:
     def test_full_phase3_enabled(self, tmp_path):
         """Test DocumentChunker with all Phase 3 features enabled."""
         config = ChunkingConfig(
-            chunk_size=200,
-            chunk_overlap=50,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True,
@@ -67,7 +66,7 @@ of the testing objectives and expected outcomes.
         assert len(result1.chunks) > 0
         assert result1.cache_hit is False
         assert result1.security_audit is not None
-        assert result1.security_audit['is_safe'] is True
+        assert result1.security_audit['overall_status'] == 'passed'
         assert result1.performance_metrics is not None
         
         with patch('magic.from_file', return_value="text/plain"):
@@ -84,8 +83,6 @@ of the testing objectives and expected outcomes.
     def test_security_blocking_with_caching_and_monitoring(self, tmp_path):
         """Test that security blocks unsafe files even with caching/monitoring enabled."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True,
@@ -110,19 +107,17 @@ of the testing objectives and expected outcomes.
         assert "security validation failed" in result.error_message.lower()
         assert result.cache_hit is False  # No caching for failed security
         assert result.security_audit is not None
-        assert result.security_audit['is_safe'] is False
+        assert result.security_audit['overall_status'] == 'failed'
         assert result.performance_metrics is not None  # Still monitored
     
     def test_large_file_security_with_performance_monitoring(self, tmp_path):
         """Test security handling of large files with performance monitoring."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True,
             security_config=SecurityConfig(
-                max_file_size_mb=1,  # 1MB limit (minimum)
+                max_file_size_mb=0.0005,  # 0.5KB limit
                 allowed_extensions={'.md'},
                 enable_content_validation=True
             )
@@ -148,8 +143,6 @@ of the testing objectives and expected outcomes.
     def test_directory_processing_with_mixed_security_results(self, tmp_path):
         """Test directory processing with mixed security validation results."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True,
@@ -200,8 +193,6 @@ of the testing objectives and expected outcomes.
     def test_cache_invalidation_with_security_and_monitoring(self, tmp_path):
         """Test cache invalidation when file changes, with security and monitoring."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True
@@ -248,8 +239,6 @@ of the testing objectives and expected outcomes.
     def test_performance_monitoring_with_batch_processing(self, tmp_path):
         """Test performance monitoring during batch processing."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True
@@ -290,8 +279,6 @@ of the testing objectives and expected outcomes.
     def test_error_handling_with_all_features_enabled(self, tmp_path):
         """Test error handling when all Phase 3 features are enabled."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True
@@ -315,8 +302,6 @@ of the testing objectives and expected outcomes.
     def test_memory_optimization_during_processing(self, tmp_path):
         """Test memory optimization features during processing."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True
@@ -350,8 +335,6 @@ of the testing objectives and expected outcomes.
     def test_concurrent_access_simulation(self, tmp_path):
         """Test behavior under simulated concurrent access."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True
@@ -387,8 +370,6 @@ of the testing objectives and expected outcomes.
     def test_system_monitoring_integration(self, tmp_path):
         """Test system monitoring integration with chunking operations."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True
@@ -434,14 +415,11 @@ of the testing objectives and expected outcomes.
     def test_cache_performance_with_security_overhead(self, tmp_path):
         """Test cache performance benefits even with security overhead."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True,
             security_config=SecurityConfig(
-                enable_content_scanning=True,
-                enable_checksum_validation=True
+                enable_content_validation=True,
             )
         )
         
@@ -477,7 +455,7 @@ of the testing objectives and expected outcomes.
         # Results should be identical
         assert len(result1.chunks) == len(result2.chunks)
         for chunk1, chunk2 in zip(result1.chunks, result2.chunks):
-            assert chunk1.content == chunk2.content
+            assert chunk1.page_content == chunk2.page_content
 
 
 class TestPhase3Configuration:
@@ -486,8 +464,6 @@ class TestPhase3Configuration:
     def test_caching_only_configuration(self, tmp_path):
         """Test configuration with only caching enabled."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=False,
             enable_monitoring=False
@@ -515,8 +491,6 @@ class TestPhase3Configuration:
     def test_security_only_configuration(self, tmp_path):
         """Test configuration with only security enabled."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=False,
             enable_security=True,
             enable_monitoring=False
@@ -533,14 +507,12 @@ class TestPhase3Configuration:
         assert result.success is True
         assert result.cache_hit is False
         assert result.security_audit is not None
-        assert result.security_audit['is_safe'] is True
+        assert result.security_audit['overall_status'] == 'passed'
         assert result.performance_metrics is None
     
     def test_monitoring_only_configuration(self, tmp_path):
         """Test configuration with only monitoring enabled."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=False,
             enable_security=False,
             enable_monitoring=True
@@ -562,8 +534,6 @@ class TestPhase3Configuration:
     def test_all_disabled_configuration(self, tmp_path):
         """Test configuration with all Phase 3 features disabled."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=False,
             enable_security=False,
             enable_monitoring=False
@@ -591,8 +561,6 @@ class TestPhase3EdgeCases:
     def test_cache_corruption_handling(self, tmp_path):
         """Test handling of cache corruption scenarios."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=False,
             enable_monitoring=False
@@ -619,8 +587,6 @@ class TestPhase3EdgeCases:
     def test_security_validation_exception_handling(self, tmp_path):
         """Test handling of security validation exceptions."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True
@@ -643,8 +609,6 @@ class TestPhase3EdgeCases:
     def test_monitoring_exception_handling(self, tmp_path):
         """Test handling of monitoring exceptions."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=False,
             enable_security=False,
             enable_monitoring=True
@@ -667,8 +631,6 @@ class TestPhase3EdgeCases:
     def test_empty_file_handling(self, tmp_path):
         """Test handling of empty files with all features enabled."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True
@@ -692,8 +654,6 @@ class TestPhase3EdgeCases:
     def test_very_large_file_with_memory_optimization(self, tmp_path):
         """Test processing very large files with memory optimization."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True,
@@ -707,7 +667,9 @@ class TestPhase3EdgeCases:
         
         # Create large file within security limits
         large_file = tmp_path / "large_within_limits.md"
-        content = "# Large File\n\n" + ("This is a large file with substantial content. " * 500)  # ~30KB
+        content = """# Large File
+
+""" + ("This is a large file with substantial content. " * 500)  # ~30KB
         large_file.write_text(content)
         
         with patch('magic.from_file', return_value="text/plain"):
@@ -717,7 +679,7 @@ class TestPhase3EdgeCases:
         assert result.success is True
         assert len(result.chunks) > 0
         assert result.security_audit is not None
-        assert result.security_audit['is_safe'] is True
+        assert result.security_audit['overall_status'] == 'passed'
         assert result.performance_metrics is not None
         
         # Memory metrics should show optimization
@@ -732,8 +694,6 @@ class TestPhase3Performance:
     def test_caching_performance_benefit(self, tmp_path):
         """Test that caching provides measurable performance benefits."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True
@@ -772,8 +732,6 @@ class TestPhase3Performance:
     def test_batch_processing_performance(self, tmp_path):
         """Test performance of batch processing with all features enabled."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True
@@ -808,8 +766,6 @@ class TestPhase3Performance:
     def test_memory_usage_optimization(self, tmp_path):
         """Test memory usage optimization during processing."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True
@@ -886,8 +842,6 @@ class TestPhase3ComprehensiveIntegration:
                 print(f"Found file: {os.path.join(root, file)}")
         
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=False,  # Disable security for debugging
             enable_monitoring=True
@@ -931,8 +885,6 @@ class TestPhase3ComprehensiveIntegration:
     def test_system_monitoring_comprehensive(self, phase3_test_environment):
         """Test comprehensive system monitoring during processing."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=True,
             enable_monitoring=True

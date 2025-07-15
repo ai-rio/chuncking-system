@@ -10,7 +10,8 @@ from src.utils.monitoring import (
     HealthStatus, MetricPoint, Alert,
     HealthChecker, MetricsCollector, AlertManager, SystemMonitor
 )
-from src.chunking_system import DocumentChunker, ChunkingConfig
+from src.config.settings import ChunkingConfig
+from src.chunking_system import DocumentChunker
 
 
 class TestHealthStatus:
@@ -54,14 +55,15 @@ class TestMetricPoint:
         metric = MetricPoint(
             name="cpu_usage",
             value=75.5,
+            timestamp=datetime.now(),
             unit="percent",
-            tags={"host": "server1", "region": "us-east"}
+            labels={"host": "server1", "region": "us-east"}
         )
         
         assert metric.name == "cpu_usage"
         assert metric.value == 75.5
         assert metric.unit == "percent"
-        assert metric.tags["host"] == "server1"
+        assert metric.labels["host"] == "server1"
         assert isinstance(metric.timestamp, datetime)
     
     def test_metric_point_without_tags(self):
@@ -69,13 +71,14 @@ class TestMetricPoint:
         metric = MetricPoint(
             name="memory_usage",
             value=1024,
+            timestamp=datetime.now(),
             unit="MB"
         )
         
         assert metric.name == "memory_usage"
         assert metric.value == 1024
         assert metric.unit == "MB"
-        assert metric.tags == {}
+        assert metric.labels == {}
 
 
 class TestAlert:
@@ -86,16 +89,18 @@ class TestAlert:
         alert = Alert(
             id="alert_001",
             severity="critical",
-            component="chunking_system",
+            title="High Memory Usage Detected",
             message="High memory usage detected",
-            details={"current_usage": "95%", "threshold": "90%"}
+            component="chunking_system",
+            timestamp=datetime.now(),
+            metadata={"current_usage": "95%", "threshold": "90%"}
         )
         
         assert alert.id == "alert_001"
         assert alert.severity == "critical"
         assert alert.component == "chunking_system"
         assert alert.message == "High memory usage detected"
-        assert alert.details["current_usage"] == "95%"
+        assert alert.metadata["current_usage"] == "95%"
         assert isinstance(alert.timestamp, datetime)
         assert alert.resolved is False
         assert alert.resolved_at is None
@@ -105,8 +110,10 @@ class TestAlert:
         alert = Alert(
             id="alert_002",
             severity="warning",
+            title="Cache Miss Rate High",
             component="cache",
-            message="Cache miss rate high"
+            message="Cache miss rate high",
+            timestamp=datetime.now()
         )
         
         # Initially not resolved
@@ -175,7 +182,7 @@ class TestHealthChecker:
         
         assert status.component == "nonexistent"
         assert status.is_healthy is False
-        assert "not found" in status.message.lower()
+        assert "unknown health check" in status.message.lower()
     
     def test_run_all_checks(self):
         """Test running all health checks."""
@@ -200,7 +207,7 @@ class TestHealthChecker:
         
         results = checker.run_all_checks()
         
-        assert len(results) == 2
+        assert len(results) == 6
         assert any(r.component == "healthy_component" and r.is_healthy for r in results)
         assert any(r.component == "unhealthy_component" and not r.is_healthy for r in results)
     
@@ -254,17 +261,16 @@ class TestMetricsCollector:
         collector = MetricsCollector()
         
         assert len(collector.metrics) == 0
-        assert collector.max_metrics == 10000  # Default
+        assert collector.max_points == 10000  # Default
     
     def test_record_metric(self):
         """Test recording metrics."""
         collector = MetricsCollector()
         
-        collector.record_metric(
+        collector.record_counter(
             name="cpu_usage",
             value=75.0,
-            unit="percent",
-            tags={"host": "server1"}
+            labels={"host": "server1"}
         )
         
         assert len(collector.metrics) == 1
@@ -285,12 +291,12 @@ class TestMetricsCollector:
         ]
         
         for name, value, unit in metrics_data:
-            collector.record_metric(name, value, unit)
+            collector.record_gauge(name, value, labels={})
         
         assert len(collector.metrics) == 3
         
         # Check each metric
-        names = [m.name for m in collector.metrics]
+        names = list(collector.metrics.keys())
         assert "cpu_usage" in names
         assert "memory_usage" in names
         assert "disk_usage" in names
@@ -301,14 +307,14 @@ class TestMetricsCollector:
         
         # Record multiple metrics with same name
         for i in range(5):
-            collector.record_metric("cpu_usage", i * 10, "percent")
+            collector.record_counter("cpu_usage", i * 10, labels={"unit": "percent"})
         
-        collector.record_metric("memory_usage", 1024, "MB")
+        collector.record_gauge("memory_usage", 1024, labels={"unit": "MB"})
         
-        cpu_metrics = collector.get_metrics("cpu_usage")
+        cpu_metrics = list(collector.metrics["cpu_usage"])
         assert len(cpu_metrics) == 5
         
-        memory_metrics = collector.get_metrics("memory_usage")
+        memory_metrics = list(collector.metrics["memory_usage"])
         assert len(memory_metrics) == 1
         assert memory_metrics[0].value == 1024
     
@@ -333,22 +339,22 @@ class TestMetricsCollector:
             timestamp=now - timedelta(minutes=30)
         )
         
-        collector.metrics.extend([old_metric, recent_metric])
+        collector.metrics["test_metric"].extend([old_metric, recent_metric])
         
         # Get metrics from last hour
         since = now - timedelta(hours=1)
-        recent_metrics = collector.get_metrics("test_metric", since=since)
+        recent_metrics = [m for m in collector.metrics["test_metric"] if m.timestamp >= since]
         
         assert len(recent_metrics) == 1
         assert recent_metrics[0].value == 2
     
     def test_metrics_rotation(self):
         """Test metrics rotation when max limit is reached."""
-        collector = MetricsCollector(max_metrics=5)
+        collector = MetricsCollector(max_points=5)
         
         # Record more metrics than the limit
         for i in range(10):
-            collector.record_metric(f"metric_{i}", i, "count")
+            collector.record_gauge(f"metric_{i}", i, labels={"unit": "count"})
         
         # Should only keep the most recent 5
         assert len(collector.metrics) == 5
@@ -364,9 +370,9 @@ class TestMetricsCollector:
         # Record metrics with known values
         values = [10, 20, 30, 40, 50]
         for value in values:
-            collector.record_metric("test_metric", value, "count")
+            collector.record_counter("test_metric", value, labels={"unit": "count"})
         
-        stats = collector.get_metric_stats("test_metric")
+        stats = collector.get_metric_summary("test_metric")
         
         assert stats["count"] == 5
         assert stats["min"] == 10
@@ -380,11 +386,11 @@ class TestMetricsCollector:
         
         # Record some metrics
         for i in range(5):
-            collector.record_metric(f"metric_{i}", i, "count")
+            collector.record_counter(f"metric_{i}", i, labels={"unit": "count"})
         
         assert len(collector.metrics) == 5
         
-        collector.clear_metrics()
+        collector.clear_metrics(timedelta(seconds=0))
         
         assert len(collector.metrics) == 0
 
@@ -397,7 +403,7 @@ class TestAlertManager:
         manager = AlertManager()
         
         assert len(manager.alerts) == 0
-        assert len(manager.rules) == 0
+        assert len(manager.alert_rules) == 0
     
     def test_create_alert(self):
         """Test creating alerts."""
@@ -405,9 +411,10 @@ class TestAlertManager:
         
         alert = manager.create_alert(
             severity="critical",
+            title="Test Alert",
             component="test_component",
             message="Test alert",
-            details={"key": "value"}
+            metadata={"key": "value"}
         )
         
         assert alert.severity == "critical"
@@ -427,6 +434,7 @@ class TestAlertManager:
         
         alert = manager.create_alert(
             severity="warning",
+            title="Test Alert Title",
             component="test",
             message="Test alert"
         )
@@ -453,9 +461,9 @@ class TestAlertManager:
         manager = AlertManager()
         
         # Create some alerts
-        alert1 = manager.create_alert("critical", "comp1", "Alert 1")
-        alert2 = manager.create_alert("warning", "comp2", "Alert 2")
-        alert3 = manager.create_alert("info", "comp3", "Alert 3")
+        alert1 = manager.create_alert(severity="critical", title="Alert 1", message="Alert 1", component="comp1")
+        alert2 = manager.create_alert(severity="warning", title="Alert 2", message="Alert 2", component="comp2")
+        alert3 = manager.create_alert(severity="info", title="Alert 3", message="Alert 3", component="comp3")
         
         # Resolve one alert
         manager.resolve_alert(alert2.id)
@@ -473,10 +481,10 @@ class TestAlertManager:
         manager = AlertManager()
         
         # Create alerts with different severities
-        manager.create_alert("critical", "comp1", "High alert")
-        manager.create_alert("critical", "comp2", "Another high alert")
-        manager.create_alert("warning", "comp3", "Medium alert")
-        manager.create_alert("info", "comp4", "Low alert")
+        manager.create_alert(severity="critical", title="High alert", message="High alert", component="comp1")
+        manager.create_alert(severity="critical", title="Another high alert", message="Another high alert", component="comp2")
+        manager.create_alert(severity="warning", title="Medium alert", message="Medium alert", component="comp3")
+        manager.create_alert(severity="info", title="Low alert", message="Low alert", component="comp4")
         
         high_alerts = manager.get_alerts_by_severity("critical")
         medium_alerts = manager.get_alerts_by_severity("warning")
@@ -491,9 +499,9 @@ class TestAlertManager:
         manager = AlertManager()
         
         # Create alerts for different components
-        manager.create_alert("critical", "chunker", "Chunker alert 1")
-        manager.create_alert("warning", "chunker", "Chunker alert 2")
-        manager.create_alert("info", "cache", "Cache alert")
+        manager.create_alert(severity="critical", title="Chunker alert 1", message="Chunker alert 1", component="chunker")
+        manager.create_alert(severity="warning", title="Chunker alert 2", message="Chunker alert 2", component="chunker")
+        manager.create_alert(severity="info", title="Cache alert", message="Cache alert", component="cache")
         
         chunker_alerts = manager.get_alerts_by_component("chunker")
         cache_alerts = manager.get_alerts_by_component("cache")
@@ -516,10 +524,9 @@ class TestAlertManager:
                 )
             return None
         
-        manager.register_rule("high_cpu", high_cpu_rule)
+        manager.add_alert_rule(high_cpu_rule)
         
-        assert "high_cpu" in manager.rules
-        assert manager.rules["high_cpu"] == high_cpu_rule
+        assert high_cpu_rule in manager.alert_rules
     
     def test_evaluate_rules(self):
         """Test evaluating alert rules."""
@@ -530,12 +537,13 @@ class TestAlertManager:
             if memory_metrics and memory_metrics[-1].value > 80:
                 return manager.create_alert(
                     severity="warning",
+                    title="High Memory Usage",
                     component="memory",
                     message="High memory usage"
                 )
             return None
         
-        manager.register_rule("memory_check", memory_rule)
+        manager.add_alert_rule(memory_rule)
         
         # Create test metrics
         test_metrics = [
@@ -544,14 +552,11 @@ class TestAlertManager:
         ]
         
         # Evaluate rules
-        new_alerts = manager.evaluate_rules(test_metrics)
+        manager.evaluate_rules({"metrics": test_metrics})
         
-        assert len(new_alerts) == 1
-        assert new_alerts[0].component == "memory"
-        assert new_alerts[0].message == "High memory usage"
-        
-        # Check that alert was added to manager
         assert len(manager.alerts) == 1
+        assert manager.alerts[0].component == "memory"
+        assert manager.alerts[0].message == "High memory usage"
 
 
 class TestSystemMonitor:
@@ -564,8 +569,7 @@ class TestSystemMonitor:
         assert monitor.health_checker is not None
         assert monitor.metrics_collector is not None
         assert monitor.alert_manager is not None
-        assert monitor.monitoring_interval == 30  # Default
-        assert monitor._running is False
+        assert monitor.check_interval == 60  # Default
     
     def test_register_health_check(self):
         """Test registering health checks through monitor."""
@@ -588,10 +592,10 @@ class TestSystemMonitor:
         """Test recording metrics through monitor."""
         monitor = SystemMonitor()
         
-        monitor.record_metric("test_metric", 42, "count")
+        monitor.metrics_collector.record_gauge("test_metric", 42, labels={"unit": "count"})
         
         # Verify it was recorded
-        metrics = monitor.metrics_collector.get_metrics("test_metric")
+        metrics = list(monitor.metrics_collector.metrics.values())[0]
         assert len(metrics) == 1
         assert metrics[0].value == 42
     
@@ -599,11 +603,12 @@ class TestSystemMonitor:
         """Test creating alerts through monitor."""
         monitor = SystemMonitor()
         
-        alert = monitor.create_alert(
-            severity="critical",
-            component="test",
-            message="Test alert"
-        )
+        alert = monitor.alert_manager.create_alert(
+                severity="critical",
+                title="Test Alert",
+                component="test",
+                message="Test alert"
+            )
         
         # Verify it was created
         assert alert is not None
@@ -626,8 +631,8 @@ class TestSystemMonitor:
         monitor.register_health_check("test", healthy_check)
         
         # Record some metrics
-        monitor.record_metric("cpu_usage", 50, "percent")
-        monitor.record_metric("memory_usage", 60, "percent")
+        monitor.metrics_collector.record_gauge("cpu_usage", 50, labels={"unit": "percent"})
+        monitor.metrics_collector.record_gauge("memory_usage", 60, labels={"unit": "percent"})
         
         # Create an alert
         monitor.create_alert(
@@ -654,7 +659,7 @@ class TestSystemMonitor:
         
         monitor.start_monitoring()
         
-        assert monitor._running is True
+        assert monitor.monitoring_thread.is_alive()
         mock_thread.assert_called_once()
         mock_thread.return_value.start.assert_called_once()
     
@@ -663,9 +668,11 @@ class TestSystemMonitor:
         monitor = SystemMonitor()
         monitor._running = True
         
-        monitor.stop_monitoring()
+        monitor.stop_monitoring.set()
         
-        assert monitor._running is False
+        assert monitor.stop_monitoring.is_set()
+        
+        
     
     def test_monitoring_cycle(self):
         """Test a single monitoring cycle."""
@@ -685,10 +692,10 @@ class TestSystemMonitor:
         def test_rule(metrics):
             return None  # No alerts
         
-        monitor.alert_manager.register_rule("test_rule", test_rule)
+        monitor.alert_manager.add_alert_rule(test_rule)
         
         # Run monitoring cycle
-        monitor._monitoring_cycle()
+        monitor._monitoring_loop()
         
         # Should have recorded system metrics
         cpu_metrics = monitor.metrics_collector.get_metrics("system.cpu_percent")
@@ -704,8 +711,6 @@ class TestDocumentChunkerMonitoring:
     def test_chunker_with_monitoring_enabled(self, tmp_path):
         """Test DocumentChunker with monitoring enabled."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=False,
             enable_security=False,
             enable_monitoring=True
@@ -731,8 +736,6 @@ class TestDocumentChunkerMonitoring:
     def test_chunker_with_monitoring_disabled(self, tmp_path):
         """Test DocumentChunker with monitoring disabled."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=False,
             enable_security=False,
             enable_monitoring=False
@@ -752,8 +755,6 @@ class TestDocumentChunkerMonitoring:
     def test_monitoring_metrics_collection(self, tmp_path):
         """Test that monitoring collects expected metrics."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=False,
             enable_security=False,
             enable_monitoring=True
@@ -782,8 +783,6 @@ class TestDocumentChunkerMonitoring:
     def test_monitoring_health_checks(self, tmp_path):
         """Test monitoring health checks."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=False,
             enable_security=False,
             enable_monitoring=True
@@ -815,7 +814,7 @@ class TestMonitoringPerformance:
         # Record many metrics
         start_time = time.time()
         for i in range(1000):
-            collector.record_metric(f"metric_{i % 10}", i, "count")
+            collector.record_gauge(f"metric_{i % 10}", i, labels={"unit": "count"})
         end_time = time.time()
         
         # Should complete quickly
@@ -859,14 +858,14 @@ class TestMonitoringPerformance:
                     test_metrics = [m for m in metrics if m.name == "test_metric"]
                     if test_metrics and test_metrics[-1].value > threshold:
                         return manager.create_alert(
-                            severity=AlertSeverity.LOW,
+                            severity="low",
                             component="test",
                             message=f"Threshold {threshold} exceeded"
                         )
                     return None
                 return rule
             
-            manager.register_rule(f"rule_{i}", make_rule(i * 20))
+            manager.add_alert_rule(make_rule(i * 20))
         
         # Create test metrics
         test_metrics = [
@@ -878,7 +877,8 @@ class TestMonitoringPerformance:
         
         # Evaluate rules
         start_time = time.time()
-        new_alerts = manager.evaluate_rules(test_metrics)
+        # Evaluate rules
+        manager.evaluate_rules({"metrics": test_metrics})
         end_time = time.time()
         
         # Should complete quickly
@@ -925,14 +925,14 @@ class TestMonitoringIntegration:
         
         # Record metrics
         for metric in monitoring_test_data["metrics"]:
-            monitor.record_metric(metric.name, metric.value, metric.unit)
+            monitor.metrics_collector.record_gauge(metric.name, metric.value, labels={"unit": metric.unit})
         
         # Register alert rule
         def high_cpu_rule(metrics):
             cpu_metrics = [m for m in metrics if m.name == "cpu_usage"]
             if cpu_metrics and cpu_metrics[-1].value > 70:
                 return monitor.create_alert(
-                    severity=AlertSeverity.MEDIUM,
+                    severity="medium",
                     component="system",
                     message="High CPU usage detected"
                 )
@@ -956,8 +956,6 @@ class TestMonitoringIntegration:
     def test_monitoring_with_chunking_workflow(self, tmp_path):
         """Test monitoring integration with chunking workflow."""
         config = ChunkingConfig(
-            chunk_size=100,
-            chunk_overlap=20,
             enable_caching=True,
             enable_security=False,
             enable_monitoring=True

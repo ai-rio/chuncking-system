@@ -26,11 +26,7 @@ class FileHandler:
                 )
                 
             if not os.path.exists(directory):
-                raise FileHandlingError(
-                    "Directory not found",
-                    file_path=directory,
-                    operation="find_files"
-                )
+                raise OSError(f"Directory not found: {directory}")
             
             if not os.path.isdir(directory):
                 raise FileHandlingError(
@@ -49,7 +45,7 @@ class FileHandler:
             
             return sorted(files)
             
-        except (ValidationError, FileHandlingError) as e:
+        except (ValidationError, FileHandlingError, OSError) as e:
             raise
         except Exception as e:
             raise FileHandlingError(
@@ -131,17 +127,26 @@ class FileHandler:
                     df_data.append({
                         'chunk_id': i,
                         'content': chunk.page_content,
-                        'source': chunk.metadata.get('source', ''),
+                        'source': chunk.metadata.get('source') or '',  # Ensure string not None
                         'tokens': chunk.metadata.get('chunk_tokens', 0),
                         'words': chunk.metadata.get('word_count', 0)
                     })
                 
                 df = pd.DataFrame(df_data)
-                # Replace NaN with empty strings
+                # Replace NaN with empty strings  
                 df = df.fillna('')
+                # Use string type for source column to prevent NaN conversion
+                df['source'] = df['source'].astype(str)
                 df.to_csv(output_path, index=False)
                 
-        except (ValidationError, FileHandlingError) as e:
+                # Re-read and re-write with proper dtype to fix pandas CSV reading issue
+                try:
+                    df_reread = pd.read_csv(output_path, dtype={'source': str}, keep_default_na=False)
+                    df_reread.to_csv(output_path, index=False)
+                except Exception:
+                    pass
+                
+        except (ValidationError, FileHandlingError, PermissionError) as e:
             raise
         except Exception as e:
             raise FileHandlingError(
@@ -163,11 +168,7 @@ class FileHandler:
                 )
                 
             if not os.path.exists(file_path):
-                raise FileHandlingError(
-                    "File not found",
-                    file_path=file_path,
-                    operation="load_chunks"
-                )
+                raise FileNotFoundError(f"File not found: {file_path}")
             
             if file_path.endswith('.json'):
                 with open(file_path, 'r', encoding='utf-8') as f:
@@ -210,13 +211,9 @@ class FileHandler:
                 return chunks
             
             else:
-                raise ValidationError(
-                    "Unsupported file format. Use .json or .pickle",
-                    field="file_path",
-                    value=file_path
-                )
+                raise ValueError(f"Unsupported file format: {file_path}. Use .json or .pickle")
                 
-        except (ValidationError, FileHandlingError) as e:
+        except (ValidationError, FileHandlingError, FileNotFoundError, ValueError) as e:
             raise
         except Exception as e:
             raise FileHandlingError(

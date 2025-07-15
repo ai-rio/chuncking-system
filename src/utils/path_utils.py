@@ -257,29 +257,51 @@ class PathManager:
         Returns:
             Dictionary with file information
         """
-        path = validate_file_path(file_path, must_exist=True)
+        path = Path(file_path)
         
-        try:
-            stat = path.stat()
-            
-            return {
-                'path': str(path),
-                'name': path.name,
-                'stem': path.stem,
-                'suffix': path.suffix,
-                'size_bytes': stat.st_size,
-                'size_mb': stat.st_size / (1024 * 1024),
-                'modified_timestamp': stat.st_mtime,
-                'is_readable': os.access(path, os.R_OK),
-                'is_writable': os.access(path, os.W_OK),
-                'parent_directory': str(path.parent)
-            }
-        except Exception as e:
-            raise FileHandlingError(
-                f"Failed to get file information: {str(e)}",
-                file_path=str(path),
-                operation="get_file_info"
-            ) from e
+        # Basic info always available
+        info = {
+            'path': str(path),
+            'name': path.name,
+            'stem': path.stem,
+            'suffix': path.suffix,
+            'exists': path.exists(),
+            'is_file': path.is_file(),
+            'parent_directory': str(path.parent)
+        }
+        
+        # Additional info if file exists
+        if path.exists():
+            try:
+                stat = path.stat()
+                info.update({
+                    'size': stat.st_size,
+                    'size_bytes': stat.st_size,
+                    'size_mb': stat.st_size / (1024 * 1024),
+                    'modified_time': stat.st_mtime,
+                    'modified_timestamp': stat.st_mtime,
+                    'is_readable': os.access(path, os.R_OK),
+                    'is_writable': os.access(path, os.W_OK),
+                })
+            except Exception as e:
+                raise FileHandlingError(
+                    f"Failed to get file information: {str(e)}",
+                    file_path=str(path),
+                    operation="get_file_info"
+                ) from e
+        else:
+            # Default values for nonexistent files
+            info.update({
+                'size': 0,
+                'size_bytes': 0,
+                'size_mb': 0.0,
+                'modified_time': None,
+                'modified_timestamp': None,
+                'is_readable': False,
+                'is_writable': False,
+            })
+        
+        return info
     
     def cleanup_empty_directories(self, directory: Union[str, Path], keep_root: bool = True) -> int:
         """
@@ -308,6 +330,84 @@ class PathManager:
                         pass
         
         return removed_count
+    
+    def ensure_directory_exists(self, directory_path: Union[str, Path]) -> Path:
+        """
+        Create directory if it doesn't exist.
+        
+        Args:
+            directory_path: Path to directory
+            
+        Returns:
+            Path to created directory
+        """
+        path = Path(directory_path)
+        try:
+            path.mkdir(parents=True, exist_ok=True)
+            return path
+        except Exception as e:
+            raise FileHandlingError(
+                f"Failed to create directory: {str(e)}",
+                file_path=str(path),
+                operation="create_directory"
+            ) from e
+    
+    def safe_join_paths(self, base_path: Union[str, Path], relative_path: Union[str, Path]) -> Path:
+        """
+        Safely join paths to prevent path traversal attacks.
+        
+        Args:
+            base_path: Base directory path
+            relative_path: Relative path to join
+            
+        Returns:
+            Safe joined path
+            
+        Raises:
+            ValidationError: If path traversal is detected
+        """
+        base = Path(base_path).resolve()
+        joined = (base / relative_path).resolve()
+        
+        # Check if the joined path is within the base path
+        try:
+            joined.relative_to(base)
+        except ValueError:
+            raise ValidationError(
+                f"Path traversal detected: {relative_path}",
+                field="relative_path",
+                value=str(relative_path)
+            )
+        
+        return joined
+    
+    def is_safe_path(self, path: Union[str, Path]) -> bool:
+        """
+        Validate if a path is safe (no path traversal, etc.).
+        
+        Args:
+            path: Path to validate
+            
+        Returns:
+            True if path is safe, False otherwise
+        """
+        try:
+            path_str = str(path)
+            
+            # Check for path traversal patterns
+            dangerous_patterns = ['../', '..\\', '../', '..\\\\']
+            for pattern in dangerous_patterns:
+                if pattern in path_str:
+                    return False
+            
+            # Check for absolute path attempts when expecting relative
+            if os.path.isabs(path_str) and not path_str.startswith(str(self.base_dir)):
+                return False
+                
+            return True
+            
+        except Exception:
+            return False
 
 
 class MarkdownFileManager(PathManager):
@@ -369,6 +469,201 @@ class MarkdownFileManager(PathManager):
             'quality_report': output_structure['reports'] / f"{safe_name}_quality_report.md",
             'processing_log': output_structure['logs'] / f"{safe_name}_processing.log"
         }
+    
+    def read_file(self, file_path: Union[str, Path]) -> str:
+        """
+        Read markdown file content.
+        
+        Args:
+            file_path: Path to markdown file
+            
+        Returns:
+            File content as string
+        """
+        path = validate_file_path(file_path, must_exist=True)
+        
+        try:
+            with open(path, 'r', encoding='utf-8') as f:
+                return f.read()
+        except Exception as e:
+            raise FileHandlingError(
+                f"Failed to read file: {str(e)}",
+                file_path=str(path),
+                operation="read_file"
+            ) from e
+    
+    def write_file(self, file_path: Union[str, Path], content: str) -> None:
+        """
+        Write content to markdown file.
+        
+        Args:
+            file_path: Path to markdown file
+            content: Content to write
+        """
+        path = Path(file_path)
+        
+        # Ensure parent directory exists
+        self.ensure_parent_directory(path)
+        
+        try:
+            with open(path, 'w', encoding='utf-8') as f:
+                f.write(content)
+        except Exception as e:
+            raise FileHandlingError(
+                f"Failed to write file: {str(e)}",
+                file_path=str(path),
+                operation="write_file"
+            ) from e
+    
+    def list_markdown_files(self, directory: Union[str, Path], recursive: bool = True) -> List[Path]:
+        """
+        List markdown files in directory.
+        
+        Args:
+            directory: Directory to search
+            recursive: Whether to search recursively
+            
+        Returns:
+            List of markdown file paths
+        """
+        return self.find_markdown_files(directory, recursive=recursive)
+    
+    def get_file_metadata(self, file_path: Union[str, Path]) -> dict:
+        """
+        Extract markdown file metadata (frontmatter).
+        
+        Args:
+            file_path: Path to markdown file
+            
+        Returns:
+            Dictionary with metadata
+        """
+        path = validate_file_path(file_path, must_exist=True)
+        
+        try:
+            content = self.read_file(path)
+            
+            # Extract frontmatter if present
+            metadata = {}
+            if content.startswith('---'):
+                lines = content.split('\n')
+                in_frontmatter = False
+                frontmatter_lines = []
+                
+                for i, line in enumerate(lines):
+                    if i == 0 and line.strip() == '---':
+                        in_frontmatter = True
+                        continue
+                    elif in_frontmatter and line.strip() == '---':
+                        break
+                    elif in_frontmatter:
+                        frontmatter_lines.append(line)
+                
+                # Parse simple key-value pairs
+                for line in frontmatter_lines:
+                    if ':' in line:
+                        key, value = line.split(':', 1)
+                        metadata[key.strip()] = value.strip()
+            
+            # Add basic file info
+            file_info = self.get_file_info(path)
+            metadata.update(file_info)
+            
+            return metadata
+            
+        except Exception as e:
+            raise FileHandlingError(
+                f"Failed to get file metadata: {str(e)}",
+                file_path=str(path),
+                operation="get_file_metadata"
+            ) from e
+    
+    def validate_markdown_file(self, file_path: Union[str, Path]) -> bool:
+        """
+        Validate if file is a valid markdown file.
+        
+        Args:
+            file_path: Path to markdown file
+            
+        Returns:
+            True if valid markdown file, False otherwise
+        """
+        try:
+            path = validate_file_path(file_path, must_exist=True)
+            
+            # Check extension
+            if not self.is_markdown_file(path):
+                return False
+            
+            # Check if file is readable
+            content = self.read_file(path)
+            
+            # Basic validation - file should not be empty and should be text
+            if not content.strip():
+                return False
+            
+            # Check for binary content
+            try:
+                content.encode('utf-8')
+            except UnicodeEncodeError:
+                return False
+            
+            return True
+            
+        except Exception:
+            return False
+    
+    def backup_file(self, file_path: Union[str, Path]) -> Path:
+        """
+        Create backup of markdown file.
+        
+        Args:
+            file_path: Path to file to backup
+            
+        Returns:
+            Path to backup file
+        """
+        path = validate_file_path(file_path, must_exist=True)
+        
+        # Generate backup filename
+        backup_path = self.generate_unique_path(path, suffix='.backup')
+        
+        try:
+            import shutil
+            shutil.copy2(path, backup_path)
+            return backup_path
+            
+        except Exception as e:
+            raise FileHandlingError(
+                f"Failed to backup file: {str(e)}",
+                file_path=str(path),
+                operation="backup_file"
+            ) from e
+    
+    def restore_backup(self, backup_path: Union[str, Path], target_path: Union[str, Path]) -> None:
+        """
+        Restore file from backup.
+        
+        Args:
+            backup_path: Path to backup file
+            target_path: Path to restore to
+        """
+        backup = validate_file_path(backup_path, must_exist=True)
+        target = Path(target_path)
+        
+        # Ensure parent directory exists
+        self.ensure_parent_directory(target)
+        
+        try:
+            import shutil
+            shutil.copy2(backup, target)
+            
+        except Exception as e:
+            raise FileHandlingError(
+                f"Failed to restore backup: {str(e)}",
+                file_path=str(target),
+                operation="restore_backup"
+            ) from e
 
 
 # Convenience functions

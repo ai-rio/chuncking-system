@@ -168,6 +168,7 @@ class FileValidator:
         file_size = file_path.stat().st_size
         max_size_bytes = self.config.max_file_size_mb * 1024 * 1024
         
+        print(f"File size: {file_size}, Max size: {max_size_bytes}")
         if file_size > max_size_bytes:
             raise ValidationError(
                 f"File too large: {file_size / (1024*1024):.1f}MB > {self.config.max_file_size_mb}MB",
@@ -410,6 +411,7 @@ class SecurityAuditor:
                 except ValidationError as e:
                     audit_report['checks']['file_size'] = 'failed'
                     audit_report['errors'].append(f"File size: {e}")
+                    self.logger.error(f"Security audit - File size validation failed: {e}", file_path=str(file_path))
                 
                 # MIME type validation
                 try:
