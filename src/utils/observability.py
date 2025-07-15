@@ -140,7 +140,11 @@ class HealthCheckResult:
     def to_dict(self) -> Dict[str, Any]:
         """Convert to dictionary."""
         result = asdict(self)
-        result['status'] = self.status.value  # Convert enum to string
+        # Handle both enum and string status values
+        if hasattr(self.status, 'value'):
+            result['status'] = self.status.value
+        else:
+            result['status'] = self.status
         return result
 
 
@@ -332,15 +336,53 @@ class MetricsRegistry:
             # Add type
             lines.append(f"# TYPE {metric_name} {latest_metric.metric_type.value}")
             
-            # Add metric with tags
+            # Add metric with labels
             tag_string = ""
-            if latest_metric.tags:
-                tag_pairs = [f'{k}="{v}"' for k, v in latest_metric.tags.items()]
+            if latest_metric.labels:
+                tag_pairs = [f'{k}="{v}"' for k, v in latest_metric.labels.items()]
                 tag_string = "{" + ",".join(tag_pairs) + "}"
             
             lines.append(f"{metric_name}{tag_string} {latest_metric.value}")
         
         return "\n".join(lines)
+    
+    def record_metric(self, name: str, value: Union[int, float], metric_type: MetricType, 
+                     unit: str = "units", tags: Optional[Dict[str, str]] = None,
+                     help_text: Optional[str] = None):
+        """Record a metric (alias for register_metric)."""
+        metric = CustomMetric(
+            name=name,
+            value=value,
+            metric_type=metric_type,
+            unit=unit,
+            labels=tags or {},
+            help_text=help_text
+        )
+        self.register_metric(metric)
+    
+    def get_metrics_by_name(self, name: str) -> List[CustomMetric]:
+        """Get all metrics by name."""
+        with self.lock:
+            return self.metrics.get(name, [])
+    
+    def get_metrics_by_type(self, metric_type: MetricType) -> List[CustomMetric]:
+        """Get all metrics by type."""
+        with self.lock:
+            result = []
+            for metric_list in self.metrics.values():
+                for metric in metric_list:
+                    if metric.metric_type == metric_type:
+                        result.append(metric)
+            return result
+    
+    def export_all_data(self) -> Dict[str, Any]:
+        """Export all metrics data."""
+        with self.lock:
+            return {
+                "metrics": {name: [metric.__dict__ for metric in metrics] 
+                          for name, metrics in self.metrics.items()},
+                "export_time": datetime.now().isoformat()
+            }
 
 
 class HealthRegistry:
@@ -359,6 +401,11 @@ class HealthRegistry:
         with self.lock:
             self.checks[name] = check_func
             self.dependencies[name] = dependencies or []
+    
+    def register_health_check(self, name: str, check_func: Callable[[], HealthCheckResult], 
+                             dependencies: Optional[List[str]] = None):
+        """Register a health check (alias for register_check)."""
+        self.register_check(name, check_func, dependencies)
     
     def run_check(self, name: str, use_cache: bool = True) -> Optional[HealthCheckResult]:
         """Run a specific health check."""
@@ -761,7 +808,7 @@ class ObservabilityManager:
         monitor_thread.start()
     
     def record_metric(self, name: str, value: Union[int, float], 
-                     metric_type: MetricType, unit: str, tags: Optional[Dict[str, str]] = None,
+                     metric_type: MetricType, unit: str = "units", tags: Optional[Dict[str, str]] = None,
                      help_text: Optional[str] = None):
         """Record a custom metric."""
         metric = CustomMetric(
@@ -769,10 +816,31 @@ class ObservabilityManager:
             value=value,
             metric_type=metric_type,
             unit=unit,
-            tags=tags or {},
+            labels=tags or {},
             help_text=help_text
         )
         self.metrics_registry.register_metric(metric)
+    
+    def register_health_check(self, name: str, check_func: Callable[[], HealthCheckResult], 
+                             dependencies: Optional[List[str]] = None):
+        """Register a health check function."""
+        self.health_registry.register_check(name, check_func, dependencies)
+    
+    def run_health_check(self, name: str, use_cache: bool = True) -> Optional[HealthCheckResult]:
+        """Run a health check."""
+        return self.health_registry.run_check(name, use_cache)
+    
+    def export_all_data(self) -> Dict[str, Any]:
+        """Export all observability data."""
+        return {
+            "metrics": self.metrics_registry.export_all_data(),
+            "health_checks": self.get_health_status(),
+            "prometheus_format": self.metrics_registry.export_prometheus_format(),
+            "system_info": {
+                "timestamp": datetime.now().isoformat(),
+                "version": "1.0.0"
+            }
+        }
     
     def get_health_status(self) -> Dict[str, Any]:
         """Get comprehensive health status."""

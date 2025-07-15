@@ -13,7 +13,7 @@ from typing import Dict, Any, Optional, List, Tuple
 from dataclasses import asdict
 from http import HTTPStatus
 
-from src.utils.observability import get_observability_manager, MetricType
+from src.utils.observability import get_observability_manager, MetricType, ObservabilityManager
 from src.utils.monitoring import SystemMonitor
 from src.utils.logger import get_logger
 
@@ -526,6 +526,10 @@ class EndpointRouter:
                 "available_routes": list(self.routes.keys()),
                 "timestamp": datetime.now().isoformat()
             }, HTTPStatus.NOT_FOUND
+    
+    def route_request(self, method: str, path: str, query_params: Optional[Dict[str, str]] = None) -> Tuple[Any, int]:
+        """Route request (alias for handle_request)."""
+        return self.handle_request(method, path, query_params)
 
 
 # Convenience functions for framework integration

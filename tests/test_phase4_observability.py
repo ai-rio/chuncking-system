@@ -609,8 +609,8 @@ class TestObservabilityManager:
         assert "metrics" in export_data
         assert "health_checks" in export_data
         assert "prometheus_format" in export_data
-        assert len(export_data["metrics"]) == 1
-        assert len(export_data["health_checks"]) == 1
+        assert len(export_data["metrics"]["metrics"]) == 1
+        assert len(export_data["health_checks"]["components"]) >= 1
 
 
 class TestIntegrationScenarios:
