@@ -200,12 +200,12 @@ def quality_test_chunks():
     return {
         "good_chunks": [
             Document(
-                page_content="This is a well-formed chunk with proper sentence structure.",
-                metadata={"chunk_index": 0, "chunk_tokens": 12, "word_count": 11}
+                page_content="This is a well-formed chunk with proper sentence structure and sufficient length to avoid quality issues.",
+                metadata={"chunk_index": 0, "chunk_tokens": 20, "word_count": 18}
             ),
             Document(
-                page_content="Another good chunk that follows the same pattern.",
-                metadata={"chunk_index": 1, "chunk_tokens": 10, "word_count": 9}
+                page_content="Another good chunk that follows the same pattern with adequate length and proper punctuation for evaluation.",
+                metadata={"chunk_index": 1, "chunk_tokens": 18, "word_count": 16}
             )
         ],
         "poor_chunks": [

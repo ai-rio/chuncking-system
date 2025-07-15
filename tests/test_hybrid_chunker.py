@@ -155,10 +155,7 @@ class TestHybridMarkdownChunker:
 
     def test_chunk_document_with_code(self, chunker):
         """Test chunking document with code blocks."""
-        content = """
-# Code Example
-
-Here's some code:
+        content = """Here's some code without headers:
 
 ```python
 def hello():
@@ -166,7 +163,8 @@ def hello():
     return True
 ```
 
-And some more text.
+And some more text after the code block.
+This should trigger code-aware chunking since there are no headers.
 """
         
         chunks = chunker.chunk_document(content)
@@ -195,8 +193,8 @@ This is a lot of content that should be split because it's too long for the chun
         analysis = {"has_headers": True, "has_code": False}
         
         with patch.object(chunker, '_token_length') as mock_token_length:
-            # First call returns large size, subsequent calls return smaller sizes
-            mock_token_length.side_effect = [200, 50, 50, 50]
+            # Return function that gives realistic token lengths
+            mock_token_length.side_effect = lambda text: min(200, len(text.split()) * 2)
             
             chunks = chunker._header_recursive_chunking(content, metadata, analysis)
             

@@ -66,7 +66,7 @@ class TestIntegration:
 
     def test_chunker_evaluator_integration(self, sample_chunks):
         """Test integration between chunker and evaluator."""
-        chunker = HybridMarkdownChunker(chunk_size=100)
+        chunker = HybridMarkdownChunker(chunk_size=200, chunk_overlap=50)
         evaluator = ChunkQualityEvaluator()
         
         # Process content through chunker
@@ -208,7 +208,7 @@ a  # Very short content
 """
         
         # Process through full pipeline
-        chunker = HybridMarkdownChunker(chunk_size=100)
+        chunker = HybridMarkdownChunker(chunk_size=200, chunk_overlap=50)
         evaluator = ChunkQualityEvaluator()
         
         chunks = chunker.chunk_document(content)

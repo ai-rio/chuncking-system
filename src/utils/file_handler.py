@@ -12,6 +12,9 @@ class FileHandler:
     @staticmethod
     def find_markdown_files(directory: str) -> List[str]:
         """Find all Markdown files in directory"""
+        if not os.path.exists(directory):
+            raise OSError(f"Directory not found: {directory}")
+            
         markdown_extensions = ['.md', '.markdown', '.mdown', '.mkd']
         files = []
         
@@ -59,6 +62,8 @@ class FileHandler:
                 })
             
             df = pd.DataFrame(df_data)
+            # Replace NaN with empty strings
+            df = df.fillna('')
             df.to_csv(output_path, index=False)
     
     @staticmethod

@@ -34,8 +34,11 @@ class MetadataEnricher:
             'language': MetadataEnricher._detect_language(content)
         })
         
-        chunk.metadata = enriched_metadata
-        return chunk
+        # Return new Document to preserve immutability
+        return Document(
+            page_content=chunk.page_content,
+            metadata=enriched_metadata
+        )
     
     @staticmethod
     def _detect_language(content: str) -> str:

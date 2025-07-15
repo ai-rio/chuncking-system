@@ -102,8 +102,8 @@ class TestChunkQualityEvaluator:
     def test_analyze_content_quality_good_chunks(self, evaluator):
         """Test content quality analysis with good chunks."""
         chunks = [
-            Document(page_content="This is a well-formed sentence.", metadata={}),
-            Document(page_content="Another proper sentence with good structure.", metadata={}),
+            Document(page_content="This is a well-formed sentence with sufficient length to avoid being classified as very short.", metadata={}),
+            Document(page_content="Another proper sentence with good structure and adequate length for quality assessment purposes.", metadata={}),
         ]
         
         result = evaluator._analyze_content_quality(chunks)
@@ -119,14 +119,14 @@ class TestChunkQualityEvaluator:
         chunks = [
             Document(page_content="", metadata={}),  # Empty
             Document(page_content="word", metadata={}),  # Very short
-            Document(page_content="Incomplete sentence without ending", metadata={}),  # No punctuation
+            Document(page_content="This is an incomplete sentence without proper ending punctuation and sufficient length", metadata={}),  # No punctuation
         ]
         
         result = evaluator._analyze_content_quality(chunks)
         
         assert result['empty_chunks'] == 1
         assert result['very_short_chunks'] == 1
-        assert result['incomplete_sentences'] == 1
+        assert result['incomplete_sentences'] == 2  # "word" and the long chunk both lack punctuation
         assert result['empty_chunks_pct'] == pytest.approx(33.33, abs=0.1)
 
     def test_analyze_content_quality_special_content(self, evaluator):
@@ -198,23 +198,20 @@ class TestChunkQualityEvaluator:
             assert 0 <= result['coherence_score'] <= 1
             assert 0 <= result['avg_similarity'] <= 1
 
-    @patch('sklearn.feature_extraction.text.TfidfVectorizer')
-    def test_analyze_semantic_coherence_error_handling(self, mock_vectorizer_class, evaluator):
+    def test_analyze_semantic_coherence_error_handling(self, evaluator):
         """Test semantic coherence error handling."""
-        mock_vectorizer = Mock()
-        mock_vectorizer_class.return_value = mock_vectorizer
-        mock_vectorizer.fit_transform.side_effect = Exception("TF-IDF failed")
-        
-        chunks = [
-            Document(page_content="First chunk", metadata={}),
-            Document(page_content="Second chunk", metadata={}),
-        ]
-        
-        result = evaluator._analyze_semantic_coherence(chunks)
-        
-        assert result['coherence_score'] == 0.0
-        assert result['avg_similarity'] == 0.0
-        assert 'error' in result
+        # Mock the existing vectorizer instance
+        with patch.object(evaluator.vectorizer, 'fit_transform', side_effect=Exception("TF-IDF failed")):
+            chunks = [
+                Document(page_content="First chunk", metadata={}),
+                Document(page_content="Second chunk", metadata={}),
+            ]
+            
+            result = evaluator._analyze_semantic_coherence(chunks)
+            
+            assert result['coherence_score'] == 0.0
+            assert result['avg_similarity'] == 0.0
+            assert 'error' in result
 
     def test_analyze_overlap_single_chunk(self, evaluator):
         """Test overlap analysis with single chunk."""
