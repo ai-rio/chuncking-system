@@ -195,10 +195,12 @@ class HybridMarkdownChunker:
         try:
             header_chunks = self.header_splitter.split_text(content)
         except Exception as e:
-            raise ProcessingError(
+            self.logger.warning(
                 f"Header splitting failed: {str(e)}. Falling back to recursive.",
                 stage="header_splitting"
-            ) from e
+            )
+            # Fallback to simple recursive chunking instead of raising exception
+            return self._simple_recursive_chunking(content, metadata)
 
         # Phase 2: Refine large sections
         final_chunks = []
@@ -277,14 +279,15 @@ class HybridMarkdownChunker:
         """Post-process chunks for quality and consistency"""
 
         processed_chunks = []
+        chunk_index = 0  # Track actual chunk index separately
 
-        for i, chunk in enumerate(chunks):
+        for chunk in chunks:
             # Skip very small chunks
             if len(chunk.page_content.strip()) < config.MIN_CHUNK_WORDS:
                 continue
 
-            # Add chunk index
-            chunk.metadata['chunk_index'] = i
+            # Add chunk index (use separate counter for valid chunks)
+            chunk.metadata['chunk_index'] = chunk_index
             chunk.metadata['chunk_tokens'] = self._token_length(chunk.page_content)
             chunk.metadata['chunk_chars'] = len(chunk.page_content)
 
@@ -292,6 +295,7 @@ class HybridMarkdownChunker:
             chunk.metadata['word_count'] = len(chunk.page_content.split())
 
             processed_chunks.append(chunk)
+            chunk_index += 1  # Increment only for valid chunks
 
         return processed_chunks
 
@@ -404,6 +408,7 @@ class HybridMarkdownChunker:
 
             # Convert results to the expected format
             results = {}
+            
             for i, result in enumerate(batch_results):
                 file_path = file_paths[i]
                 if result is not None:
@@ -417,6 +422,10 @@ class HybridMarkdownChunker:
                         "File processing failed, stored empty result",
                         file_path=file_path
                     )
+                
+                # Trigger memory cleanup periodically
+                if (i + 1) % config.BATCH_SIZE == 0:
+                    gc.collect()
 
             self.logger.info(
                 "Batch processing completed",

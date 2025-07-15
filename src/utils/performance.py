@@ -443,19 +443,20 @@ class BatchProcessor:
                 ):
                     # Process batch items
                     batch_results = []
-                    for item in batch:
+                    for j, item in enumerate(batch):
                         try:
                             result = processor_func(item)
                             batch_results.append(result)
                         except Exception as e:
                             self.logger.error("Failed to process item", error=str(e), item=str(item)[:100])
                             batch_results.append(None)
+                        
+                        # Progress callback per item
+                        if progress_callback:
+                            items_processed = i + j + 1
+                            progress_callback(items_processed, total_items)
                     
                     results.extend(batch_results)
-                
-                # Progress callback
-                if progress_callback:
-                    progress_callback(min(i + self.batch_size, total_items), total_items)
                 
                 # Memory cleanup after each batch
                 self.memory_optimizer.cleanup_if_needed()
