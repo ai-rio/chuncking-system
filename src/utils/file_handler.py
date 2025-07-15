@@ -108,12 +108,18 @@ class FileHandler:
                         'metadata': chunk.metadata
                     })
                 
-                with open(output_path, 'w', encoding='utf-8') as f:
-                    json.dump(chunks_data, f, indent=2, ensure_ascii=False)
+                try:
+                    with open(output_path, 'w', encoding='utf-8') as f:
+                        json.dump(chunks_data, f, indent=2, ensure_ascii=False)
+                except PermissionError:
+                    raise
         
             elif format == 'pickle':
-                with open(output_path, 'wb') as f:
-                    pickle.dump(chunks, f)
+                try:
+                    with open(output_path, 'wb') as f:
+                        pickle.dump(chunks, f)
+                except PermissionError:
+                    raise
             
             elif format == 'csv':
                 df_data = []
@@ -124,27 +130,40 @@ class FileHandler:
                             field="chunks",
                             value=type(chunk)
                         )
+                    # Ensure all values are properly defaulted to avoid NaN
+                    source = chunk.metadata.get('source')
+                    if source is None or pd.isna(source):
+                        source = ''
+                    
+                    tokens = chunk.metadata.get('chunk_tokens')
+                    if tokens is None or pd.isna(tokens):
+                        tokens = 0
+                        
+                    words = chunk.metadata.get('word_count')
+                    if words is None or pd.isna(words):
+                        words = 0
+                    
                     df_data.append({
                         'chunk_id': i,
                         'content': chunk.page_content,
-                        'source': chunk.metadata.get('source') or '',  # Ensure string not None
-                        'tokens': chunk.metadata.get('chunk_tokens', 0),
-                        'words': chunk.metadata.get('word_count', 0)
+                        'source': str(source),  # Ensure string type
+                        'tokens': int(tokens),  # Ensure int type
+                        'words': int(words)     # Ensure int type
                     })
                 
                 df = pd.DataFrame(df_data)
-                # Replace NaN with empty strings  
-                df = df.fillna('')
-                # Use string type for source column to prevent NaN conversion
+                # Ensure no NaN values remain
+                df = df.fillna({'source': '', 'tokens': 0, 'words': 0})
+                # Convert to proper types
                 df['source'] = df['source'].astype(str)
-                df.to_csv(output_path, index=False)
+                df['tokens'] = df['tokens'].astype(int)
+                df['words'] = df['words'].astype(int)
                 
-                # Re-read and re-write with proper dtype to fix pandas CSV reading issue
+                # Save with proper handling to prevent NaN on read
                 try:
-                    df_reread = pd.read_csv(output_path, dtype={'source': str}, keep_default_na=False)
-                    df_reread.to_csv(output_path, index=False)
-                except Exception:
-                    pass
+                    df.to_csv(output_path, index=False, na_rep='')
+                except PermissionError:
+                    raise
                 
         except (ValidationError, FileHandlingError, PermissionError) as e:
             raise
