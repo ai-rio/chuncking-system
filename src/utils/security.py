@@ -292,6 +292,7 @@ class FileValidator:
     def validate_file(self, file_path: Path) -> None:
         """Comprehensive file validation."""
         self.validate_file_size(file_path)
+        self.validate_file_extension(file_path)
         self.validate_mime_type(file_path)
         self.validate_content_safety(file_path)
     
@@ -349,8 +350,23 @@ class FileValidator:
                         pattern=pattern,
                         file_path=str(file_path)
                     )
-                    # Note: We log but don't block, as these might be legitimate in documentation
+                    raise ValidationError(
+                        "Potentially unsafe content detected",
+                        field="content",
+                        value=f"Pattern: {pattern}"
+                    )
+            
+            # Check for binary content (null bytes)
+            if '\x00' in content:
+                raise ValidationError(
+                    "Potentially unsafe content detected",
+                    field="content",
+                    value="Binary content detected"
+                )
         
+        except ValidationError:
+            # Re-raise ValidationError to allow proper test handling
+            raise
         except Exception as e:
             self.logger.warning(f"Content validation failed: {e}", file_path=str(file_path))
 
@@ -387,9 +403,24 @@ class ChecksumValidator:
         
         return hash_obj.hexdigest()
     
-    def validate_checksum(self, file_path: Path, expected_hash: str, algorithm: str = 'sha256') -> bool:
-        """Validate checksum (alias for verify_file_integrity)."""
-        return self.verify_file_integrity(file_path, expected_hash, algorithm)
+    def validate_checksum(self, file_path: Path, expected_hash: str, algorithm: str = 'sha256') -> None:
+        """Validate checksum and raise ValidationError if mismatch."""
+        try:
+            actual_hash = self.calculate_file_hash(file_path, algorithm)
+            if actual_hash.lower() != expected_hash.lower():
+                raise ValidationError(
+                    "File checksum validation failed",
+                    field="checksum",
+                    value=f"Expected: {expected_hash}, Got: {actual_hash}"
+                )
+        except ValidationError:
+            raise
+        except Exception as e:
+            raise ValidationError(
+                f"Checksum calculation failed: {e}",
+                field="checksum",
+                value=str(file_path)
+            )
     
     def verify_file_integrity(self, file_path: Path, expected_hash: str, algorithm: str = 'sha256') -> bool:
         """
@@ -482,9 +513,11 @@ class SecurityAuditor:
                 try:
                     self.file_validator.validate_file_size(file_path)
                     audit_report['checks']['file_size'] = 'passed'
+                    audit_report['file_size'] = file_path.stat().st_size
                 except ValidationError as e:
                     audit_report['checks']['file_size'] = 'failed'
                     audit_report['errors'].append(f"File size: {e}")
+                    audit_report['file_size'] = file_path.stat().st_size
                     self.logger.error(f"Security audit - File size validation failed: {e}", file_path=str(file_path))
                 
                 # MIME type validation
@@ -509,6 +542,7 @@ class SecurityAuditor:
                     file_hash = self.checksum_validator.calculate_file_hash(file_path)
                     audit_report['checks']['integrity'] = 'passed'
                     audit_report['file_hash'] = file_hash
+                    audit_report['checksum'] = file_hash
                     audit_report['is_safe'] = True
                     audit_report['issues'] = []
                 except Exception as e:
@@ -554,36 +588,35 @@ class SecurityAuditor:
         
         summary = {
             'total_files': len(audit_reports),
-            'passed': 0,
-            'failed': 0,
-            'warnings': 0,
-            'errors': 0,
+            'safe_files': 0,
+            'unsafe_files': 0,
+            'total_issues': 0,
             'common_issues': {},
             'timestamp': datetime.now().isoformat()
         }
         
         for report in audit_reports:
             if isinstance(report, dict):
-                status = report.get('overall_status', 'unknown')
-                if status == 'passed':
-                    summary['passed'] += 1
-                elif status == 'failed':
-                    summary['failed'] += 1
-                elif status == 'warning':
-                    summary['warnings'] += 1
+                is_safe = report.get('is_safe', False)
+                if is_safe:
+                    summary['safe_files'] += 1
                 else:
-                    summary['errors'] += 1
+                    summary['unsafe_files'] += 1
+                
+                # Count total issues
+                issues = report.get('issues', [])
+                summary['total_issues'] += len(issues)
                 
                 # Track common issues
-                for error in report.get('errors', []):
-                    error_type = error.split(':')[0]
-                    if error_type not in summary['common_issues']:
-                        summary['common_issues'][error_type] = 0
-                    summary['common_issues'][error_type] += 1
+                for issue in issues:
+                    issue_type = issue.split(':')[0]
+                    if issue_type not in summary['common_issues']:
+                        summary['common_issues'][issue_type] = 0
+                    summary['common_issues'][issue_type] += 1
         
         return summary
     
-    def audit_directory(self, directory_path: Union[str, Path], recursive: bool = True) -> Dict[str, Any]:
+    def audit_directory(self, directory_path: Union[str, Path], recursive: bool = True) -> List[Dict[str, Any]]:
         """
         Perform security audit of all files in a directory.
         
@@ -592,23 +625,10 @@ class SecurityAuditor:
             recursive: Whether to audit subdirectories
             
         Returns:
-            Comprehensive audit report
+            List of individual file audit reports
         """
         directory_path = Path(directory_path)
-        
-        audit_report = {
-            'directory_path': str(directory_path),
-            'timestamp': datetime.now().isoformat(),
-            'recursive': recursive,
-            'file_audits': {},
-            'summary': {
-                'total_files': 0,
-                'passed': 0,
-                'warnings': 0,
-                'failed': 0,
-                'errors': 0
-            }
-        }
+        audit_results = []
         
         try:
             # Get all files
@@ -618,29 +638,16 @@ class SecurityAuditor:
                 files = list(directory_path.glob('*'))
             
             files = [f for f in files if f.is_file()]
-            audit_report['summary']['total_files'] = len(files)
             
             # Audit each file
             for file_path in files:
                 file_audit = self.audit_file(file_path)
-                audit_report['file_audits'][str(file_path)] = file_audit
-                
-                # Update summary
-                status = file_audit['overall_status']
-                if status == 'passed':
-                    audit_report['summary']['passed'] += 1
-                elif status == 'warning':
-                    audit_report['summary']['warnings'] += 1
-                elif status == 'failed':
-                    audit_report['summary']['failed'] += 1
-                else:
-                    audit_report['summary']['errors'] += 1
+                audit_results.append(file_audit)
         
         except Exception as e:
             self.logger.error(f"Directory audit failed: {e}", directory_path=str(directory_path))
-            audit_report['error'] = str(e)
         
-        return audit_report
+        return audit_results
 
 
 # Global security instances
