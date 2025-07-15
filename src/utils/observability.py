@@ -22,6 +22,7 @@ import logging
 import psutil
 import traceback
 from pathlib import Path
+from concurrent.futures import ThreadPoolExecutor, as_completed
 
 from src.utils.logger import get_logger
 
@@ -539,12 +540,14 @@ class MetricsRegistry:
 class HealthRegistry:
     """Registry for health checks with caching and dependencies."""
     
-    def __init__(self):
+    def __init__(self, max_concurrent_checks: int = 10, check_timeout_seconds: float = 30.0):
         self.checks: Dict[str, Callable[[], HealthCheckResult]] = {}
         self.cache: Dict[str, HealthCheckResult] = {}
         self.cache_ttl = timedelta(seconds=30)
         self.dependencies: Dict[str, List[str]] = {}
         self.lock = threading.Lock()
+        self.max_concurrent_checks = max_concurrent_checks
+        self.check_timeout_seconds = check_timeout_seconds
     
     def register_check(self, name: str, check_func: Callable[[], HealthCheckResult], 
                       dependencies: Optional[List[str]] = None):
@@ -599,11 +602,74 @@ class HealthRegistry:
             
             return result
     
+    def _execute_check_with_timeout(self, name: str, use_cache: bool = True) -> tuple[str, Optional[HealthCheckResult]]:
+        """Execute a single health check with timeout handling.
+        
+        Returns a tuple of (check_name, result) to handle futures properly.
+        """
+        try:
+            result = self.run_check(name, use_cache)
+            return name, result
+        except Exception as e:
+            # Create an error result for unexpected exceptions
+            error_result = HealthCheckResult(
+                component=name,
+                status="unhealthy",
+                message=f"Health check execution failed: {str(e)}",
+                details={"error": str(e), "traceback": traceback.format_exc()},
+                dependencies=self.dependencies.get(name, [])
+            )
+            return name, error_result
+    
     def run_all_checks(self, use_cache: bool = True) -> Dict[str, HealthCheckResult]:
-        """Run all health checks."""
+        """Run all health checks in parallel with concurrency limits and timeout handling."""
+        if not self.checks:
+            return {}
+        
         results = {}
-        for name in self.checks:
-            results[name] = self.run_check(name, use_cache)
+        
+        # Determine the optimal number of workers (don't exceed the limit or the number of checks)
+        # Ensure we have at least 1 worker
+        max_workers = max(1, min(self.max_concurrent_checks, len(self.checks)))
+        
+        # If we only have one check, run it directly to avoid overhead
+        if len(self.checks) == 1:
+            name = next(iter(self.checks))
+            result = self.run_check(name, use_cache)
+            if result:
+                results[name] = result
+            return results
+        
+        # Run health checks in parallel using ThreadPoolExecutor
+        with ThreadPoolExecutor(max_workers=max_workers, thread_name_prefix="health-check") as executor:
+            # Submit all health checks
+            future_to_name = {
+                executor.submit(self._execute_check_with_timeout, name, use_cache): name
+                for name in self.checks
+            }
+            
+            # Collect results with timeout handling
+            for future in as_completed(future_to_name, timeout=self.check_timeout_seconds):
+                try:
+                    name, result = future.result(timeout=self.check_timeout_seconds)
+                    if result:
+                        results[name] = result
+                except Exception as e:
+                    # Handle timeout or other execution failures
+                    check_name = future_to_name[future]
+                    error_result = HealthCheckResult(
+                        component=check_name,
+                        status="unhealthy",
+                        message=f"Health check timed out or failed: {str(e)}",
+                        details={
+                            "error": str(e),
+                            "timeout_seconds": self.check_timeout_seconds,
+                            "traceback": traceback.format_exc()
+                        },
+                        dependencies=self.dependencies.get(check_name, [])
+                    )
+                    results[check_name] = error_result
+        
         return results
     
     def run_all_health_checks(self, use_cache: bool = True) -> Dict[str, HealthCheckResult]:
@@ -1112,10 +1178,13 @@ class DashboardGenerator:
 class ObservabilityManager:
     """Central manager for all observability features."""
     
-    def __init__(self):
+    def __init__(self, max_concurrent_health_checks: int = 10, health_check_timeout: float = 30.0):
         self.logger = StructuredLogger("observability_manager")
         self.metrics_registry = MetricsRegistry()
-        self.health_registry = HealthRegistry()
+        self.health_registry = HealthRegistry(
+            max_concurrent_checks=max_concurrent_health_checks,
+            check_timeout_seconds=health_check_timeout
+        )
         self.dashboard_generator = DashboardGenerator(
             self.metrics_registry, 
             self.health_registry
