@@ -270,6 +270,33 @@ system_cpu_percent 65.5
                 }
             }
         }
+        
+        # Mock export_all_data to return the expected structure
+        mock_obs.export_all_data.return_value = {
+            "metrics": {
+                "metrics": [
+                    {
+                        "name": "cpu_usage",
+                        "value": 65.5,
+                        "type": "gauge",
+                        "timestamp": "2024-01-15T10:30:00Z",
+                        "labels": {}
+                    },
+                    {
+                        "name": "memory_usage", 
+                        "value": 75.5,
+                        "type": "gauge",
+                        "timestamp": "2024-01-15T10:30:00Z",
+                        "labels": {}
+                    }
+                ],
+                "export_time": "2024-01-15T10:30:00Z"
+            },
+            "health_checks": {},
+            "prometheus_format": "",
+            "system_info": {}
+        }
+        
         mock_get_obs.return_value = mock_obs
         
         endpoint = MetricsEndpoint()
@@ -277,9 +304,10 @@ system_cpu_percent 65.5
         
         assert status_code == 200
         assert "metrics" in response
-        # The actual implementation returns all available metrics
-        assert isinstance(response["metrics"], dict)
+        # The actual implementation returns metrics as a list
+        assert isinstance(response["metrics"], list)
         assert "timestamp" in response
+        assert "system_status" in response
     
     @patch('src.api.health_endpoints.SystemMonitor')
     @patch('src.api.health_endpoints.get_observability_manager')
@@ -292,6 +320,26 @@ system_cpu_percent 65.5
         mock_obs.metrics_registry.get_metrics_by_name.return_value = [
             Mock(name="cpu_usage", value=75.0, metric_type=MetricType.GAUGE)
         ]
+        
+        # Mock export_all_data to return the expected structure
+        mock_obs.export_all_data.return_value = {
+            "metrics": {
+                "metrics": [
+                    {
+                        "name": "cpu_usage",
+                        "value": 75.0,
+                        "type": "gauge",
+                        "timestamp": "2024-01-15T10:30:00Z",
+                        "labels": {}
+                    }
+                ],
+                "export_time": "2024-01-15T10:30:00Z"
+            },
+            "health_checks": {},
+            "prometheus_format": "",
+            "system_info": {}
+        }
+        
         mock_get_obs.return_value = mock_obs
         
         endpoint = MetricsEndpoint()

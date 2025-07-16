@@ -145,7 +145,7 @@ class TestIntegration:
             files.append(str(file_path))
         
         # Batch process
-        chunker = HybridMarkdownChunker(chunk_size=150)
+        chunker = HybridMarkdownChunker(chunk_size=150, chunk_overlap=50)
         evaluator = ChunkQualityEvaluator()
         
         # Process files

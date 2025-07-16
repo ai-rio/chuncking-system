@@ -40,6 +40,25 @@ class MetadataEnricher:
             metadata=enriched_metadata
         )
     
+    def enrich_chunk_metadata(self, chunk: Document, chunk_index: int = 0) -> Document:
+        """Enrich chunk metadata with index and additional information"""
+        # Generate unique chunk ID
+        chunk_id = hashlib.md5(
+            f"{chunk.page_content[:100]}{chunk.metadata.get('source', '')}{chunk_index}".encode()
+        ).hexdigest()[:12]
+        
+        enriched_metadata = {
+            **chunk.metadata,
+            'chunk_index': chunk_index,
+            'chunk_id': chunk_id,
+            'processed_at': datetime.now().isoformat()
+        }
+        
+        return Document(
+            page_content=chunk.page_content,
+            metadata=enriched_metadata
+        )
+    
     @staticmethod
     def _detect_language(content: str) -> str:
         """Simple language detection"""

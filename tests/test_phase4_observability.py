@@ -604,7 +604,8 @@ class TestObservabilityManager:
         
         manager.register_health_check("test", health_check)
         
-        export_data = manager.export_all_data()
+        # Export data without system metrics for testing
+        export_data = manager.export_all_data(include_system_metrics=False)
         
         assert "metrics" in export_data
         assert "health_checks" in export_data

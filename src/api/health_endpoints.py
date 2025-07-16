@@ -369,8 +369,15 @@ class MetricsEndpoint:
                     sanitized = sanitized.replace(pattern, '')
                 return sanitized
             
+            # Handle nested metrics structure from ObservabilityManager
+            metrics_data = export_data.get("metrics", {})
+            if isinstance(metrics_data, dict) and "metrics" in metrics_data:
+                raw_metrics = metrics_data["metrics"]
+            else:
+                raw_metrics = export_data.get("metrics", [])
+            
             filtered_metrics = []
-            for metric in export_data.get("metrics", []):
+            for metric in raw_metrics:
                 if isinstance(metric, dict):
                     # Create filtered metric
                     filtered_metric = metric.copy()
