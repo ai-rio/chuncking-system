@@ -55,6 +55,18 @@ uv pip install pytest pytest-cov pytest-mock black flake8 mypy
 # Process a single book/document
 python main.py --input-file data/input/markdown_files/your_book.md
 
+# Advanced processing with quality enhancement (recommended)
+python main.py \
+  --input-file data/input/markdown_files/your_book.md \
+  --create-project-folder \
+  --auto-enhance
+
+# With Jina AI embeddings for superior semantic analysis (recommended)
+python main.py \
+  --input-file data/input/markdown_files/your_book.md \
+  --jina-api-key "your_jina_api_key" \
+  --auto-enhance
+
 # Specify output directory and chunk size
 python main.py \
   --input-file data/input/markdown_files/your_book.md \
@@ -230,10 +242,11 @@ Create a `.env` file:
 
 ```bash
 # LLM Provider Configuration
-LLM_PROVIDER=openai  # openai, anthropic, jina, local
-LLM_MODEL=gpt-3.5-turbo
+LLM_PROVIDER=google  # google, openai, anthropic, jina, local
+LLM_MODEL=gemini-2.0-flash-exp
 
 # Provider API Keys
+GOOGLE_API_KEY=your_google_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
 ANTHROPIC_API_KEY=your_anthropic_api_key_here
 JINA_API_KEY=your_jina_api_key_here
@@ -396,6 +409,27 @@ pytest --cov=src --cov-report=html --cov-fail-under=80
 
 ## 🔧 Advanced Usage
 
+### Jina AI Embeddings for Superior Semantic Analysis
+
+Enable Jina AI embeddings for dramatically improved semantic coherence:
+
+```bash
+# Simple Jina AI integration (automatically enables embeddings)
+python main.py \
+  --input-file data/input/markdown_files/your_book.md \
+  --jina-api-key "your_jina_api_key"
+
+# With quality enhancement for optimal results
+python main.py \
+  --input-file data/input/markdown_files/your_book.md \
+  --jina-api-key "your_jina_api_key" \
+  --auto-enhance
+
+# Or set in environment variable
+export JINA_API_KEY="your_jina_api_key"
+python main.py --input-file data/input/markdown_files/your_book.md
+```
+
 ### Multi-LLM Provider Configuration
 
 ```python
@@ -418,12 +452,12 @@ chunker = HybridMarkdownChunker(
     llm_model="claude-3-sonnet-20240229"
 )
 
-# Use Jina AI for embeddings
+# Use Google Gemini (default, recommended)
 chunker = HybridMarkdownChunker(
     chunk_size=800,
     chunk_overlap=150,
-    llm_provider="jina",
-    llm_model="jina-embeddings-v2-base-en"
+    llm_provider="google",
+    llm_model="gemini-2.0-flash-exp"
 )
 
 # Check available providers
