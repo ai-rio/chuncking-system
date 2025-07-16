@@ -86,14 +86,8 @@ def main():
         help="Automatically enhance chunks if quality is below threshold."
     )
     parser.add_argument(
-        '--enable-jina',
-        action='store_true',
-        default=False,
-        help="Enable Jina AI embeddings for superior semantic analysis."
-    )
-    parser.add_argument(
         '--jina-api-key',
-        help="Jina AI API key (or set JINA_API_KEY environment variable)."
+        help="Jina AI API key (automatically enables Jina embeddings). Or set JINA_API_KEY environment variable."
     )
     parser.add_argument(
         '--jina-model',
@@ -179,23 +173,20 @@ def main():
             chunk_overlap=chunk_overlap,
             # enable_semantic=False # Explicitly set to False as libraries are not installed
         )
-        # Initialize quality evaluator - use Enhanced version if Jina is enabled
-        if args.enable_jina:
-            jina_api_key = args.jina_api_key or os.getenv('JINA_API_KEY')
-            if jina_api_key:
-                app_logger.info("Initializing Enhanced Quality Evaluator with Jina AI embeddings")
-                evaluator = EnhancedChunkQualityEvaluator(
-                    use_jina_embeddings=True,
-                    jina_api_key=jina_api_key,
-                    jina_model=args.jina_model,
-                    fallback_to_tfidf=True,
-                    enable_embedding_cache=True,
-                    hybrid_mode=args.hybrid_mode
-                )
-            else:
-                app_logger.warning("Jina enabled but no API key provided. Using standard evaluator.")
-                evaluator = ChunkQualityEvaluator()
+        # Initialize quality evaluator - use Enhanced version if Jina API key is provided
+        jina_api_key = args.jina_api_key or os.getenv('JINA_API_KEY')
+        if jina_api_key:
+            app_logger.info("Initializing Enhanced Quality Evaluator with Jina AI embeddings")
+            evaluator = EnhancedChunkQualityEvaluator(
+                use_jina_embeddings=True,
+                jina_api_key=jina_api_key,
+                jina_model=args.jina_model,
+                fallback_to_tfidf=True,
+                enable_embedding_cache=True,
+                hybrid_mode=args.hybrid_mode
+            )
         else:
+            app_logger.info("Using standard TF-IDF based quality evaluator")
             evaluator = ChunkQualityEvaluator()
         chunking_logger.end_operation("initialization", success=True)
         app_logger.debug("Chunker and evaluator initialized successfully")
