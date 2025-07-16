@@ -7,7 +7,7 @@ validation and cross-platform compatibility.
 
 import os
 from pathlib import Path
-from typing import List, Optional, Union, Generator
+from typing import List, Optional, Union, Generator, Any
 from src.exceptions import FileHandlingError, ValidationError
 from src.utils.validators import validate_file_path, validate_directory_path, safe_path_join
 
@@ -454,25 +454,37 @@ class MarkdownFileManager(PathManager):
         path = Path(file_path)
         return path.suffix.lower() in self.MARKDOWN_EXTENSIONS
     
-    def create_markdown_output_paths(self, input_file: Union[str, Path], output_dir: Union[str, Path]) -> dict:
+    def create_markdown_output_paths(self, input_file: Union[str, Path], output_dir: Union[str, Path], create_project_folder: bool = True) -> dict:
         """
         Create output paths for Markdown processing.
         
         Args:
             input_file: Input Markdown file
             output_dir: Output directory
+            create_project_folder: Whether to create a project-specific folder
         
         Returns:
             Dictionary with output paths
         """
         input_path = validate_file_path(input_file, must_exist=True, extensions=self.MARKDOWN_EXTENSIONS)
-        output_structure = self.create_output_structure(output_dir)
         
-        base_name = input_path.stem
-        safe_name = self.get_safe_filename(base_name)
+        if create_project_folder:
+            # Create project-specific folder with timestamp
+            from datetime import datetime
+            timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
+            base_name = input_path.stem
+            safe_name = self.get_safe_filename(base_name)
+            project_folder = f"{safe_name}_{timestamp}"
+            final_output_dir = Path(output_dir) / project_folder
+        else:
+            final_output_dir = output_dir
+            safe_name = self.get_safe_filename(input_path.stem)
+        
+        output_structure = self.create_output_structure(final_output_dir)
         
         return {
             **output_structure,
+            'project_folder': final_output_dir if create_project_folder else None,
             'chunks_json': output_structure['chunks'] / f"{safe_name}_chunks.json",
             'chunks_csv': output_structure['chunks'] / f"{safe_name}_chunks.csv",
             'chunks_pickle': output_structure['chunks'] / f"{safe_name}_chunks.pickle",
@@ -698,6 +710,250 @@ class MarkdownFileManager(PathManager):
             ) from e
 
 
+class QualityEnhancementManager:
+    """
+    Automated quality enhancement system for chunks.
+    """
+    
+    def __init__(self, markdown_manager: MarkdownFileManager):
+        self.markdown_manager = markdown_manager
+        from src.chunkers.evaluators import ChunkQualityEvaluator
+        self.evaluator = ChunkQualityEvaluator()
+    
+    def auto_enhance_chunks(self, chunks: List, quality_metrics: dict, output_paths: dict) -> dict:
+        """
+        Automatically enhance chunks based on quality metrics.
+        
+        Args:
+            chunks: List of chunks to enhance
+            quality_metrics: Quality evaluation results
+            output_paths: Output directory paths
+        
+        Returns:
+            Dictionary with enhancement results
+        """
+        enhancement_results = {
+            'original_score': quality_metrics.get('overall_score', 0),
+            'enhanced_score': 0,
+            'improvements_made': [],
+            'enhanced_chunks': chunks.copy()
+        }
+        
+        # Apply enhancements based on identified issues
+        if quality_metrics.get('overall_score', 0) < 60:  # Quality threshold
+            enhancement_results['improvements_made'].append('Quality below threshold - applying enhancements')
+            
+            # Fix incomplete sentences
+            if quality_metrics.get('content_quality', {}).get('incomplete_sentences', 0) > 0.3:
+                enhancement_results['enhanced_chunks'] = self._fix_incomplete_sentences(enhancement_results['enhanced_chunks'])
+                enhancement_results['improvements_made'].append('Fixed incomplete sentences')
+            
+            # Improve chunk coherence
+            if quality_metrics.get('semantic_coherence', {}).get('coherence_score', 0) < 0.5:
+                enhancement_results['enhanced_chunks'] = self._improve_coherence(enhancement_results['enhanced_chunks'])
+                enhancement_results['improvements_made'].append('Improved semantic coherence')
+            
+            # Re-evaluate enhanced chunks
+            enhanced_metrics = self.evaluator.evaluate_chunks(enhancement_results['enhanced_chunks'])
+            enhancement_results['enhanced_score'] = enhanced_metrics.get('overall_score', 0)
+            
+            # Save enhanced chunks if improvement achieved
+            if enhancement_results['enhanced_score'] > enhancement_results['original_score']:
+                self._save_enhanced_chunks(enhancement_results['enhanced_chunks'], output_paths)
+                enhancement_results['improvements_made'].append('Saved enhanced chunks')
+        
+        return enhancement_results
+    
+    def _fix_incomplete_sentences(self, chunks):
+        """Fix chunks with incomplete sentences."""
+        from langchain_core.documents import Document
+        
+        enhanced_chunks = []
+        for i, chunk in enumerate(chunks):
+            content = chunk.page_content
+            
+            # Check if chunk ends with incomplete sentence
+            if not content.rstrip().endswith(('.', '!', '?', ':', ';')):
+                # Try to complete with next chunk if available
+                if i + 1 < len(chunks):
+                    next_content = chunks[i + 1].page_content
+                    # Find first sentence ending in next chunk
+                    import re
+                    match = re.search(r'^[^.!?]*[.!?]', next_content)
+                    if match:
+                        completion = match.group(0)
+                        content = content + ' ' + completion
+                        # Update next chunk to remove the used text
+                        chunks[i + 1].page_content = next_content[len(completion):].lstrip()
+            
+            enhanced_chunks.append(Document(
+                page_content=content,
+                metadata=chunk.metadata.copy()
+            ))
+        
+        return enhanced_chunks
+    
+    def _improve_coherence(self, chunks):
+        """Improve semantic coherence of chunks."""
+        # Simple coherence improvement by ensuring minimum overlap
+        enhanced_chunks = []
+        
+        for i, chunk in enumerate(chunks):
+            content = chunk.page_content
+            
+            # Add context from previous chunk if very short
+            if len(content.split()) < 50 and i > 0:
+                prev_content = chunks[i - 1].page_content
+                # Add last sentence from previous chunk
+                sentences = prev_content.split('. ')
+                if len(sentences) > 1:
+                    context = sentences[-1] + '. '
+                    content = context + content
+            
+            from langchain_core.documents import Document
+            enhanced_chunks.append(Document(
+                page_content=content,
+                metadata=chunk.metadata.copy()
+            ))
+        
+        return enhanced_chunks
+    
+    def _save_enhanced_chunks(self, enhanced_chunks, output_paths):
+        """Save enhanced chunks to file."""
+        from src.utils.file_handler import FileHandler
+        
+        enhanced_path = output_paths['chunks'].parent / 'enhanced_chunks' / f"{output_paths['chunks'].stem}_enhanced.json"
+        enhanced_path.parent.mkdir(exist_ok=True)
+        
+        FileHandler.save_chunks(enhanced_chunks, str(enhanced_path), 'json')
+
+
+class AdvancedQualityEnhancementManager(QualityEnhancementManager):
+    """Advanced quality enhancement with strategy-level optimizations."""
+    
+    def __init__(self, markdown_manager: MarkdownFileManager):
+        super().__init__(markdown_manager)
+        # Import here to avoid circular imports
+        from src.chunkers.strategy_tester import StrategyTester
+        from src.chunkers.adaptive_chunker import AdaptiveChunker
+        
+        self.strategy_tester = StrategyTester()
+        self.adaptive_chunker = AdaptiveChunker()
+    
+    def comprehensive_enhancement(self, original_content: str, 
+                                initial_chunks: List[Any],
+                                quality_metrics: dict,
+                                output_paths: dict) -> dict:
+        """Comprehensive enhancement including strategy optimization."""
+        
+        enhancement_results = {
+            'original_score': quality_metrics.get('overall_score', 0),
+            'strategy_tested': False,
+            'rechunked': False,
+            'improvements_made': [],
+            'final_chunks': initial_chunks.copy(),
+            'final_score': quality_metrics.get('overall_score', 0)
+        }
+        
+        # Phase 1: Try strategy optimization if quality is poor
+        if quality_metrics.get('overall_score', 0) < 60:
+            try:
+                strategy_results = self.strategy_tester.test_multiple_strategies(original_content)
+                
+                if strategy_results['best_strategy']:
+                    best_result = strategy_results['all_results'][strategy_results['best_strategy']]
+                    
+                    if best_result['overall_score'] > enhancement_results['original_score'] - 5:
+                        enhancement_results['final_chunks'] = best_result['chunks']
+                        enhancement_results['final_score'] = best_result['overall_score']
+                        enhancement_results['strategy_tested'] = True
+                        enhancement_results['rechunked'] = True
+                        enhancement_results['improvements_made'].append(
+                            f"Re-chunked with {strategy_results['best_strategy']} strategy"
+                        )
+            except Exception as e:
+                enhancement_results['improvements_made'].append(f"Strategy testing failed: {str(e)}")
+        
+        # Phase 2: Apply chunk-level improvements if still needed
+        if enhancement_results['final_score'] < 70:
+            try:
+                chunk_level_results = self.auto_enhance_chunks(
+                    enhancement_results['final_chunks'],
+                    {'overall_score': enhancement_results['final_score']},
+                    output_paths
+                )
+                
+                if chunk_level_results['enhanced_score'] > enhancement_results['final_score']:
+                    enhancement_results['final_chunks'] = chunk_level_results['enhanced_chunks']
+                    enhancement_results['final_score'] = chunk_level_results['enhanced_score']
+                    enhancement_results['improvements_made'].extend(
+                        chunk_level_results['improvements_made']
+                    )
+            except Exception as e:
+                enhancement_results['improvements_made'].append(f"Chunk-level enhancement failed: {str(e)}")
+        
+        # Phase 3: Save results if improvement was made
+        if enhancement_results['final_score'] > enhancement_results['original_score']:
+            try:
+                self._save_comprehensive_results(enhancement_results, output_paths)
+            except Exception as e:
+                enhancement_results['improvements_made'].append(f"Save results failed: {str(e)}")
+        
+        return enhancement_results
+    
+    def _save_comprehensive_results(self, results: dict, output_paths: dict) -> None:
+        """Save comprehensive enhancement results."""
+        
+        # Save enhanced chunks
+        if results['final_score'] > results['original_score']:
+            try:
+                enhanced_path = output_paths['chunks'].parent / 'enhanced' / 'final_enhanced_chunks.json'
+                enhanced_path.parent.mkdir(exist_ok=True, parents=True)
+                
+                from src.utils.file_handler import FileHandler
+                FileHandler.save_chunks(results['final_chunks'], str(enhanced_path), 'json')
+            except Exception as e:
+                pass  # Fail silently for now
+        
+        # Save enhancement report
+        try:
+            report_path = output_paths['reports'] / 'enhancement_report.md'
+            self._generate_enhancement_report(results, report_path)
+        except Exception as e:
+            pass  # Fail silently for now
+    
+    def _generate_enhancement_report(self, results: dict, report_path: Path) -> None:
+        """Generate detailed enhancement report."""
+        
+        report = f"""# Quality Enhancement Report
+
+## Summary
+- **Original Score**: {results['original_score']:.1f}/100
+- **Final Score**: {results['final_score']:.1f}/100
+- **Improvement**: {results['final_score'] - results['original_score']:.1f} points
+- **Strategy Testing**: {'Yes' if results['strategy_tested'] else 'No'}
+- **Re-chunking Applied**: {'Yes' if results['rechunked'] else 'No'}
+
+## Improvements Made
+"""
+        
+        for improvement in results['improvements_made']:
+            report += f"- {improvement}\n"
+        
+        report += f"""
+## Recommendations for Future Processing
+- Monitor content types that benefit from specific strategies
+- Consider pre-analysis for large documents
+- Track enhancement effectiveness over time
+"""
+        
+        try:
+            with open(report_path, 'w', encoding='utf-8') as f:
+                f.write(report)
+        except Exception as e:
+            pass  # Fail silently for now
+
+
 # Convenience functions
 def get_path_manager(base_dir: Optional[Union[str, Path]] = None) -> PathManager:
     """Get a PathManager instance."""
@@ -707,3 +963,10 @@ def get_path_manager(base_dir: Optional[Union[str, Path]] = None) -> PathManager
 def get_markdown_manager(base_dir: Optional[Union[str, Path]] = None) -> MarkdownFileManager:
     """Get a MarkdownFileManager instance."""
     return MarkdownFileManager(base_dir)
+
+
+def get_quality_enhancement_manager(markdown_manager: MarkdownFileManager = None) -> QualityEnhancementManager:
+    """Get a QualityEnhancementManager instance."""
+    if markdown_manager is None:
+        markdown_manager = get_markdown_manager()
+    return QualityEnhancementManager(markdown_manager)

@@ -6,11 +6,13 @@ A **production-ready enterprise-grade hybrid document chunking system** optimize
 
 ### 🔀 **Advanced Chunking Engine**
 - **Hybrid Chunking Strategies**: Combines header-based, recursive, and code-aware chunking
+- **🎯 Holistic Quality Enhancement**: AI-powered adaptive chunking with strategy optimization
 - **📊 Quality Evaluation**: Comprehensive chunk quality analysis with detailed reporting
 - **🤖 RAG-Optimized**: Designed for optimal performance with language models (Gemini, GPT, etc.)
 - **🏷️ Metadata Enrichment**: Automatic metadata enhancement with content analysis
 - **🔍 Content Type Detection**: Automatic detection of headers, code, lists, and tables
 - **🧠 Multi-LLM Support**: Integrated support for OpenAI, Anthropic Claude, and Jina AI providers
+- **🔧 Adaptive Strategy Selection**: Automatic chunking strategy optimization based on content analysis
 
 ### 🛡️ **Production-Ready Infrastructure** 
 - **⚡ Performance Optimized**: Memory-efficient processing with multi-tier intelligent caching (TTL + LRU)
@@ -52,8 +54,14 @@ uv pip install pytest pytest-cov pytest-mock black flake8 mypy
 ### Basic Usage
 
 ```bash
-# Process a single book/document
+# Process a single book/document with basic chunking
 python main.py --input-file data/input/markdown_files/your_book.md
+
+# Advanced processing with quality enhancement (recommended)
+python main.py \
+  --input-file data/input/markdown_files/your_book.md \
+  --create-project-folder \
+  --auto-enhance
 
 # Specify output directory and chunk size
 python main.py \
@@ -67,21 +75,29 @@ python main.py \
 
 ```python
 from src.chunkers.hybrid_chunker import HybridMarkdownChunker
+from src.chunkers.adaptive_chunker import AdaptiveChunker
 from src.chunkers.evaluators import ChunkQualityEvaluator
 from src.utils.file_handler import FileHandler
 
-# Initialize the chunker
+# Basic chunking with fixed strategy
 chunker = HybridMarkdownChunker(
     chunk_size=800,    # Target chunk size in tokens
     chunk_overlap=150  # Overlap between chunks
+)
+
+# AI-powered adaptive chunking (recommended)
+adaptive_chunker = AdaptiveChunker(
+    auto_optimize=True,  # Enable automatic strategy optimization
+    chunk_size=800,
+    chunk_overlap=150
 )
 
 # Load your document
 with open('your_document.md', 'r') as f:
     content = f.read()
 
-# Chunk the document
-chunks = chunker.chunk_document(content, {
+# Chunk with adaptive strategy selection
+chunks = adaptive_chunker.chunk_document_adaptive(content, {
     'source_file': 'your_document.md',
     'book_title': 'Your Book Title'
 })
@@ -93,6 +109,21 @@ print(f"Quality Score: {quality_metrics['overall_score']:.1f}/100")
 
 # Save chunks
 FileHandler.save_chunks(chunks, 'output/chunks.json', 'json')
+
+# Advanced quality enhancement
+if quality_metrics['overall_score'] < 70:
+    from src.utils.path_utils import AdvancedQualityEnhancementManager, MarkdownFileManager
+    
+    markdown_manager = MarkdownFileManager()
+    output_paths = markdown_manager.create_output_structure('output')
+    
+    enhancement_manager = AdvancedQualityEnhancementManager(markdown_manager)
+    results = enhancement_manager.comprehensive_enhancement(
+        content, chunks, quality_metrics, output_paths
+    )
+    
+    print(f"Enhanced Score: {results['final_score']:.1f}/100")
+    print(f"Improvements: {results['improvements_made']}")
 ```
 
 ## 📋 Requirements
@@ -124,6 +155,9 @@ src/
 │   └── __init__.py           
 ├── chunkers/                  # 🔀 Core Chunking Engine
 │   ├── hybrid_chunker.py      #   Main hybrid chunking logic
+│   ├── adaptive_chunker.py    #   🎯 Adaptive chunking with strategy optimization
+│   ├── strategy_optimizer.py  #   Content analysis and strategy recommendation
+│   ├── strategy_tester.py     #   Multi-strategy comparison framework
 │   ├── evaluators.py          #   Quality evaluation and scoring
 │   └── markdown_processor.py  #   Markdown-specific processing
 ├── config/
@@ -166,12 +200,22 @@ The main chunking engine that:
 - Maintains semantic coherence
 - Integrates with multiple LLM providers for accurate token counting
 
-#### 📊 ChunkQualityEvaluator
+#### 🎯 AdaptiveChunker
+AI-powered adaptive chunking system that:
+- Analyzes content characteristics (code density, technical complexity, structure)
+- Tests multiple chunking strategies automatically
+- Selects optimal strategy based on quality metrics
+- Provides comprehensive enhancement when quality is below threshold
+- Implements intelligent caching for similar content types
+
+#### 📊 ChunkQualityEvaluator & AdvancedQualityEvaluator
 Comprehensive quality assessment including:
 - Size distribution analysis
 - Content quality metrics
 - Semantic coherence scoring
 - Structure preservation evaluation
+- **Advanced metrics**: Boundary preservation, context continuity, information density
+- **Strategy effectiveness**: Topic coherence, chunk independence, readability scores
 
 #### 🏷️ MetadataEnricher
 Automatic metadata enhancement:
@@ -325,9 +369,12 @@ The project includes comprehensive tests for:
 - ✅ **Phase 3**: Security, caching, and monitoring tests
 - ✅ **Phase 4**: Observability, health endpoints, and metrics tests
 - ✅ **Multi-LLM Support**: Comprehensive LLM provider testing with 54+ test cases
+- ✅ **Holistic Quality Enhancement**: TDD-driven adaptive chunking with strategy optimization
 
 **Enterprise Test Suite**: 
 - **Core Components**: 95%+ coverage for chunking engine with comprehensive unit and integration tests
+- **Adaptive Chunking**: Complete TDD implementation with 9 test cases covering strategy optimization
+- **Quality Enhancement**: End-to-end testing of comprehensive enhancement pipeline
 - **Security & Performance**: Complete validation of security framework, caching, and performance monitoring
 - **Observability**: Full test coverage for enterprise monitoring infrastructure and health endpoints
 - **LLM Provider Integration**: Complete test coverage for OpenAI, Anthropic, and Jina AI providers

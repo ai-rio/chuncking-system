@@ -23,7 +23,7 @@ from src.utils.validators import (
     validate_file_path, validate_directory_path, validate_chunk_size, 
     validate_chunk_overlap, validate_output_format
 )
-from src.utils.path_utils import get_markdown_manager
+from src.utils.path_utils import get_markdown_manager, get_quality_enhancement_manager
 
 # Setup logging
 app_logger = setup_logging(level="INFO")
@@ -73,6 +73,18 @@ def main():
         default='json',
         help="Output format for the generated chunks."
     )
+    parser.add_argument(
+        '--create-project-folder',
+        action='store_true',
+        default=True,
+        help="Create a timestamped project folder for each run."
+    )
+    parser.add_argument(
+        '--auto-enhance',
+        action='store_true',
+        default=False,
+        help="Automatically enhance chunks if quality is below threshold."
+    )
     
     args = parser.parse_args()
     app_logger.debug("Arguments parsed", args=vars(args))
@@ -113,11 +125,16 @@ def main():
 
     # Setup output directories using path manager
     try:
-        output_paths = path_manager.create_markdown_output_paths(input_file_path, args.output_dir)
+        output_paths = path_manager.create_markdown_output_paths(
+            input_file_path, 
+            args.output_dir, 
+            create_project_folder=args.create_project_folder
+        )
         app_logger.info("Output directory structure created", 
                        base_dir=str(output_paths['base']),
                        chunks_dir=str(output_paths['chunks']),
-                       reports_dir=str(output_paths['reports']))
+                       reports_dir=str(output_paths['reports']),
+                       project_folder=str(output_paths.get('project_folder', 'None')))
     except Exception as e:
         app_logger.error("Failed to create output directories", error=str(e), output_dir=args.output_dir)
         chunking_logger.end_operation("main_application", success=False, error="Directory creation failed")
@@ -128,7 +145,9 @@ def main():
                    input_file=input_file_path,
                    output_dir=args.output_dir,
                    chunk_size=args.chunk_size,
-                   output_format=args.format)
+                   output_format=args.format,
+                   create_project_folder=args.create_project_folder,
+                   auto_enhance=args.auto_enhance)
     
     chunking_logger.start_operation("initialization")
 
@@ -243,6 +262,36 @@ def main():
             overall_report_path = output_paths['quality_report']
             evaluator.generate_report(all_chunks_for_evaluation, str(overall_report_path))
             chunking_logger.end_operation("quality_evaluation", success=True, report_path=str(overall_report_path))
+            
+            # Auto-enhance chunks if quality is poor and auto-enhance is enabled
+            if args.auto_enhance and overall_evaluation_metrics.get('overall_score', 0) < 60:
+                chunking_logger.start_operation("quality_enhancement")
+                app_logger.info("Quality score below threshold, starting auto-enhancement...")
+                try:
+                    enhancement_manager = get_quality_enhancement_manager(path_manager)
+                    enhancement_results = enhancement_manager.auto_enhance_chunks(
+                        all_chunks_for_evaluation,
+                        overall_evaluation_metrics,
+                        output_paths
+                    )
+                    
+                    app_logger.info("Quality enhancement completed",
+                                   original_score=enhancement_results['original_score'],
+                                   enhanced_score=enhancement_results['enhanced_score'],
+                                   improvements=enhancement_results['improvements_made'])
+                    
+                    # Generate enhanced quality report
+                    if enhancement_results['enhanced_score'] > enhancement_results['original_score']:
+                        enhanced_report_path = output_paths['reports'] / f"{input_file_path.stem}_enhanced_quality_report.md"
+                        evaluator.generate_report(enhancement_results['enhanced_chunks'], str(enhanced_report_path))
+                        app_logger.info("Enhanced quality report generated", report_path=str(enhanced_report_path))
+                    
+                    chunking_logger.end_operation("quality_enhancement", success=True)
+                except Exception as e:
+                    chunking_logger.log_error(e, "quality_enhancement")
+                    app_logger.debug("Full traceback:", exc_info=True)
+                    chunking_logger.end_operation("quality_enhancement", success=False)
+                    
         except Exception as e:
             chunking_logger.log_error(e, "quality_evaluation")
             app_logger.debug("Full traceback:", exc_info=True)

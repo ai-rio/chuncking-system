@@ -322,3 +322,240 @@ class ChunkQualityEvaluator:
             )
         
         return report
+
+
+class AdvancedQualityEvaluator(ChunkQualityEvaluator):
+    """Enhanced evaluator with strategy-specific metrics."""
+    
+    def __init__(self):
+        super().__init__()
+    
+    def evaluate_strategy_effectiveness(self, chunks: List[Document], 
+                                      strategy_used: str) -> Dict[str, Any]:
+        """Evaluate how well the chunking strategy performed."""
+        
+        base_metrics = self.evaluate_chunks(chunks)
+        
+        strategy_metrics = {
+            'strategy_used': strategy_used,
+            'boundary_preservation': self._analyze_boundary_preservation(chunks),
+            'context_continuity': self._analyze_context_continuity(chunks),
+            'information_density': self._analyze_information_density(chunks),
+            'readability_scores': self._calculate_readability_scores(chunks),
+            'topic_coherence': self._analyze_topic_coherence(chunks),
+            'chunk_independence': self._analyze_chunk_independence(chunks)
+        }
+        
+        return {**base_metrics, **strategy_metrics}
+    
+    def _analyze_boundary_preservation(self, chunks: List[Document]) -> Dict[str, float]:
+        """Analyze how well semantic boundaries are preserved."""
+        sentence_score = self._score_sentence_boundaries(chunks)
+        paragraph_score = self._score_paragraph_boundaries(chunks)
+        section_score = self._score_section_boundaries(chunks)
+        
+        return {
+            'sentence_boundary_score': sentence_score,
+            'paragraph_boundary_score': paragraph_score,
+            'section_boundary_score': section_score
+        }
+    
+    def _analyze_context_continuity(self, chunks: List[Document]) -> Dict[str, float]:
+        """Analyze context flow between chunks."""
+        topic_smoothness = self._score_topic_transitions(chunks)
+        reference_completeness = self._score_reference_completeness(chunks)
+        narrative_flow = self._score_narrative_flow(chunks)
+        
+        return {
+            'topic_transition_smoothness': topic_smoothness,
+            'reference_completeness': reference_completeness,
+            'narrative_flow': narrative_flow
+        }
+    
+    def _analyze_information_density(self, chunks: List[Document]) -> float:
+        """Analyze information density of chunks."""
+        if not chunks:
+            return 0.0
+        
+        # Simple heuristic: ratio of unique words to total words
+        total_words = 0
+        unique_words = set()
+        
+        for chunk in chunks:
+            words = chunk.page_content.lower().split()
+            total_words += len(words)
+            unique_words.update(words)
+        
+        return len(unique_words) / total_words if total_words > 0 else 0.0
+    
+    def _calculate_readability_scores(self, chunks: List[Document]) -> Dict[str, float]:
+        """Calculate readability scores for chunks."""
+        if not chunks:
+            return {'avg_sentence_length': 0.0, 'avg_word_length': 0.0}
+        
+        total_sentences = 0
+        total_words = 0
+        total_chars = 0
+        
+        for chunk in chunks:
+            content = chunk.page_content
+            sentences = re.split(r'[.!?]+', content)
+            sentences = [s.strip() for s in sentences if s.strip()]
+            
+            words = content.split()
+            
+            total_sentences += len(sentences)
+            total_words += len(words)
+            total_chars += sum(len(word) for word in words)
+        
+        avg_sentence_length = total_words / total_sentences if total_sentences > 0 else 0
+        avg_word_length = total_chars / total_words if total_words > 0 else 0
+        
+        return {
+            'avg_sentence_length': avg_sentence_length,
+            'avg_word_length': avg_word_length
+        }
+    
+    def _analyze_topic_coherence(self, chunks: List[Document]) -> float:
+        """Analyze topic coherence within chunks."""
+        if not chunks:
+            return 0.0
+        
+        # Simple heuristic: average cosine similarity between adjacent chunks
+        if len(chunks) < 2:
+            return 1.0
+        
+        try:
+            chunk_texts = [chunk.page_content for chunk in chunks]
+            vectors = self.vectorizer.fit_transform(chunk_texts)
+            
+            similarities = []
+            for i in range(len(chunks) - 1):
+                sim = cosine_similarity(vectors[i:i+1], vectors[i+1:i+2])[0][0]
+                similarities.append(sim)
+            
+            return np.mean(similarities) if similarities else 0.0
+        except Exception:
+            return 0.0
+    
+    def _analyze_chunk_independence(self, chunks: List[Document]) -> float:
+        """Analyze how independently each chunk can be understood."""
+        if not chunks:
+            return 0.0
+        
+        # Simple heuristic: chunks that start with complete sentences
+        independent_chunks = 0
+        
+        for chunk in chunks:
+            content = chunk.page_content.strip()
+            if content and content[0].isupper():
+                independent_chunks += 1
+        
+        return independent_chunks / len(chunks) if chunks else 0.0
+    
+    def _score_sentence_boundaries(self, chunks: List[Document]) -> float:
+        """Score how well sentence boundaries are preserved."""
+        if not chunks:
+            return 0.0
+        
+        # Count chunks that end with proper sentence endings
+        proper_endings = 0
+        
+        for chunk in chunks:
+            content = chunk.page_content.strip()
+            if content and content[-1] in '.!?':
+                proper_endings += 1
+        
+        return proper_endings / len(chunks) if chunks else 0.0
+    
+    def _score_paragraph_boundaries(self, chunks: List[Document]) -> float:
+        """Score how well paragraph boundaries are preserved."""
+        if not chunks:
+            return 0.0
+        
+        # Count chunks that start with paragraph-like patterns
+        paragraph_starts = 0
+        
+        for chunk in chunks:
+            content = chunk.page_content.strip()
+            if content and (content.startswith('#') or content[0].isupper()):
+                paragraph_starts += 1
+        
+        return paragraph_starts / len(chunks) if chunks else 0.0
+    
+    def _score_section_boundaries(self, chunks: List[Document]) -> float:
+        """Score how well section boundaries are preserved."""
+        if not chunks:
+            return 0.0
+        
+        # Count chunks that contain headers
+        section_chunks = 0
+        
+        for chunk in chunks:
+            content = chunk.page_content.strip()
+            if re.search(r'^#+\s+', content, re.MULTILINE):
+                section_chunks += 1
+        
+        return section_chunks / len(chunks) if chunks else 0.0
+    
+    def _score_topic_transitions(self, chunks: List[Document]) -> float:
+        """Score how smoothly topics transition between chunks."""
+        if len(chunks) < 2:
+            return 1.0
+        
+        # Simple heuristic: semantic similarity between consecutive chunks
+        try:
+            chunk_texts = [chunk.page_content for chunk in chunks]
+            vectors = self.vectorizer.fit_transform(chunk_texts)
+            
+            transitions = []
+            for i in range(len(chunks) - 1):
+                sim = cosine_similarity(vectors[i:i+1], vectors[i+1:i+2])[0][0]
+                transitions.append(sim)
+            
+            return np.mean(transitions) if transitions else 0.0
+        except Exception:
+            return 0.0
+    
+    def _score_reference_completeness(self, chunks: List[Document]) -> float:
+        """Score how complete references are within chunks."""
+        if not chunks:
+            return 0.0
+        
+        # Simple heuristic: chunks that don't start with pronouns or incomplete references
+        complete_chunks = 0
+        incomplete_starters = ['this', 'that', 'these', 'those', 'it', 'they', 'he', 'she']
+        
+        for chunk in chunks:
+            content = chunk.page_content.strip().lower()
+            if content:
+                first_word = content.split()[0] if content.split() else ''
+                if first_word not in incomplete_starters:
+                    complete_chunks += 1
+        
+        return complete_chunks / len(chunks) if chunks else 0.0
+    
+    def _score_narrative_flow(self, chunks: List[Document]) -> float:
+        """Score how well narrative flow is maintained."""
+        if not chunks:
+            return 0.0
+        
+        # Simple heuristic: chunks that maintain logical flow
+        flow_score = 0
+        
+        for i, chunk in enumerate(chunks):
+            content = chunk.page_content.strip()
+            
+            # Check for transition words/phrases
+            transition_words = ['however', 'therefore', 'moreover', 'furthermore', 'additionally', 'consequently']
+            has_transition = any(word in content.lower() for word in transition_words)
+            
+            # Check for proper sentence structure
+            has_complete_sentences = '.' in content or '!' in content or '?' in content
+            
+            if has_complete_sentences:
+                flow_score += 0.5
+            if has_transition and i > 0:
+                flow_score += 0.5
+        
+        return flow_score / len(chunks) if chunks else 0.0

@@ -77,6 +77,7 @@ class TestHybridMarkdownChunker:
 
     def test_token_length(self, chunker):
         """Test token length calculation."""
+        chunker.llm_provider = None  # Disable LLM provider to test tokenizer
         chunker.tokenizer = Mock()
         chunker.tokenizer.encode.return_value = [1, 2, 3, 4, 5]
         

@@ -42,23 +42,28 @@ class HybridMarkdownChunker:
         self.logger = get_logger(__name__)
 
         # Initialize LLM provider for token counting
+        self.llm_provider = None
+        self.tokenizer = None
+        
+        # Always initialize tokenizer as fallback
+        try:
+            self.tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
+        except Exception:
+            try:
+                self.tokenizer = tiktoken.get_encoding("cl100k_base")
+            except Exception as final_error:
+                raise TokenizationError(
+                    "Failed to initialize tokenizer or LLM provider",
+                    model="gpt-3.5-turbo or cl100k_base"
+                ) from final_error
+        
+        # Try to initialize LLM provider as primary option
         try:
             from src.llm.factory import LLMFactory
             self.llm_provider = LLMFactory.create_provider()
         except Exception as e:
-            # Fallback to direct tiktoken if LLM provider fails
-            try:
-                self.tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
-                self.llm_provider = None
-            except Exception as fallback_error:
-                try:
-                    self.tokenizer = tiktoken.get_encoding("cl100k_base")
-                    self.llm_provider = None
-                except Exception as final_error:
-                    raise TokenizationError(
-                        "Failed to initialize tokenizer or LLM provider",
-                        model="gpt-3.5-turbo or cl100k_base"
-                    ) from final_error
+            # LLM provider failed, but tokenizer is already initialized
+            pass
 
         # Initialize performance monitoring
         self.performance_monitor = PerformanceMonitor()
@@ -118,8 +123,11 @@ class HybridMarkdownChunker:
         try:
             if self.llm_provider:
                 return self.llm_provider.count_tokens(text)
-            else:
+            elif self.tokenizer:
                 return len(self.tokenizer.encode(text))
+            else:
+                # Ultimate fallback - estimate based on word count
+                return len(text.split()) * 1.3  # Rough token estimate
         except Exception as e:
             raise TokenizationError(
                 "Failed to calculate token length",
