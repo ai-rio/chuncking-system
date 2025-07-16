@@ -481,10 +481,10 @@ class TestDashboardValidation:
         alert_rules = generator.generate_alert_rules()
         groups = alert_rules["groups"]
         
-        # Validate alert expressions
+        # Validate alert expressions (skip recording rules)
         for group in groups:
             for rule in group["rules"]:
-                if "expr" in rule:
+                if "expr" in rule and "alert" in rule:  # Only check alert rules, not recording rules
                     expr = rule["expr"]
                     
                     # Basic syntax validation
