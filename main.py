@@ -14,6 +14,22 @@ import argparse
 from tqdm import tqdm
 import json
 
+# Load environment variables from .env file
+try:
+    from dotenv import load_dotenv
+    load_dotenv()
+except ImportError:
+    # Fallback: manually load .env if python-dotenv not available
+    env_file = Path(__file__).parent / '.env'
+    if env_file.exists():
+        with open(env_file) as f:
+            for line in f:
+                if line.strip() and not line.startswith('#') and '=' in line:
+                    key, value = line.strip().split('=', 1)
+                    # Remove quotes if present
+                    value = value.strip('"\'')
+                    os.environ[key] = value
+
 # Add src to path for module imports
 sys.path.append(os.path.join(os.path.dirname(__file__), 'src'))
 
@@ -173,7 +189,7 @@ def main():
             chunk_overlap=chunk_overlap,
             # enable_semantic=False # Explicitly set to False as libraries are not installed
         )
-        # Initialize quality evaluator - use Enhanced version if Jina API key is provided
+        # Initialize quality evaluator - use Enhanced version if Jina API key is available
         jina_api_key = args.jina_api_key or os.getenv('JINA_API_KEY')
         if jina_api_key:
             app_logger.info("Initializing Enhanced Quality Evaluator with Jina AI embeddings")
