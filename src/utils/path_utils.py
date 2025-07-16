@@ -829,9 +829,9 @@ class QualityEnhancementManager:
 
 
 class AdvancedQualityEnhancementManager(QualityEnhancementManager):
-    """Advanced quality enhancement with strategy-level optimizations."""
+    """Advanced quality enhancement with strategy-level optimizations and LLM integration."""
     
-    def __init__(self, markdown_manager: MarkdownFileManager):
+    def __init__(self, markdown_manager: MarkdownFileManager, enable_llm: bool = True, llm_provider: str = "openai"):
         super().__init__(markdown_manager)
         # Import here to avoid circular imports
         from src.chunkers.strategy_tester import StrategyTester
@@ -839,17 +839,31 @@ class AdvancedQualityEnhancementManager(QualityEnhancementManager):
         
         self.strategy_tester = StrategyTester()
         self.adaptive_chunker = AdaptiveChunker()
+        
+        # Initialize LLM enhancement
+        self.enable_llm = enable_llm
+        self.llm_enhancer = None
+        
+        if enable_llm:
+            try:
+                from src.utils.llm_quality_enhancer import LLMQualityEnhancer
+                self.llm_enhancer = LLMQualityEnhancer(llm_provider=llm_provider)
+            except Exception as e:
+                self.enable_llm = False
+                print(f"LLM enhancement disabled due to error: {e}")
     
     def comprehensive_enhancement(self, original_content: str, 
                                 initial_chunks: List[Any],
                                 quality_metrics: dict,
-                                output_paths: dict) -> dict:
-        """Comprehensive enhancement including strategy optimization."""
+                                output_paths: dict,
+                                original_metadata: dict = None) -> dict:
+        """Comprehensive enhancement including strategy optimization and LLM enhancement."""
         
         enhancement_results = {
             'original_score': quality_metrics.get('overall_score', 0),
             'strategy_tested': False,
             'rechunked': False,
+            'llm_enhanced': False,
             'improvements_made': [],
             'final_chunks': initial_chunks.copy(),
             'final_score': quality_metrics.get('overall_score', 0)
@@ -858,12 +872,12 @@ class AdvancedQualityEnhancementManager(QualityEnhancementManager):
         # Phase 1: Try strategy optimization if quality is poor
         if quality_metrics.get('overall_score', 0) < 60:
             try:
-                strategy_results = self.strategy_tester.test_multiple_strategies(original_content)
+                strategy_results = self.strategy_tester.test_multiple_strategies(original_content, original_metadata or {})
                 
                 if strategy_results['best_strategy']:
                     best_result = strategy_results['all_results'][strategy_results['best_strategy']]
                     
-                    if best_result['overall_score'] > enhancement_results['original_score'] - 5:
+                    if best_result['overall_score'] > enhancement_results['original_score'] + 5:
                         enhancement_results['final_chunks'] = best_result['chunks']
                         enhancement_results['final_score'] = best_result['overall_score']
                         enhancement_results['strategy_tested'] = True
@@ -874,7 +888,40 @@ class AdvancedQualityEnhancementManager(QualityEnhancementManager):
             except Exception as e:
                 enhancement_results['improvements_made'].append(f"Strategy testing failed: {str(e)}")
         
-        # Phase 2: Apply chunk-level improvements if still needed
+        # Phase 2: Apply LLM enhancement if enabled and quality is still poor
+        if self.enable_llm and self.llm_enhancer and enhancement_results['final_score'] < 70:
+            try:
+                llm_results = self.llm_enhancer.comprehensive_enhance(enhancement_results['final_chunks'])
+                
+                if llm_results.get('llm_enhanced', False):
+                    enhanced_chunks = []
+                    for chunk_data in llm_results.get('enhanced_chunks', []):
+                        if isinstance(chunk_data, dict) and 'content' in chunk_data:
+                            from langchain_core.documents import Document
+                            enhanced_chunk = Document(
+                                page_content=chunk_data['content'],
+                                metadata=chunk_data.get('metadata', {})
+                            )
+                            enhanced_chunks.append(enhanced_chunk)
+                    
+                    if enhanced_chunks:
+                        # Re-evaluate enhanced chunks
+                        enhanced_metrics = self.evaluator.evaluate_chunks(enhanced_chunks)
+                        llm_score = enhanced_metrics.get('overall_score', 0)
+                        
+                        if llm_score > enhancement_results['final_score']:
+                            enhancement_results['final_chunks'] = enhanced_chunks
+                            enhancement_results['final_score'] = llm_score
+                            enhancement_results['llm_enhanced'] = True
+                            enhancement_results['improvements_made'].extend([
+                                "Applied LLM-powered content enhancement",
+                                "Improved semantic coherence with LLM",
+                                "Enhanced readability using AI"
+                            ])
+            except Exception as e:
+                enhancement_results['improvements_made'].append(f"LLM enhancement failed: {str(e)}")
+        
+        # Phase 3: Apply traditional chunk-level improvements if still needed
         if enhancement_results['final_score'] < 70:
             try:
                 chunk_level_results = self.auto_enhance_chunks(
@@ -892,12 +939,54 @@ class AdvancedQualityEnhancementManager(QualityEnhancementManager):
             except Exception as e:
                 enhancement_results['improvements_made'].append(f"Chunk-level enhancement failed: {str(e)}")
         
-        # Phase 3: Save results if improvement was made
+        # Phase 4: Save results if improvement was made
         if enhancement_results['final_score'] > enhancement_results['original_score']:
             try:
                 self._save_comprehensive_results(enhancement_results, output_paths)
             except Exception as e:
                 enhancement_results['improvements_made'].append(f"Save results failed: {str(e)}")
+        
+        return enhancement_results
+    
+    def llm_comprehensive_enhancement(self, chunks: List[Any], quality_metrics: dict, output_paths: dict) -> dict:
+        """LLM-focused comprehensive enhancement for testing."""
+        
+        enhancement_results = {
+            'original_score': quality_metrics.get('overall_score', 0),
+            'enhanced_score': 0,
+            'llm_enhanced': False,
+            'improvements_made': [],
+            'final_chunks': chunks.copy()
+        }
+        
+        if self.enable_llm and self.llm_enhancer:
+            try:
+                llm_results = self.llm_enhancer.comprehensive_enhance(chunks)
+                
+                if llm_results.get('llm_enhanced', False):
+                    enhanced_chunks = []
+                    for chunk_data in llm_results.get('enhanced_chunks', []):
+                        if isinstance(chunk_data, dict) and 'content' in chunk_data:
+                            from langchain_core.documents import Document
+                            enhanced_chunk = Document(
+                                page_content=chunk_data['content'],
+                                metadata=chunk_data.get('metadata', {})
+                            )
+                            enhanced_chunks.append(enhanced_chunk)
+                    
+                    if enhanced_chunks:
+                        # Re-evaluate enhanced chunks
+                        enhanced_metrics = self.evaluator.evaluate_chunks(enhanced_chunks)
+                        enhancement_results['enhanced_score'] = enhanced_metrics.get('overall_score', 0)
+                        enhancement_results['final_chunks'] = enhanced_chunks
+                        enhancement_results['llm_enhanced'] = True
+                        enhancement_results['improvements_made'] = [
+                            "Applied LLM-powered content enhancement",
+                            "Improved semantic coherence with LLM",
+                            "Enhanced readability using AI"
+                        ]
+            except Exception as e:
+                enhancement_results['improvements_made'].append(f"LLM enhancement failed: {str(e)}")
         
         return enhancement_results
     
@@ -970,3 +1059,10 @@ def get_quality_enhancement_manager(markdown_manager: MarkdownFileManager = None
     if markdown_manager is None:
         markdown_manager = get_markdown_manager()
     return QualityEnhancementManager(markdown_manager)
+
+
+def get_advanced_quality_enhancement_manager(markdown_manager: MarkdownFileManager = None) -> AdvancedQualityEnhancementManager:
+    """Get an AdvancedQualityEnhancementManager instance."""
+    if markdown_manager is None:
+        markdown_manager = get_markdown_manager()
+    return AdvancedQualityEnhancementManager(markdown_manager)

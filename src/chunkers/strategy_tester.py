@@ -16,7 +16,7 @@ class StrategyTester:
         self.evaluator = ChunkQualityEvaluator()
         self.optimizer = StrategyOptimizer()
     
-    def test_multiple_strategies(self, content: str, strategies: Optional[List[str]] = None) -> Dict[str, Any]:
+    def test_multiple_strategies(self, content: str, original_metadata: Dict[str, Any], strategies: Optional[List[str]] = None) -> Dict[str, Any]:
         """Test multiple strategies and return comparative results."""
         
         if strategies is None:
@@ -37,7 +37,7 @@ class StrategyTester:
                 chunker = self._create_chunker(strategy, params)
                 
                 # Generate chunks
-                chunks = chunker.chunk_document(content)
+                chunks = chunker.chunk_document(content, metadata=original_metadata)
                 
                 # Evaluate quality
                 quality_metrics = self.evaluator.evaluate_chunks(chunks)

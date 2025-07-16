@@ -817,7 +817,7 @@ End.'''
             
             # Measure performance
             start_time = time.time()
-            results = tester.test_multiple_strategies(content)
+            results = tester.test_multiple_strategies(content, {})
             end_time = time.time()
             
             performance_results[size] = {
@@ -885,7 +885,7 @@ End.'''
         ]
         
         for content in problematic_cases:
-            results = tester.test_multiple_strategies(content)
+            results = tester.test_multiple_strategies(content, {})
             
             # Should handle errors gracefully
             assert isinstance(results, dict)

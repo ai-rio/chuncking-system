@@ -23,7 +23,7 @@ from src.utils.validators import (
     validate_file_path, validate_directory_path, validate_chunk_size, 
     validate_chunk_overlap, validate_output_format
 )
-from src.utils.path_utils import get_markdown_manager, get_quality_enhancement_manager
+from src.utils.path_utils import get_markdown_manager, get_quality_enhancement_manager, get_advanced_quality_enhancement_manager
 
 # Setup logging
 app_logger = setup_logging(level="INFO")
@@ -34,7 +34,7 @@ path_manager = get_markdown_manager()
 from src.chunkers.hybrid_chunker import HybridMarkdownChunker
 from src.utils.file_handler import FileHandler
 from src.utils.metadata_enricher import MetadataEnricher
-from src.chunkers.evaluators import ChunkQualityEvaluator  # Fixed: changed 'evaluator' to 'evaluators'
+from src.chunkers.evaluators import ChunkQualityEvaluator, EnhancedChunkQualityEvaluator  # Fixed: changed 'evaluator' to 'evaluators'
 from src.config.settings import config
 from src.exceptions import ChunkingError, FileHandlingError, ValidationError
 
@@ -84,6 +84,27 @@ def main():
         action='store_true',
         default=False,
         help="Automatically enhance chunks if quality is below threshold."
+    )
+    parser.add_argument(
+        '--enable-jina',
+        action='store_true',
+        default=False,
+        help="Enable Jina AI embeddings for superior semantic analysis."
+    )
+    parser.add_argument(
+        '--jina-api-key',
+        help="Jina AI API key (or set JINA_API_KEY environment variable)."
+    )
+    parser.add_argument(
+        '--jina-model',
+        default="jina-embeddings-v2-base-en",
+        help="Jina embedding model to use."
+    )
+    parser.add_argument(
+        '--hybrid-mode',
+        action='store_true',
+        default=False,
+        help="Use hybrid mode comparing TF-IDF and Jina embeddings."
     )
     
     args = parser.parse_args()
@@ -158,7 +179,24 @@ def main():
             chunk_overlap=chunk_overlap,
             # enable_semantic=False # Explicitly set to False as libraries are not installed
         )
-        evaluator = ChunkQualityEvaluator()
+        # Initialize quality evaluator - use Enhanced version if Jina is enabled
+        if args.enable_jina:
+            jina_api_key = args.jina_api_key or os.getenv('JINA_API_KEY')
+            if jina_api_key:
+                app_logger.info("Initializing Enhanced Quality Evaluator with Jina AI embeddings")
+                evaluator = EnhancedChunkQualityEvaluator(
+                    use_jina_embeddings=True,
+                    jina_api_key=jina_api_key,
+                    jina_model=args.jina_model,
+                    fallback_to_tfidf=True,
+                    enable_embedding_cache=True,
+                    hybrid_mode=args.hybrid_mode
+                )
+            else:
+                app_logger.warning("Jina enabled but no API key provided. Using standard evaluator.")
+                evaluator = ChunkQualityEvaluator()
+        else:
+            evaluator = ChunkQualityEvaluator()
         chunking_logger.end_operation("initialization", success=True)
         app_logger.debug("Chunker and evaluator initialized successfully")
     except Exception as e:
@@ -268,22 +306,24 @@ def main():
                 chunking_logger.start_operation("quality_enhancement")
                 app_logger.info("Quality score below threshold, starting auto-enhancement...")
                 try:
-                    enhancement_manager = get_quality_enhancement_manager(path_manager)
-                    enhancement_results = enhancement_manager.auto_enhance_chunks(
+                    enhancement_manager = get_advanced_quality_enhancement_manager(path_manager)
+                    enhancement_results = enhancement_manager.comprehensive_enhancement(
+                        book_content,
                         all_chunks_for_evaluation,
                         overall_evaluation_metrics,
-                        output_paths
+                        output_paths,
+                        book_metadata
                     )
                     
                     app_logger.info("Quality enhancement completed",
                                    original_score=enhancement_results['original_score'],
-                                   enhanced_score=enhancement_results['enhanced_score'],
+                                   final_score=enhancement_results['final_score'],
                                    improvements=enhancement_results['improvements_made'])
                     
                     # Generate enhanced quality report
-                    if enhancement_results['enhanced_score'] > enhancement_results['original_score']:
+                    if enhancement_results['final_score'] > enhancement_results['original_score']:
                         enhanced_report_path = output_paths['reports'] / f"{input_file_path.stem}_enhanced_quality_report.md"
-                        evaluator.generate_report(enhancement_results['enhanced_chunks'], str(enhanced_report_path))
+                        evaluator.generate_report(enhancement_results['final_chunks'], str(enhanced_report_path))
                         app_logger.info("Enhanced quality report generated", report_path=str(enhanced_report_path))
                     
                     chunking_logger.end_operation("quality_enhancement", success=True)

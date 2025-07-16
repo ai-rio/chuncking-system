@@ -37,8 +37,8 @@ class ChunkingConfig(BaseSettings):
     ENABLE_PARALLEL: bool = False
 
     # LLM Provider Configuration
-    LLM_PROVIDER: str = "openai"  # openai, anthropic, azure, google, jina, local
-    LLM_MODEL: str = "gpt-3.5-turbo"
+    LLM_PROVIDER: str = "google"  # openai, anthropic, azure, google, jina, local
+    LLM_MODEL: str = "gemini-2.0-flash-exp"
     
     # Provider-specific API keys
     OPENAI_API_KEY: str = ""

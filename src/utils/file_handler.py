@@ -111,6 +111,8 @@ class FileHandler:
                 try:
                     with open(output_path, 'w', encoding='utf-8') as f:
                         json.dump(chunks_data, f, indent=2, ensure_ascii=False)
+                    print(f"DEBUG: FileHandler.save_chunks - Successfully wrote to {output_path}")
+                    print(f"DEBUG: FileHandler.save_chunks - File exists after write: {Path(output_path).exists()}")
                 except PermissionError:
                     raise
         
