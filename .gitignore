@@ -23,3 +23,4 @@ data/output/
 #.env
 .env
 .env.local
+data/**
