@@ -125,7 +125,7 @@ def main():
 
     app_logger.info("🚀 Document Chunking System Starting for Book Processing...")
     app_logger.info("Configuration loaded", 
-                   input_file=book_file_path,
+                   input_file=input_file_path,
                    output_dir=args.output_dir,
                    chunk_size=args.chunk_size,
                    output_format=args.format)
@@ -149,7 +149,7 @@ def main():
         chunking_logger.end_operation("main_application", success=False, error="Initialization failed")
         return
 
-    chunking_logger.start_operation("file_processing", file_path=book_file_path)
+    chunking_logger.start_operation("file_processing", file_path=input_file_path)
 
     total_chunks = 0
     all_chunks_for_evaluation = [] # Collect all chunks for overall quality evaluation
@@ -176,7 +176,7 @@ def main():
 
         # Chunk the entire book content
         chunking_logger.start_operation("chunking", strategy="hybrid")
-        app_logger.info("Starting document chunking...", file_path=book_file_path)
+        app_logger.info("Starting document chunking...", file_path=input_file_path)
         
         chunks = chunker.chunk_document(book_content, book_metadata)
         
