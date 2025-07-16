@@ -1383,10 +1383,18 @@ class ObservabilityManager:
         """Run a health check."""
         return self.health_registry.run_check(name, use_cache)
     
-    def export_all_data(self) -> Dict[str, Any]:
+    def export_all_data(self, include_system_metrics: bool = True) -> Dict[str, Any]:
         """Export all observability data."""
         # Use MetricsRegistry's export method which includes sensitive data filtering
         metrics_data = self.metrics_registry.export_all_data()
+        
+        # Filter out system metrics if requested (useful for testing)
+        if not include_system_metrics:
+            filtered_metrics = [
+                metric for metric in metrics_data["metrics"] 
+                if not metric["name"].startswith("system.")
+            ]
+            metrics_data["metrics"] = filtered_metrics
         
         return {
             "metrics": {

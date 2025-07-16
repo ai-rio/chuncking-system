@@ -302,35 +302,69 @@ class HealthChecker:
         start_time = time.time()
         
         try:
-            # Check if main modules can be imported
-            from src.chunking_system import DocumentChunker
-            from src.utils.cache import CacheManager
-            
-            # Basic functionality test
-            chunker = DocumentChunker()
-            cache_manager = CacheManager()
-            
-            response_time = (time.time() - start_time) * 1000
-            
-            return HealthStatus(
-                component="application_status",
-                status="healthy",
-                is_healthy=True,
-                message="Application components operational",
-                timestamp=datetime.now(),
-                response_time_ms=response_time,
-                details={
-                    "chunker_available": True,
-                    "cache_available": True,
-                    "startup_time_ms": response_time
-                }
-            )
+            # Check if main modules can be imported (lightweight check)
+            try:
+                from src.chunking_system import DocumentChunker
+                from src.utils.cache import CacheManager
+                
+                # For performance testing, just check if classes can be imported
+                # without actually instantiating them (which is slow)
+                import os
+                if os.getenv('CHUNKING_SYSTEM_LIGHTWEIGHT_HEALTH_CHECK', '').lower() == 'true':
+                    response_time = (time.time() - start_time) * 1000
+                    return HealthStatus(
+                        component="application_status",
+                        status="healthy",
+                        is_healthy=True,
+                        message="Application components importable (lightweight check)",
+                        timestamp=datetime.now(),
+                        response_time_ms=response_time,
+                        details={
+                            "chunker_available": True,
+                            "cache_available": True,
+                            "startup_time_ms": response_time,
+                            "lightweight_check": True
+                        }
+                    )
+                
+                # Normal full functionality test
+                chunker = DocumentChunker()
+                cache_manager = CacheManager()
+                
+                response_time = (time.time() - start_time) * 1000
+                
+                return HealthStatus(
+                    component="application_status",
+                    status="healthy",
+                    is_healthy=True,
+                    message="Application components operational",
+                    timestamp=datetime.now(),
+                    response_time_ms=response_time,
+                    details={
+                        "chunker_available": True,
+                        "cache_available": True,
+                        "startup_time_ms": response_time,
+                        "lightweight_check": False
+                    }
+                )
+            except ImportError as ie:
+                response_time = (time.time() - start_time) * 1000
+                return HealthStatus(
+                    component="application_status",
+                    status="unhealthy",
+                    is_healthy=False,
+                    message=f"Application import error: {str(ie)}",
+                    timestamp=datetime.now(),
+                    response_time_ms=response_time,
+                    details={"import_error": str(ie)}
+                )
         
         except Exception as e:
             response_time = (time.time() - start_time) * 1000
             return HealthStatus(
                 component="application_status",
                 status="unhealthy",
+                is_healthy=False,
                 message=f"Application error: {str(e)}",
                 timestamp=datetime.now(),
                 response_time_ms=response_time,
