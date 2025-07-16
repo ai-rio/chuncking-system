@@ -57,16 +57,15 @@ uv pip install pytest pytest-cov pytest-mock black flake8 mypy
 # Process a single book/document with basic chunking
 python main.py --input-file data/input/markdown_files/your_book.md
 
-# Advanced processing with quality enhancement (recommended)
+# Recommended: Set JINA_API_KEY in .env for automatic superior semantic analysis
+python main.py \
+  --input-file data/input/markdown_files/your_book.md \
+  --auto-enhance
+
+# Advanced processing with all features enabled
 python main.py \
   --input-file data/input/markdown_files/your_book.md \
   --create-project-folder \
-  --auto-enhance
-
-# With Jina AI embeddings for superior semantic analysis (recommended)
-python main.py \
-  --input-file data/input/markdown_files/your_book.md \
-  --jina-api-key "your_jina_api_key" \
   --auto-enhance
 
 # Specify output directory and chunk size
@@ -76,6 +75,14 @@ python main.py \
   --chunk-size 800 \
   --format json
 ```
+
+### 🎯 **Simplified Workflow** (Recommended)
+
+1. **One-time setup**: Add `JINA_API_KEY=your_key` to `.env` file
+2. **Every run**: `python main.py --input-file your_file.md`
+3. **Automatic benefits**: 87% semantic coherence vs 33% with traditional methods
+
+**Why this matters**: Jina AI embeddings provide dramatically superior semantic understanding compared to traditional TF-IDF methods, automatically improving your RAG application quality.
 
 ### Python API Usage
 
@@ -287,7 +294,7 @@ LLM_MODEL=gemini-2.0-flash-exp
 GOOGLE_API_KEY=your_google_api_key_here
 OPENAI_API_KEY=your_openai_api_key_here
 ANTHROPIC_API_KEY=your_anthropic_api_key_here
-JINA_API_KEY=your_jina_api_key_here
+JINA_API_KEY=your_jina_api_key_here  # Automatically enables Jina embeddings when set
 
 # Azure OpenAI (optional)
 AZURE_OPENAI_API_KEY=your_azure_key_here
@@ -452,23 +459,26 @@ pytest --cov=src --cov-report=html --cov-fail-under=80
 
 ### Jina AI Embeddings for Superior Semantic Analysis
 
-Enable Jina AI embeddings for dramatically improved semantic coherence:
+Jina AI embeddings are **automatically enabled** when `JINA_API_KEY` is set in your `.env` file:
 
 ```bash
-# Simple Jina AI integration (automatically enables embeddings)
-python main.py \
-  --input-file data/input/markdown_files/your_book.md \
-  --jina-api-key "your_jina_api_key"
+# Automatic Jina AI integration (when JINA_API_KEY is in .env)
+python main.py --input-file data/input/markdown_files/your_book.md
 
-# With quality enhancement for optimal results
+# With quality enhancement for optimal results  
 python main.py \
   --input-file data/input/markdown_files/your_book.md \
-  --jina-api-key "your_jina_api_key" \
   --auto-enhance
 
-# Or set in environment variable
-export JINA_API_KEY="your_jina_api_key"
-python main.py --input-file data/input/markdown_files/your_book.md
+# Override .env with different API key
+python main.py \
+  --input-file data/input/markdown_files/your_book.md \
+  --jina-api-key "different_jina_api_key"
+
+# Disable Jina embeddings (use TF-IDF only)
+python main.py \
+  --input-file data/input/markdown_files/your_book.md \
+  --jina-api-key ""
 ```
 
 **Performance Benefits:**
