@@ -10,6 +10,7 @@ A **production-ready enterprise-grade hybrid document chunking system** optimize
 - **🤖 RAG-Optimized**: Designed for optimal performance with language models (Gemini, GPT, etc.)
 - **🏷️ Metadata Enrichment**: Automatic metadata enhancement with content analysis
 - **🔍 Content Type Detection**: Automatic detection of headers, code, lists, and tables
+- **🧠 Multi-LLM Support**: Integrated support for OpenAI, Anthropic Claude, and Jina AI providers
 
 ### 🛡️ **Production-Ready Infrastructure** 
 - **⚡ Performance Optimized**: Memory-efficient processing with multi-tier intelligent caching (TTL + LRU)
@@ -108,6 +109,9 @@ FileHandler.save_chunks(chunks, 'output/chunks.json', 'json')
 - `pydantic>=2.11.7` - Configuration management
 - `pandas>=2.3.1` - Data handling and CSV export
 - `numpy>=2.3.1` - Numerical operations
+- `openai>=1.0.0` - OpenAI API integration
+- `anthropic>=0.7.0` - Anthropic Claude API integration
+- `requests>=2.31.0` - HTTP requests for Jina AI and other providers
 
 See `requirements.txt` for complete dependency list.
 
@@ -124,6 +128,14 @@ src/
 │   └── markdown_processor.py  #   Markdown-specific processing
 ├── config/
 │   └── settings.py            # Configuration management
+├── llm/                       # 🧠 Multi-LLM Provider Support
+│   ├── factory.py            #   LLM provider factory and management
+│   └── providers/            #   LLM provider implementations
+│       ├── base.py           #     Abstract base provider
+│       ├── openai_provider.py #     OpenAI integration
+│       ├── anthropic_provider.py # Anthropic Claude integration
+│       ├── jina_provider.py  #     Jina AI integration
+│       └── __init__.py       
 ├── utils/                     # 🛡️ Production Infrastructure
 │   ├── cache.py              #   Intelligent caching system (Phase 3)
 │   ├── file_handler.py       #   File I/O operations
@@ -152,6 +164,7 @@ The main chunking engine that:
 - Selects optimal chunking strategy
 - Preserves document structure
 - Maintains semantic coherence
+- Integrates with multiple LLM providers for accurate token counting
 
 #### 📊 ChunkQualityEvaluator
 Comprehensive quality assessment including:
@@ -182,6 +195,15 @@ Production security features:
 - **Checksum Validation**: File integrity verification
 - **Path Sanitization**: Directory traversal prevention
 
+#### 🧠 Multi-LLM Provider Support
+Extensible LLM integration framework:
+- **OpenAI Integration**: GPT models with tiktoken-based tokenization
+- **Anthropic Claude**: Claude models with completion and chat capabilities
+- **Jina AI Support**: Embeddings and completion models via HTTP API
+- **Provider Factory**: Easy provider switching and configuration
+- **Graceful Fallbacks**: Automatic fallback to tiktoken when providers unavailable
+- **Token Counting**: Provider-specific accurate token counting for optimal chunking
+
 ## ⚙️ Configuration
 
 The system uses Pydantic-based configuration in `src/config/settings.py`:
@@ -207,8 +229,23 @@ HEADER_LEVELS = [
 Create a `.env` file:
 
 ```bash
-# Optional: OpenAI API key for advanced features
+# LLM Provider Configuration
+LLM_PROVIDER=openai  # openai, anthropic, jina, local
+LLM_MODEL=gpt-3.5-turbo
+
+# Provider API Keys
 OPENAI_API_KEY=your_openai_api_key_here
+ANTHROPIC_API_KEY=your_anthropic_api_key_here
+JINA_API_KEY=your_jina_api_key_here
+
+# Azure OpenAI (optional)
+AZURE_OPENAI_API_KEY=your_azure_key_here
+AZURE_OPENAI_ENDPOINT=https://your-resource.openai.azure.com/
+AZURE_OPENAI_API_VERSION=2023-05-15
+
+# Local LLM (optional)
+LOCAL_LLM_ENDPOINT=http://localhost:8000
+LOCAL_LLM_MODEL=llama2
 
 # Processing settings
 BATCH_SIZE=10
@@ -232,7 +269,9 @@ ENABLE_PARALLEL=false
       "processed_at": "2024-01-15T10:30:00",
       "has_code": false,
       "has_headers": true,
-      "language": "english"
+      "language": "english",
+      "llm_provider": "openai",
+      "llm_model": "gpt-3.5-turbo"
     }
   }
 ]
@@ -274,6 +313,9 @@ pytest tests/ --cov=src --cov-report=html
 # Run specific test files
 pytest tests/test_hybrid_chunker.py -v
 pytest tests/test_evaluators.py -v
+pytest tests/test_llm_providers.py -v
+pytest tests/test_llm_factory.py -v
+pytest tests/test_llm_integration.py -v
 ```
 
 ### Test Coverage
@@ -282,11 +324,13 @@ The project includes comprehensive tests for:
 - ✅ **Phase 2**: Documentation and code quality validation
 - ✅ **Phase 3**: Security, caching, and monitoring tests
 - ✅ **Phase 4**: Observability, health endpoints, and metrics tests
+- ✅ **Multi-LLM Support**: Comprehensive LLM provider testing with 54+ test cases
 
 **Enterprise Test Suite**: 
 - **Core Components**: 95%+ coverage for chunking engine with comprehensive unit and integration tests
 - **Security & Performance**: Complete validation of security framework, caching, and performance monitoring
 - **Observability**: Full test coverage for enterprise monitoring infrastructure and health endpoints
+- **LLM Provider Integration**: Complete test coverage for OpenAI, Anthropic, and Jina AI providers
 - **Integration**: End-to-end workflow testing with real-world scenarios and production simulation
 - **CI/CD Validation**: Automated testing pipeline with quality gates, security scanning, and performance benchmarks
 
@@ -351,6 +395,63 @@ pytest --cov=src --cov-report=html --cov-fail-under=80
 ```
 
 ## 🔧 Advanced Usage
+
+### Multi-LLM Provider Configuration
+
+```python
+from src.llm.factory import LLMFactory
+from src.llm.providers import OpenAIProvider, AnthropicProvider, JinaProvider
+
+# Use OpenAI provider
+chunker = HybridMarkdownChunker(
+    chunk_size=800,
+    chunk_overlap=150,
+    llm_provider="openai",
+    llm_model="gpt-4"
+)
+
+# Switch to Anthropic Claude
+chunker = HybridMarkdownChunker(
+    chunk_size=800,
+    chunk_overlap=150,
+    llm_provider="anthropic", 
+    llm_model="claude-3-sonnet-20240229"
+)
+
+# Use Jina AI for embeddings
+chunker = HybridMarkdownChunker(
+    chunk_size=800,
+    chunk_overlap=150,
+    llm_provider="jina",
+    llm_model="jina-embeddings-v2-base-en"
+)
+
+# Check available providers
+factory = LLMFactory()
+available = factory.get_available_providers()
+print(f"Available providers: {available}")
+```
+
+### Custom LLM Provider Registration
+
+```python
+from src.llm.factory import LLMFactory
+from src.llm.providers.base import BaseLLMProvider
+
+class CustomProvider(BaseLLMProvider):
+    @property
+    def provider_name(self):
+        return "custom"
+    
+    def count_tokens(self, text: str) -> int:
+        # Custom token counting logic
+        return len(text.split()) * 1.3
+    
+    # Implement other required methods...
+
+# Register custom provider
+LLMFactory.register_provider("custom", CustomProvider)
+```
 
 ### Custom Chunking Strategies
 
@@ -586,6 +687,7 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ### ✅ **Fully Implemented Enterprise Features**
 - **🔀 Advanced Chunking Engine**: Hybrid strategies with quality evaluation and semantic processing
+- **🧠 Multi-LLM Integration**: OpenAI, Anthropic Claude, and Jina AI with extensible provider framework
 - **🛡️ Security Framework**: Input validation, path sanitization, file size limits, and vulnerability scanning
 - **⚡ Performance Optimization**: Multi-tier caching, memory management, and real-time monitoring
 - **📈 Enterprise Observability**: Distributed tracing, structured logging, health checks, and Prometheus metrics
@@ -617,6 +719,11 @@ This system is **production-ready** and suitable for:
 - [scikit-learn](https://scikit-learn.org/) for machine learning metrics
 - [tiktoken](https://github.com/openai/tiktoken) for accurate token counting
 - [Pydantic](https://pydantic-docs.helpmanual.io/) for configuration management
+
+### LLM Provider Integrations
+- [OpenAI](https://openai.com/) for GPT models and embeddings
+- [Anthropic](https://anthropic.com/) for Claude models and completions
+- [Jina AI](https://jina.ai/) for embeddings and neural search capabilities
 
 ### Observability Stack
 - [Prometheus](https://prometheus.io/) for metrics collection and alerting

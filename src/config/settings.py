@@ -36,8 +36,24 @@ class ChunkingConfig(BaseSettings):
     BATCH_SIZE: int = 10
     ENABLE_PARALLEL: bool = False
 
-    # LLM Integration
+    # LLM Provider Configuration
+    LLM_PROVIDER: str = "openai"  # openai, anthropic, azure, google, jina, local
+    LLM_MODEL: str = "gpt-3.5-turbo"
+    
+    # Provider-specific API keys
     OPENAI_API_KEY: str = ""
+    ANTHROPIC_API_KEY: str = ""
+    AZURE_OPENAI_API_KEY: str = ""
+    GOOGLE_API_KEY: str = ""
+    JINA_API_KEY: str = ""
+    
+    # Azure-specific settings
+    AZURE_OPENAI_ENDPOINT: str = ""
+    AZURE_OPENAI_API_VERSION: str = "2023-05-15"
+    
+    # Local LLM settings
+    LOCAL_LLM_ENDPOINT: str = "http://localhost:8000"
+    LOCAL_LLM_MODEL: str = "llama2"
 
     # Quality thresholds
     SEMANTIC_SIMILARITY_THRESHOLD: float = 0.8

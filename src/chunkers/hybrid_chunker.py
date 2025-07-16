@@ -41,17 +41,24 @@ class HybridMarkdownChunker:
         # Initialize logger
         self.logger = get_logger(__name__)
 
-        # Initialize tokenizer for accurate token counting
+        # Initialize LLM provider for token counting
         try:
-            self.tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
+            from src.llm.factory import LLMFactory
+            self.llm_provider = LLMFactory.create_provider()
         except Exception as e:
+            # Fallback to direct tiktoken if LLM provider fails
             try:
-                self.tokenizer = tiktoken.get_encoding("cl100k_base")
+                self.tokenizer = tiktoken.encoding_for_model("gpt-3.5-turbo")
+                self.llm_provider = None
             except Exception as fallback_error:
-                raise TokenizationError(
-                    "Failed to initialize tokenizer",
-                    model="gpt-3.5-turbo or cl100k_base"
-                ) from fallback_error
+                try:
+                    self.tokenizer = tiktoken.get_encoding("cl100k_base")
+                    self.llm_provider = None
+                except Exception as final_error:
+                    raise TokenizationError(
+                        "Failed to initialize tokenizer or LLM provider",
+                        model="gpt-3.5-turbo or cl100k_base"
+                    ) from final_error
 
         # Initialize performance monitoring
         self.performance_monitor = PerformanceMonitor()
@@ -107,9 +114,12 @@ class HybridMarkdownChunker:
             ) from e
 
     def _token_length(self, text: str) -> int:
-        """Calculate token length using tiktoken"""
+        """Calculate token length using LLM provider or tiktoken fallback"""
         try:
-            return len(self.tokenizer.encode(text))
+            if self.llm_provider:
+                return self.llm_provider.count_tokens(text)
+            else:
+                return len(self.tokenizer.encode(text))
         except Exception as e:
             raise TokenizationError(
                 "Failed to calculate token length",
@@ -290,6 +300,11 @@ class HybridMarkdownChunker:
             chunk.metadata['chunk_index'] = chunk_index
             chunk.metadata['chunk_tokens'] = self._token_length(chunk.page_content)
             chunk.metadata['chunk_chars'] = len(chunk.page_content)
+
+            # Add LLM provider metadata if available
+            if self.llm_provider:
+                chunk.metadata['llm_provider'] = self.llm_provider.provider_name
+                chunk.metadata['llm_model'] = self.llm_provider.model
 
             # Add content analysis
             chunk.metadata['word_count'] = len(chunk.page_content.split())
