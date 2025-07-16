@@ -47,7 +47,7 @@ class MarkdownProcessor:
                 structure['tables'].append({'line': i, 'content': line})
 
             # Extract links and images
-            links = re.findall(r'\[([^\]]+)\]\(([^)]+)\)', line)
+            links = re.findall(r'(?<!\!)\[([^\]]+)\]\(([^)]+)\)', line)
             images = re.findall(r'!\[([^\]]*)\]\(([^)]+)\)', line)
 
             structure['links'].extend(links)

@@ -326,7 +326,7 @@ class TestHealthCheckPerformance:
         
         for i in range(num_iterations):
             with PerformanceTimer() as timer:
-                result = health_registry.run_health_check("load_test")
+                result = health_registry.run_health_check("load_test", use_cache=False)
             
             response_times.append(timer.elapsed_ms)
             assert result.status == HealthStatus.HEALTHY

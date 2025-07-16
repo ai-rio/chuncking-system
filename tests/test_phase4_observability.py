@@ -635,7 +635,7 @@ class TestIntegrationScenarios:
         manager.record_metric("active_connections", 25, MetricType.GAUGE)
         
         # Export data
-        export_data = manager.export_all_data()
+        export_data = manager.export_all_data(include_system_metrics=False)
         
         # Verify complete data export
         assert len(export_data["metrics"]["metrics"]) == 3
