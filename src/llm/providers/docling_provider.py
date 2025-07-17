@@ -5,7 +5,7 @@ from pathlib import Path
 
 try:
     from docling.document_converter import DocumentConverter
-    from docling.datamodel.base_models import ConversionResult
+    from docling.datamodel.document import ConversionResult
     DOCLING_AVAILABLE = True
 except ImportError:
     DOCLING_AVAILABLE = False
@@ -44,11 +44,16 @@ class DoclingProvider(BaseLLMProvider):
         if not DOCLING_AVAILABLE:
             raise LLMProviderError("Docling library not available. Install with: pip install docling")
         
+        # Set base URL for API calls
+        self.base_url = kwargs.get("base_url", "https://api.docling.ai/v1")
+        self.embedding_model = kwargs.get("embedding_model", "docling-embeddings-v1")
+        
         # Initialize DocumentConverter
         self.converter = DocumentConverter()
         
         # Store configuration for compatibility
         self.config["docling_available"] = DOCLING_AVAILABLE
+        self.config["base_url"] = self.base_url
     
     @property
     def provider_name(self) -> str:
@@ -250,7 +255,8 @@ class DoclingProvider(BaseLLMProvider):
         Returns:
             True if provider has valid configuration, False otherwise
         """
-        return bool(self.api_key and self.api_key.strip())
+        # For DoclingProvider, we need a real API key, not the default "local"
+        return bool(self.api_key and self.api_key.strip() and self.api_key != "local")
     
     def process_document(
         self, 
