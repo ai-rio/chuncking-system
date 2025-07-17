@@ -1,6 +1,6 @@
 from typing import Dict, Type, Optional
 from src.config.settings import config
-from .providers import BaseLLMProvider, OpenAIProvider, AnthropicProvider, JinaProvider
+from .providers import BaseLLMProvider, OpenAIProvider, AnthropicProvider, JinaProvider, DoclingProvider
 
 
 class LLMFactory:
@@ -10,6 +10,7 @@ class LLMFactory:
         "openai": OpenAIProvider,
         "anthropic": AnthropicProvider,
         "jina": JinaProvider,
+        "docling": DoclingProvider,
     }
     
     @classmethod
@@ -36,6 +37,11 @@ class LLMFactory:
         if not api_key:
             raise ValueError(f"No API key found for provider: {provider_name}")
         
+        # Add provider-specific configuration
+        if provider_name == "docling":
+            kwargs.setdefault("base_url", config.DOCLING_API_BASE_URL)
+            kwargs.setdefault("embedding_model", config.DOCLING_EMBEDDING_MODEL)
+        
         return provider_class(api_key=api_key, model=model, **kwargs)
     
     @classmethod
@@ -45,6 +51,7 @@ class LLMFactory:
             "openai": config.OPENAI_API_KEY,
             "anthropic": config.ANTHROPIC_API_KEY,
             "jina": config.JINA_API_KEY,
+            "docling": config.DOCLING_API_KEY,
         }
         
         return key_mapping.get(provider_name, "")

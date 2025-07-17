@@ -1,7 +1,7 @@
 import pytest
 from unittest.mock import Mock, patch, MagicMock
 from src.llm.factory import LLMFactory
-from src.llm.providers import BaseLLMProvider, OpenAIProvider, AnthropicProvider, JinaProvider
+from src.llm.providers import BaseLLMProvider, OpenAIProvider, AnthropicProvider, JinaProvider, DoclingProvider
 
 
 class TestLLMFactory:
@@ -9,7 +9,7 @@ class TestLLMFactory:
     
     def test_available_providers_registration(self):
         """Test that all expected providers are registered"""
-        expected_providers = ["openai", "anthropic", "jina"]
+        expected_providers = ["openai", "anthropic", "jina", "docling"]
         
         for provider_name in expected_providers:
             assert provider_name in LLMFactory._providers
@@ -19,6 +19,7 @@ class TestLLMFactory:
         assert LLMFactory._providers["openai"] == OpenAIProvider
         assert LLMFactory._providers["anthropic"] == AnthropicProvider
         assert LLMFactory._providers["jina"] == JinaProvider
+        assert LLMFactory._providers["docling"] == DoclingProvider
     
     @patch('src.llm.factory.config')
     def test_create_openai_provider(self, mock_config):
@@ -61,6 +62,23 @@ class TestLLMFactory:
         assert isinstance(provider, JinaProvider)
         assert provider.api_key == "test_jina_key"
         assert provider.model == "jina-embeddings-v2-base-en"
+    
+    @patch('src.llm.factory.config')
+    def test_create_docling_provider(self, mock_config):
+        """Test creating Docling provider"""
+        mock_config.LLM_PROVIDER = "docling"
+        mock_config.LLM_MODEL = "docling-v1"
+        mock_config.DOCLING_API_KEY = "test_docling_key"
+        mock_config.DOCLING_API_BASE_URL = "https://api.docling.ai/v1"
+        mock_config.DOCLING_EMBEDDING_MODEL = "docling-embeddings-v1"
+        
+        provider = LLMFactory.create_provider()
+        
+        assert isinstance(provider, DoclingProvider)
+        assert provider.api_key == "test_docling_key"
+        assert provider.model == "docling-v1"
+        assert provider.config["base_url"] == "https://api.docling.ai/v1"
+        assert provider.config["embedding_model"] == "docling-embeddings-v1"
     
     @patch('src.llm.factory.config')
     def test_create_provider_with_overrides(self, mock_config):
@@ -119,10 +137,12 @@ class TestLLMFactory:
         mock_config.OPENAI_API_KEY = "openai_key"
         mock_config.ANTHROPIC_API_KEY = "anthropic_key"
         mock_config.JINA_API_KEY = "jina_key"
+        mock_config.DOCLING_API_KEY = "docling_key"
         
         assert LLMFactory._get_api_key("openai") == "openai_key"
         assert LLMFactory._get_api_key("anthropic") == "anthropic_key"
         assert LLMFactory._get_api_key("jina") == "jina_key"
+        assert LLMFactory._get_api_key("docling") == "docling_key"
         assert LLMFactory._get_api_key("unknown") == ""
     
     def test_register_new_provider(self):
@@ -161,12 +181,14 @@ class TestLLMFactory:
         mock_config.OPENAI_API_KEY = "openai_key"
         mock_config.ANTHROPIC_API_KEY = ""
         mock_config.JINA_API_KEY = "jina_key"
+        mock_config.DOCLING_API_KEY = "docling_key"
         
         status = LLMFactory.get_available_providers()
         
         assert status["openai"] is True
         assert status["anthropic"] is False
         assert status["jina"] is True
+        assert status["docling"] is True
     
     @patch('src.llm.factory.config')
     def test_get_available_providers_no_keys(self, mock_config):
@@ -174,12 +196,14 @@ class TestLLMFactory:
         mock_config.OPENAI_API_KEY = ""
         mock_config.ANTHROPIC_API_KEY = ""
         mock_config.JINA_API_KEY = ""
+        mock_config.DOCLING_API_KEY = ""
         
         status = LLMFactory.get_available_providers()
         
         assert status["openai"] is False
         assert status["anthropic"] is False
         assert status["jina"] is False
+        assert status["docling"] is False
     
     def test_get_available_providers_with_exception(self):
         """Test getting available providers when API key access raises exception"""
@@ -190,6 +214,8 @@ class TestLLMFactory:
                 return "openai_key"
             elif provider_name == "jina":
                 return "jina_key"
+            elif provider_name == "docling":
+                return "docling_key"
             return ""
         
         with patch.object(LLMFactory, '_get_api_key', side_effect=mock_get_api_key):
@@ -198,6 +224,7 @@ class TestLLMFactory:
             assert status["openai"] is True
             assert status["anthropic"] is False  # Should handle exception gracefully
             assert status["jina"] is True
+            assert status["docling"] is True
     
     @patch('src.llm.factory.config')
     def test_factory_integration_with_config_defaults(self, mock_config):

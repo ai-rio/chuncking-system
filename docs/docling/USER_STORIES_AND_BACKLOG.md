@@ -128,13 +128,20 @@ As a **data engineer**
 I want **a DoclingProcessor that can handle basic PDF conversion**  
 So that **I can start processing PDF documents through the existing pipeline**
 
-**Acceptance Criteria**:
-- [ ] DoclingProcessor class implements BaseProcessor interface
-- [ ] PDF documents can be converted to text content
-- [ ] Basic error handling for corrupted or invalid PDFs
-- [ ] Metadata extraction includes document format and structure info
-- [ ] Integration with existing logging and monitoring
-- [ ] Unit tests cover basic functionality and error cases
+**Acceptance Criteria (TDD-Enhanced)**:
+- [ ] **TDD Cycle 1**: Tests for BaseProcessor interface implementation written first
+- [ ] **TDD Cycle 2**: Tests for PDF document conversion written and implemented
+- [ ] **TDD Cycle 3**: Tests for error handling scenarios written and implemented
+- [ ] **TDD Cycle 4**: Tests for metadata extraction written and implemented
+- [ ] **TDD Cycle 5**: Tests for logging integration written and implemented
+- [ ] DoclingProcessor class implements BaseProcessor interface (verified by tests)
+- [ ] PDF documents can be converted to text content (verified by integration tests)
+- [ ] Basic error handling for corrupted or invalid PDFs (verified by error scenario tests)
+- [ ] Metadata extraction includes document format and structure info (verified by unit tests)
+- [ ] Integration with existing logging and monitoring (verified by integration tests)
+- [ ] Unit tests cover basic functionality and error cases (>90% coverage)
+- [ ] All tests written before implementation code (verified in commit history)
+- [ ] Tests focus on behavior, not implementation details
 
 **Technical Tasks**:
 - [ ] Create DoclingProcessor class with BaseProcessor interface
@@ -420,16 +427,19 @@ Stories must meet these criteria before entering a sprint:
 - [ ] **Mockups/Designs**: Available if UI changes required
 - [ ] **Test Strategy**: Approach for testing identified
 
-### **Definition of Done (DoD)**
+### **Definition of Done (DoD) - TDD Enhanced**
 Stories are complete when:
 
+- [ ] **TDD Compliance**: All code developed using Red-Green-Refactor cycle
+- [ ] **Test-First Evidence**: Commit history shows tests written before implementation
 - [ ] **Code Complete**: All functionality implemented per acceptance criteria
 - [ ] **Tests Written**: Unit tests with >90% coverage, integration tests for main flows
-- [ ] **Code Review**: Peer review completed and approved
+- [ ] **TDD Quality**: Tests focus on behavior, not implementation details
+- [ ] **Code Review**: Peer review completed with TDD verification
 - [ ] **Documentation**: Code documented, user documentation updated
 - [ ] **Quality Gates**: No critical/high security vulnerabilities
-- [ ] **Performance**: Meets performance benchmarks
-- [ ] **Demo Ready**: Can be demonstrated to stakeholders
+- [ ] **Performance**: Meets performance benchmarks with TDD-developed performance tests
+- [ ] **Demo Ready**: Can be demonstrated with working tests and implementation
 
 ### **Backlog Prioritization Framework**
 
