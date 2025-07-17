@@ -24,3 +24,7 @@ data/output/
 .env
 .env.local
 data/**
+
+#BMAD
+.bmad-core/
+.claude/
