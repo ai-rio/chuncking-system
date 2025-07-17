@@ -1,13 +1,13 @@
-# Chapter 6: Enterprise Observability & Monitoring
+# Chapter 9: Enterprise Observability & Monitoring
 
-Welcome back! In [Chapter 5: Security Framework](05_security_framework_.md), we explored how our `chuncking-system` acts as a vigilant bodyguard, protecting your valuable documents from security threats. But what happens once your system is running in the real world, processing documents day in and day out? How do you know if it's working properly, if it's fast enough, or if something is about to go wrong before it actually breaks?
+Welcome back! In [Chapter 8: Performance Optimization & Caching](08_performance_optimization___caching_.md), we learned how our `chuncking-system` uses clever techniques like caching and memory management to run quickly and efficiently. We can make our system fast, but how do we *know* if it's truly fast, healthy, and working as expected? What if something goes wrong – how do we find out immediately and figure out why?
 
-This is where **Enterprise Observability & Monitoring** comes in! Think of this component as the **system's control tower**, or even a **pilot's cockpit**. Just like a pilot needs to constantly monitor all the aircraft systems (engine temperature, fuel levels, altitude, speed) to ensure a safe and smooth flight, our system needs constant eyes and ears on its own "health" and "performance."
+This is where **Enterprise Observability & Monitoring** comes in! Think of this component as the **system's control tower**, or even a **pilot's cockpit**. Just like a pilot needs to constantly monitor all the aircraft systems (engine temperature, fuel levels, altitude, speed) to ensure a safe and smooth flight, our `chuncking-system` needs constant eyes and ears on its own "health" and "performance."
 
 #### What Problem Does Enterprise Observability & Monitoring Solve?
 
 When a software system is operating, especially in a "production" environment where real users depend on it, you can't just cross your fingers and hope for the best. You need to know:
-*   **Is it alive?** (Is the power on?)
+*   **Is it alive and running?** (Is the power on?)
 *   **Is it healthy?** (Are all the engines running correctly?)
 *   **Is it performing well?** (Are we flying fast enough? Are we using too much fuel?)
 *   **Is it about to fail?** (Is an engine overheating?)
@@ -15,7 +15,7 @@ When a software system is operating, especially in a "production" environment wh
 
 If you don't have this information, problems can go unnoticed for a long time, leading to slow performance, errors, or even a complete system shutdown. This can frustrate users and cost money.
 
-**Enterprise Observability & Monitoring** solves this by providing **real-time insights** into your system's heartbeat. It collects vital signs, runs check-ups, keeps detailed diaries of events, and can even shout for help when it spots trouble. This allows operators to quickly understand the system's status, diagnose issues, and keep everything running smoothly.
+**Enterprise Observability & Monitoring** solves this by providing **real-time insights** into your system's heartbeat. It continuously collects vital signs, performs automated check-ups, keeps detailed diaries of events, and can even trigger "warning lights" (alerts) when it spots trouble. This allows operators to quickly understand the system's status, diagnose issues, and keep everything running smoothly.
 
 #### Your System's Control Tower: Key Concepts
 
@@ -28,7 +28,7 @@ Our Observability & Monitoring component is built on a few core ideas, much like
 
 2.  **Health Checks (The Pre-flight Checklist)**:
     *   **What they are**: Simple "yes/no" or "good/bad" checks to see if different parts of the system are working as expected.
-    *   **Examples**: "Is the database reachable?" "Can we write files to disk?" "Is the main chunking engine initialized?"
+    *   **Examples**: "Is the disk reachable?" "Can we run a test chunking operation?" "Is the main application process running?"
     *   **How they help**: They tell you *if* a component is functioning. "The file system check passed." "The chunking engine is ready."
 
 3.  **Logging with Correlation IDs (The Flight Recorder)**:
@@ -43,17 +43,17 @@ Our Observability & Monitoring component is built on a few core ideas, much like
 
 5.  **Dashboards (The Control Panel Screens)**:
     *   **What they are**: Visual displays that combine metrics, health statuses, and sometimes logs into easy-to-understand charts, graphs, and tables.
-    *   **How they help**: Provide a quick overview of the system's status, allowing you to spot trends or issues at a glance. We use Grafana for this.
+    *   **How they help**: Provide a quick overview of the system's status, allowing you to spot trends or issues at a glance. We can use tools like Grafana for this.
 
 #### How to Use Enterprise Observability & Monitoring
 
-The good news is that our [Document Chunking System (Orchestrator)](01_document_chunking_system__orchestrator__.md) is designed to automatically feed data to the Observability & Monitoring component! You don't need to write extra code to collect basic system metrics or run standard health checks.
+The good news is that our [Document Chunking System (Orchestrator)](02_document_chunking_system__orchestrator__.md) is designed to automatically feed data to the Observability & Monitoring component! You don't need to write extra code to collect basic system metrics or run standard health checks.
 
-To enable or disable monitoring, you can use our [Configuration Management](03_configuration_management_.md) by setting the `enable_monitoring` flag in your `src/config/settings.py` file or your `.env` file:
+To enable or disable monitoring, you can use our [Configuration Management](01_configuration_management_.md) settings:
 
 ```python
-# In src/config/settings.py or your .env file
-# Enable all monitoring features by default
+# In your project's main .env file (or src/config/settings.py)
+# To enable all monitoring features by default:
 ENABLE_MONITORING=True
 ```
 If `ENABLE_MONITORING` is `False`, the system will skip most of the monitoring data collection, which can save a tiny bit of resources but will leave you "flying blind."
@@ -141,9 +141,9 @@ While the system automatically collects many metrics, you can also record your o
 
 ```python
 from src.utils.observability import record_metric, MetricType
+import time
 
-# Imagine this is happening inside the chunking process
-# Record that a document started processing
+# Record that a document started processing (a Counter metric)
 record_metric(
     "document_processing_started",
     1, # Increment by 1
@@ -152,22 +152,20 @@ record_metric(
     labels={"status": "in_progress", "source": "web_upload"}
 )
 
-# Simulate some work and record duration
-import time
+# Simulate some work and record duration (a Histogram metric)
 start = time.time()
-time.sleep(0.5) # Doing some chunking work
+time.sleep(0.01) # Doing some chunking work quickly
 duration_ms = (time.time() - start) * 1000
 
-# Record the duration of a chunking operation
 record_metric(
     "chunking_duration_ms",
     duration_ms,
     MetricType.HISTOGRAM, # Measures distribution of values
     "milliseconds",
-    labels={"chunk_size": "large"}
+    labels={"chunk_size_category": "small"}
 )
 
-# Update a "gauge" metric (like a thermometer)
+# Update a "gauge" metric (like a thermometer, shows current value)
 current_queue_size = 5
 record_metric(
     "processing_queue_size",
@@ -182,35 +180,28 @@ This example shows how easy it is to `record_metric` with a `name`, `value`, `Me
 
 #### Under the Hood: How the Control Tower Works
 
-When the [Document Chunking System (Orchestrator)](01_document_chunking_system__orchestrator__.md) is managing a document, it continuously sends updates to the Observability & Monitoring "control tower."
+When the [Document Chunking System (Orchestrator)](02_document_chunking_system__orchestrator__.md) (or your own code using these utilities) performs actions, it continuously sends updates to the Observability & Monitoring "control tower."
 
 ```mermaid
 sequenceDiagram
     participant Orchestrator
-    participant ObservabilityManager
-    participant HealthRegistry
-    participant MetricsRegistry
-    participant StructuredLogger
+    participant ObsManager as "Observability Manager"
+    participant HealthReg as "Health Registry"
+    participant MetricReg as "Metrics Registry"
+    participant StructLogger as "Structured Logger"
+    participant MonitoringTool as "Monitoring Tool (Prometheus)"
 
-    Orchestrator->>ObservabilityManager: "Starting document processing"
-    ObservabilityManager->>StructuredLogger: Log event (with Correlation ID)
-    StructuredLogger-->>ObservabilityManager: Log recorded
-    ObservabilityManager->>MetricsRegistry: Record 'chunking_operations_total'
-    MetricsRegistry-->>ObservabilityManager: Metric updated
-    
-    Orchestrator->>ObservabilityManager: "Periodically check system health"
-    ObservabilityManager->>HealthRegistry: Run all health checks
-    HealthRegistry-->>ObservabilityManager: Health check results
-    Note over ObservabilityManager: Also collects system CPU/memory.
-    
-    Orchestrator->>ObservabilityManager: "Finished processing document"
-    ObservabilityManager->>MetricsRegistry: Record 'processing_duration'
-    ObservabilityManager->>StructuredLogger: Log completion
-    
-    PrometheusClient->>ObservabilityManager: "Give me your metrics!" (via HTTP)
-    ObservabilityManager-->>PrometheusClient: Prometheus-formatted metrics
-    User->>ObservabilityManager: "What's the system health?" (via HTTP)
-    ObservabilityManager-->>User: JSON health report
+    Orchestrator->>ObsManager: "Start file processing"
+    ObsManager->>StructLogger: Log event (with Correlation ID)
+    ObsManager->>MetricReg: Record "processing_start_total"
+    Note over ObsManager: Also periodically collects system health
+    ObsManager->>HealthReg: Run health checks
+    HealthReg-->>ObsManager: Health results (CPU, Mem, Disk)
+    Orchestrator->>ObsManager: "Processing finished (success/error)"
+    ObsManager->>MetricReg: Record "processing_duration_ms"
+    ObsManager->>StructLogger: Log completion/error
+    MonitoringTool->>ObsManager: "Scrape metrics (GET /monitoring/metrics)"
+    ObsManager-->>MonitoringTool: Prometheus format data
 ```
 Here's a simplified breakdown of the process:
 
@@ -232,13 +223,15 @@ The core of Enterprise Observability & Monitoring is in `src/utils/observability
 Let's look at how the main `ObservabilityManager` is set up:
 
 ```python
-# src/utils/observability.py (simplified)
+# src/utils/observability.py (simplified __init__)
+from src.utils.logger import get_logger # Our structured logger
+from src.utils.monitoring import HealthRegistry, MetricsRegistry # The registries
 
 class ObservabilityManager:
     def __init__(self, max_concurrent_health_checks: int = 10, health_check_timeout: float = 30.0):
-        self.logger = StructuredLogger("observability_manager") # Our special logger
-        self.metrics_registry = MetricsRegistry()               # Stores all metrics
-        self.health_registry = HealthRegistry(                  # Runs health checks
+        self.logger = get_logger("observability_manager") # Our special logger
+        self.metrics_registry = MetricsRegistry()         # Stores all metrics
+        self.health_registry = HealthRegistry(            # Runs health checks
             max_concurrent_checks=max_concurrent_health_checks,
             check_timeout_seconds=health_check_timeout
         )
@@ -252,10 +245,26 @@ When the `ObservabilityManager` is created (which happens automatically when the
 Now, let's see how easy it is to record a metric using the manager:
 
 ```python
-# src/utils/observability.py (simplified)
+# src/utils/observability.py (simplified record_metric method)
+from typing import Union, Optional, Dict
+from enum import Enum # For MetricType
+from dataclasses import dataclass # For CustomMetric
+
+class MetricType(Enum): # Simplified enum
+    COUNTER = "counter"
+    GAUGE = "gauge"
+    HISTOGRAM = "histogram"
+
+@dataclass # A simple data structure for a metric point
+class CustomMetric:
+    name: str
+    value: Union[int, float]
+    metric_type: MetricType
+    unit: str
+    labels: Dict[str, str]
 
 class ObservabilityManager:
-    # ... (init method)
+    # ... init method ...
 
     def record_metric(self, name: str, value: Union[int, float], 
                      metric_type: MetricType, unit: str = "units", labels: Optional[Dict[str, str]] = None,
@@ -267,7 +276,7 @@ class ObservabilityManager:
             metric_type=metric_type,
             unit=unit,
             labels=labels or {},
-            help_text=help_text
+            # help_text=help_text # Omitted for brevity
         )
         self.metrics_registry.register_metric(metric) # Hands it to the registry to store
 ```
@@ -276,32 +285,31 @@ The `record_metric` method simply creates a `CustomMetric` object (a structured 
 Next, how the health checks are exposed through the `HealthEndpoint` (from `src/api/health_endpoints.py`):
 
 ```python
-# src/api/health_endpoints.py (simplified)
+# src/api/health_endpoints.py (simplified HealthEndpoint.health_check)
+from http import HTTPStatus # For HTTP status codes
+from typing import Tuple, Dict, Any, Optional
+from src.utils.observability import get_observability_manager, MetricType, ObservabilityManager
 
 class HealthEndpoint:
-    def __init__(self, system_monitor: Optional[SystemMonitor] = None, observability_manager: Optional[ObservabilityManager] = None):
-        self.logger = get_logger(__name__)
-        # This SystemMonitor holds references to HealthChecker, MetricsCollector etc.
-        self.system_monitor = system_monitor or SystemMonitor()
+    def __init__(self, system_monitor=None, observability_manager: Optional[ObservabilityManager] = None):
+        # We need the observability manager to record metrics from endpoint calls
         self.observability = observability_manager or get_observability_manager()
-
+        # self.system_monitor holds the HealthChecker, etc. (omitted for brevity)
+        
     def health_check(self, component: Optional[str] = None) -> Tuple[Dict[str, Any], int]:
         """Basic health check endpoint."""
-        # ... (timing and error handling logic) ...
-        
-        if component:
-            # Check a specific component using the HealthChecker
-            result = self.system_monitor.health_checker.run_check(component)
-            # ... (format response) ...
-        else:
-            # Get overall health using the HealthChecker
-            overall_health = self.system_monitor.health_checker.get_overall_health()
-            # ... (format response) ...
+        # ... (logic to get health from self.system_monitor.health_checker) ...
+        # (simplified: imagine 'response' and 'status_code' are filled here)
+        response = {"status": "healthy", "message": "OK"}
+        status_code = HTTPStatus.OK
         
         # Record a metric for the health check request itself!
         self.observability.record_metric(
-            "health_check_requests_total", 1, MetricType.COUNTER, "requests",
-            {"component": component or "all", "status": response["status"]}
+            "health_check_requests_total", # Metric name
+            1,                             # Increment by 1
+            MetricType.COUNTER,            # It's a counter
+            "requests",
+            labels={"component_checked": component or "all", "status": response["status"]}
         )
         return response, status_code
 ```
@@ -310,20 +318,24 @@ The `health_check` method within the `HealthEndpoint` class uses the `SystemMoni
 Finally, let's see how Prometheus metrics are exported:
 
 ```python
-# src/api/health_endpoints.py (simplified)
+# src/api/health_endpoints.py (simplified MetricsEndpoint.prometheus_metrics)
+from http import HTTPStatus
+from typing import Tuple, Dict, Any, Optional
+from src.utils.observability import get_observability_manager, ObservabilityManager
 
 class MetricsEndpoint:
-    def __init__(self, system_monitor: Optional[SystemMonitor] = None, observability_manager: Optional[ObservabilityManager] = None):
-        self.logger = get_logger(__name__)
-        self.system_monitor = system_monitor or SystemMonitor()
+    def __init__(self, system_monitor=None, observability_manager: Optional[ObservabilityManager] = None):
         self.observability = observability_manager or get_observability_manager()
+        # self.system_monitor provides raw system data (omitted for brevity)
 
     def prometheus_metrics(self) -> Tuple[str, int]:
         """Export metrics in Prometheus format."""
-        # This calls the ObservabilityManager to get all metrics
+        # This calls the ObservabilityManager to get all metrics formatted for Prometheus
         metrics_text = self.observability.export_prometheus_metrics()
         
-        # ... (add some high-level system status metrics) ...
+        # In the full code, it also adds some high-level system status metrics
+        # (e.g., from self.system_monitor.get_system_status())
+        # For simplicity, we just return the exported text.
         
         return metrics_text, HTTPStatus.OK
 ```
@@ -346,10 +358,10 @@ In this chapter, we've explored **Enterprise Observability & Monitoring**, the c
 
 Having robust observability and monitoring in place means you're never "flying blind" with your system, allowing you to ensure its reliability and efficiency in any real-world scenario.
 
-Now that our system is smart, secure, and fully monitored, let's look at the foundational tools it uses to interact with files and paths on your computer.
+This chapter concludes our tutorial series on the `chuncking-system`! We've covered everything from the fundamental [Configuration Management](01_configuration_management_.md) that defines its behavior, to the intelligent [Document Chunking System (Orchestrator)](02_document_chunking_system__orchestrator__.md) that manages the entire process. We then dove into the core [Hybrid Chunking Engine](03_hybrid_chunking_engine_.md), explored how it connects to AI via [LLM Provider Integration](04_llm_provider_integration_.md), and ensures quality with the [Chunk Quality Evaluator](05_chunk_quality_evaluator_.md). We also secured our system with the [Security Framework](06_security_framework_.md), handled files robustly with [File & Path Utilities](07_file___path_utilities_.md), and made it fast and efficient with [Performance Optimization & Caching](08_performance_optimization___caching_.md). Finally, we learned how to keep a watchful eye on everything with Enterprise Observability & Monitoring.
 
-Ready to understand how we handle files safely and efficiently? Let's move on to explore [File & Path Utilities](07_file___path_utilities_.md)!
+Thank you for joining this tutorial! We hope you now have a clear and comprehensive understanding of how the `chuncking-system` works and how its various components come together to create a powerful, reliable, and observable document processing solution.
 
 ---
 
-<sub><sup>Generated by [AI Codebase Knowledge Builder](https://github.com/The-Pocket/Tutorial-Codebase-Knowledge).</sup></sub> <sub><sup>**References**: [[1]](https://github.com/ai-rio/chuncking-system/blob/34705b324f6b2c41c349afa9662fbea086940ff9/README.md), [[2]](https://github.com/ai-rio/chuncking-system/blob/34705b324f6b2c41c349afa9662fbea086940ff9/dashboards/prometheus-alerts.yml), [[3]](https://github.com/ai-rio/chuncking-system/blob/34705b324f6b2c41c349afa9662fbea086940ff9/dashboards/prometheus.yml), [[4]](https://github.com/ai-rio/chuncking-system/blob/34705b324f6b2c41c349afa9662fbea086940ff9/src/api/health_endpoints.py), [[5]](https://github.com/ai-rio/chuncking-system/blob/34705b324f6b2c41c349afa9662fbea086940ff9/src/utils/monitoring.py), [[6]](https://github.com/ai-rio/chuncking-system/blob/34705b324f6b2c41c349afa9662fbea086940ff9/src/utils/observability.py)</sup></sub>
+<sub><sup>Generated by [AI Codebase Knowledge Builder](https://github.com/The-Pocket/Tutorial-Codebase-Knowledge).</sup></sub> <sub><sup>**References**: [[1]](https://github.com/ai-rio/chuncking-system/blob/e1a233785e744443e919c2de3f68d87ab02216d1/dashboards/prometheus-alerts.yml), [[2]](https://github.com/ai-rio/chuncking-system/blob/e1a233785e744443e919c2de3f68d87ab02216d1/dashboards/prometheus.yml), [[3]](https://github.com/ai-rio/chuncking-system/blob/e1a233785e744443e919c2de3f68d87ab02216d1/docs/tutorial/Chapter 6: Enterprise Observability & Monitoring.md), [[4]](https://github.com/ai-rio/chuncking-system/blob/e1a233785e744443e919c2de3f68d87ab02216d1/src/api/health_endpoints.py), [[5]](https://github.com/ai-rio/chuncking-system/blob/e1a233785e744443e919c2de3f68d87ab02216d1/src/utils/monitoring.py), [[6]](https://github.com/ai-rio/chuncking-system/blob/e1a233785e744443e919c2de3f68d87ab02216d1/src/utils/observability.py)</sup></sub>
