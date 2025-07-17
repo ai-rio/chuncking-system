@@ -37,11 +37,7 @@ class ChunkingConfig(BaseSettings):
     ENABLE_PARALLEL: bool = False
 
     # LLM Provider Configuration
-<<<<<<< HEAD
     LLM_PROVIDER: str = "google"  # openai, anthropic, azure, google, jina, docling, local
-=======
-    LLM_PROVIDER: str = "google"  # openai, anthropic, azure, google, jina, local
->>>>>>> feat/quality-enhancement
     LLM_MODEL: str = "gemini-2.0-flash-exp"
     
     # Provider-specific API keys
@@ -60,7 +56,7 @@ class ChunkingConfig(BaseSettings):
     LOCAL_LLM_ENDPOINT: str = "http://localhost:8000"
     LOCAL_LLM_MODEL: str = "llama2"
     
-    # Docling-specific settings
+    # Docling-specific settings (API)
     DOCLING_API_BASE_URL: str = "https://api.docling.ai/v1"
     DOCLING_MODEL: str = "docling-v1"
     DOCLING_EMBEDDING_MODEL: str = "docling-embeddings-v1"
