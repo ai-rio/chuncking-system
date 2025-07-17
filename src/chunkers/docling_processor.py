@@ -72,9 +72,9 @@ class DoclingProcessor:
         file_path: str, 
         format_type: str = "auto",
         **kwargs
-    ) -> ConversionResult:
+    ) -> List[Document]:
         """
-        Process document using DoclingProvider and return ConversionResult.
+        Process document using DoclingProvider and return Document chunks.
         
         Args:
             file_path: Path to the document file
@@ -82,7 +82,7 @@ class DoclingProcessor:
             **kwargs: Additional processing options
             
         Returns:
-            ConversionResult containing processed document
+            List of Document chunks
             
         Raises:
             FileNotFoundError: If file doesn't exist
@@ -105,7 +105,8 @@ class DoclingProcessor:
             # Call provider to process the document
             conversion_result = self.provider.process_document(file_path, document_type=format_type, **kwargs)
             
-            return conversion_result
+            # Convert ConversionResult to Document chunks
+            return self._convert_to_document_chunks(conversion_result, file_path, format_type)
             
         except LLMProviderError as e:
             # Re-raise provider errors for ProductionPipeline to handle
@@ -268,6 +269,77 @@ class DoclingProcessor:
             "provider_info": self.provider.get_provider_info() if hasattr(self.provider, 'get_provider_info') else {},
             "version": "1.0.0"
         }
+    
+    def _convert_to_document_chunks(self, conversion_result, file_path: str, format_type: str) -> List[Document]:
+        """
+        Convert ConversionResult to Document chunks.
+        
+        Args:
+            conversion_result: ConversionResult from DoclingProvider
+            file_path: Path to the source file
+            format_type: Document format type
+            
+        Returns:
+            List of Document chunks
+        """
+        chunks = []
+        
+        # Handle mock provider case (returns dict instead of ConversionResult)
+        if isinstance(conversion_result, dict):
+            # Mock provider returns a dict with text, structure, metadata
+            content = conversion_result.get('text', '')
+            metadata = conversion_result.get('metadata', {})
+            metadata.update({
+                'source': file_path,
+                'format': format_type,
+                'chunk_index': 0
+            })
+            
+            chunks.append(Document(
+                page_content=content,
+                metadata=metadata
+            ))
+            return chunks
+        
+        # Handle real ConversionResult
+        if hasattr(conversion_result, 'document') and conversion_result.document:
+            # Extract text content from the document
+            if hasattr(conversion_result.document, 'export_to_markdown'):
+                content = conversion_result.document.export_to_markdown()
+            elif hasattr(conversion_result.document, 'text'):
+                content = conversion_result.document.text
+            else:
+                content = str(conversion_result.document)
+            
+            # Create metadata
+            metadata = {
+                'source': file_path,
+                'format': format_type,
+                'chunk_index': 0,
+                'file_size': os.path.getsize(file_path) if os.path.exists(file_path) else 0
+            }
+            
+            # Add any additional metadata from conversion result
+            if hasattr(conversion_result, 'metadata'):
+                metadata.update(conversion_result.metadata)
+            
+            chunks.append(Document(
+                page_content=content,
+                metadata=metadata
+            ))
+        else:
+            # Fallback: create empty document with error info
+            chunks.append(Document(
+                page_content="",
+                metadata={
+                    'source': file_path,
+                    'format': format_type,
+                    'chunk_index': 0,
+                    'error': 'Failed to extract content from ConversionResult'
+                }
+            ))
+        
+        return chunks
     
     def _process_pdf(self, file_path: str) -> 'ConversionResult':
         """
