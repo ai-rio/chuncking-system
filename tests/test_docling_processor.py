@@ -5,9 +5,12 @@ import json
 import os
 import tempfile
 
+from langchain_core.documents import Document
+
 from src.chunkers.docling_processor import DoclingProcessor, ProcessingResult
 from src.llm.providers.docling_provider import DoclingProvider
 from src.llm.providers.base import LLMProviderError
+from src.exceptions import ChunkingError
 
 
 class TestDoclingProcessor:
@@ -117,15 +120,18 @@ class TestDoclingProcessor:
             
             result = docling_processor.process_document(tmp_path, "pdf")
             
-            assert isinstance(result, ProcessingResult)
-            assert result.format_type == "pdf"
-            assert result.file_path == tmp_path
-            assert result.success is True
-            assert result.text == "Sample PDF content with structured data"
-            assert result.metadata["format"] == "pdf"
-            assert result.metadata["pages"] == 2
-            assert len(result.structure["pages"]) == 2
-            assert len(result.structure["headings"]) == 2
+            # Result should be a list of Document objects
+            assert isinstance(result, list)
+            assert len(result) == 1
+            
+            # Check the first document
+            document = result[0]
+            assert document.page_content == "Sample PDF content with structured data"
+            assert document.metadata["format"] == "pdf"
+            assert document.metadata["source"] == tmp_path
+            assert document.metadata["pages"] == 2
+            assert document.metadata["file_size"] > 0
+            assert document.metadata["processing_time"] >= 0
             
             # Verify provider was called correctly
             docling_processor.provider.process_document.assert_called_once()
@@ -148,14 +154,20 @@ class TestDoclingProcessor:
             
             result = docling_processor.process_document(tmp_path, "docx")
             
-            assert isinstance(result, ProcessingResult)
-            assert result.format_type == "docx"
-            assert result.success is True
-            assert result.text == "Sample DOCX content with hierarchy"
-            assert result.metadata["format"] == "docx"
+            # Result should be a list of Document objects
+            assert isinstance(result, list)
+            assert len(result) == 1
             
-            # Verify hierarchy preservation
-            headings = result.structure["headings"]
+            # Check the first document
+            document = result[0]
+            assert document.page_content == "Sample DOCX content with hierarchy"
+            assert document.metadata["format"] == "docx"
+            assert document.metadata["source"] == tmp_path
+            
+            # Verify hierarchy preservation in metadata (coming from the provider response)
+            # Note: the structure data from provider is merged into metadata
+            assert "headings" in document.metadata
+            headings = document.metadata["headings"]
             assert len(headings) == 3
             assert headings[0]["level"] == 1
             assert headings[1]["level"] == 2
@@ -304,13 +316,11 @@ class TestDoclingProcessor:
             # Mock provider to raise an error
             docling_processor.provider.process_document.side_effect = LLMProviderError("API Error")
             
-            result = docling_processor.process_document(tmp_path, "pdf")
+            # Should raise the LLMProviderError
+            with pytest.raises(LLMProviderError) as exc_info:
+                docling_processor.process_document(tmp_path, "pdf")
             
-            assert result.success is False
-            assert result.error_message == "API Error"
-            assert result.text == ""
-            assert result.structure == {}
-            assert result.metadata == {}
+            assert str(exc_info.value) == "API Error"
             
         finally:
             os.unlink(tmp_path)
@@ -325,10 +335,11 @@ class TestDoclingProcessor:
             # Mock provider to raise a timeout error
             docling_processor.provider.process_document.side_effect = OSError("Connection timeout")
             
-            result = docling_processor.process_document(tmp_path, "pdf")
+            # Should raise ChunkingError (wrapping the OSError)
+            with pytest.raises(ChunkingError) as exc_info:
+                docling_processor.process_document(tmp_path, "pdf")
             
-            assert result.success is False
-            assert "Connection timeout" in result.error_message
+            assert "Connection timeout" in str(exc_info.value)
             
         finally:
             os.unlink(tmp_path)

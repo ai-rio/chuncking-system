@@ -4,8 +4,11 @@ from typing import Dict, List, Any, Optional
 from dataclasses import dataclass
 import mimetypes
 
+from langchain_core.documents import Document
+
 from src.llm.providers.docling_provider import DoclingProvider
 from src.llm.providers.base import LLMProviderError
+from src.exceptions import ChunkingError
 
 
 @dataclass
@@ -62,9 +65,9 @@ class DoclingProcessor:
         file_path: str, 
         format_type: str = "auto",
         **kwargs
-    ) -> ProcessingResult:
+    ) -> List[Document]:
         """
-        Process document using DoclingProvider and return processing result.
+        Process document using DoclingProvider and return list of Document objects.
         
         Args:
             file_path: Path to the document file
@@ -72,12 +75,12 @@ class DoclingProcessor:
             **kwargs: Additional processing options
             
         Returns:
-            ProcessingResult object containing processed document data
+            List of Document objects containing processed content
             
         Raises:
             FileNotFoundError: If file doesn't exist
             ValueError: If format is not supported
-            LLMProviderError: If provider processing fails
+            ChunkingError: If document processing fails
         """
         start_time = time.time()
         
@@ -102,60 +105,38 @@ class DoclingProcessor:
             
             processing_time = time.time() - start_time
             
-            # Create ProcessingResult from provider response
+            # Create Document objects from provider response
             # Handle empty provider result case
             if not provider_result:
-                merged_metadata = {}
-            else:
-                # Merge provider metadata with base metadata
-                base_metadata = {
-                    "source": file_path,
-                    "format": format_type,
-                    "file_size": file_size,
-                    "processing_time": processing_time
-                }
-                
-                # Add provider metadata at top level
-                provider_metadata = provider_result.get('metadata', {})
-                merged_metadata = {**base_metadata, **provider_metadata}
+                return []
             
-            return ProcessingResult(
-                format_type=format_type,
-                file_path=file_path,
-                success=True,
-                text=provider_result.get('text', ''),
-                structure=provider_result.get('structure', {}),
-                metadata=merged_metadata,
-                processing_time=processing_time,
-                file_size=file_size
+            # Merge provider metadata with base metadata
+            base_metadata = {
+                "source": file_path,
+                "format": format_type,
+                "file_size": file_size,
+                "processing_time": processing_time
+            }
+            
+            # Add provider metadata and structure data at top level
+            provider_metadata = provider_result.get('metadata', {})
+            provider_structure = provider_result.get('structure', {})
+            merged_metadata = {**base_metadata, **provider_metadata, **provider_structure}
+            
+            # Create a single Document from the processed text
+            document = Document(
+                page_content=provider_result.get('text', ''),
+                metadata=merged_metadata
             )
+            
+            return [document]
             
         except LLMProviderError as e:
-            processing_time = time.time() - start_time
-            return ProcessingResult(
-                format_type=format_type,
-                file_path=file_path,
-                success=False,
-                text="",
-                structure={},
-                metadata={},
-                processing_time=processing_time,
-                file_size=file_size,
-                error_message=str(e)
-            )
+            # Re-raise provider errors for ProductionPipeline to handle
+            raise e
         except Exception as e:
-            processing_time = time.time() - start_time
-            return ProcessingResult(
-                format_type=format_type,
-                file_path=file_path,
-                success=False,
-                text="",
-                structure={},
-                metadata={},
-                processing_time=processing_time,
-                file_size=file_size,
-                error_message=str(e)
-            )
+            # Re-raise other exceptions for ProductionPipeline to handle
+            raise ChunkingError(f"Document processing failed: {str(e)}") from e
     
     def get_provider_info(self) -> Dict[str, Any]:
         """

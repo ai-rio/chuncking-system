@@ -10,7 +10,8 @@ from langchain_core.documents import Document
 class MockDoclingProcessor:
     """Mock DoclingProcessor for testing purposes."""
     
-    def __init__(self, chunker_tokenizer="mock-tokenizer"):
+    def __init__(self, provider=None, chunker_tokenizer="mock-tokenizer"):
+        self.provider = provider
         self.chunker_tokenizer = chunker_tokenizer
         
     def process_document(self, file_path, format_type="auto"):
@@ -60,31 +61,43 @@ def test_mock_docling_processor():
 
 def test_production_pipeline_with_mock():
     """Test production pipeline with mock DoclingProcessor."""
+    import tempfile
+    import os
     from src.orchestration.production_pipeline import ProductionPipeline, PipelineConfig
     
-    # Mock the DoclingProcessor import
-    with patch('src.chunkers.docling_processor.DoclingProcessor', MockDoclingProcessor):
-        config = PipelineConfig(
-            max_concurrent_files=2,
-            performance_monitoring_enabled=True,
-            quality_evaluation_enabled=True,
-            error_recovery_enabled=True
-        )
-        
-        pipeline = ProductionPipeline(config)
-        
-        # Test single document processing
-        result = pipeline.process_single_document("test.pdf")
-        
-        assert result.success
-        assert result.format_type == "pdf"
-        assert len(result.chunks) == 1
-        assert result.chunks[0].page_content == "Mock content from test.pdf"
-        
-        # Test production readiness validation
-        readiness = pipeline.validate_production_readiness()
-        assert readiness["readiness_score"] > 0
-        assert readiness["checks"]["processing_capability"]
+    # Create a temporary test file
+    with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as temp_file:
+        temp_file.write(b"Test PDF content")
+        test_file_path = temp_file.name
+    
+    try:
+        # Mock the DoclingProcessor import
+        with patch('src.chunkers.docling_processor.DoclingProcessor', MockDoclingProcessor):
+            config = PipelineConfig(
+                max_concurrent_files=2,
+                performance_monitoring_enabled=True,
+                quality_evaluation_enabled=True,
+                error_recovery_enabled=True
+            )
+            
+            pipeline = ProductionPipeline(config)
+            
+            # Test single document processing
+            result = pipeline.process_single_document(test_file_path)
+            
+            assert result.success
+            assert result.format_type == "pdf"
+            assert len(result.chunks) == 1
+            assert result.chunks[0].page_content == f"Mock content from {test_file_path}"
+            
+            # Test production readiness validation
+            readiness = pipeline.validate_production_readiness()
+            assert readiness["readiness_score"] > 0
+            assert readiness["checks"]["processing_capability"]
+    finally:
+        # Clean up the temporary file
+        if os.path.exists(test_file_path):
+            os.unlink(test_file_path)
 
 
 if __name__ == "__main__":
