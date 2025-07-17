@@ -4,8 +4,9 @@
 
 **Project**: Integration of Docling multi-format document processing into existing chunking system  
 **Duration**: 6-8 weeks  
-**Methodology**: Agile/Scrum with 2-week sprints  
-**Teams**: 3 parallel teams (5-7 developers total)
+**Methodology**: Agile/Scrum with 2-week sprints + Test-Driven Development (TDD)  
+**Teams**: 3 parallel teams (5-7 developers total)  
+**Development Approach**: TDD Red-Green-Refactor cycle for all new code
 
 ## Project Charter
 
@@ -31,6 +32,26 @@ Transform our existing Markdown-focused chunking system into a comprehensive mul
 
 ### Sprint Duration: 2 weeks
 ### Team Velocity: Estimated 40-50 story points per sprint per team
+
+## TDD Methodology Integration
+
+### **TDD Principles**
+- **Red-Green-Refactor Cycle**: Every feature follows TDD cycle
+- **Test-First Development**: Tests written before implementation code
+- **Minimal Implementation**: Write only enough code to make tests pass
+- **Continuous Refactoring**: Improve code quality while keeping tests green
+
+### **TDD Quality Gates**
+- **Code Reviews**: Verify tests were written before implementation
+- **Commit History**: Test commits must precede implementation commits
+- **Test Coverage**: >90% test coverage required for all new code
+- **TDD Metrics**: Track cycle time, test-to-code ratio, defect rates
+
+### **TDD Team Practices**
+- **Daily TDD Stand-ups**: Discuss failing tests and TDD progress
+- **Pair Programming**: TDD pairs for complex features
+- **Test Reviews**: Dedicated review of test quality and coverage
+- **TDD Retrospectives**: Weekly TDD effectiveness discussions
 
 ---
 
@@ -59,19 +80,31 @@ Transform our existing Markdown-focused chunking system into a comprehensive mul
   - [ ] Test dependency resolution and conflicts
   - [ ] Update Docker configuration if needed
 
-- **DOC-003** (13 pts): Create DoclingProcessor base implementation
-  - [ ] Design DoclingProcessor interface
-  - [ ] Implement basic DocumentConverter wrapper
-  - [ ] Create format detection logic
-  - [ ] Add error handling and logging
-  - [ ] Write unit tests for basic functionality
+- **DOC-003-TDD** (13 pts): Create DoclingProcessor base implementation using TDD
+  - [ ] **RED**: Write failing tests for DoclingProcessor interface
+  - [ ] **GREEN**: Implement minimal DoclingProcessor class to pass tests
+  - [ ] **REFACTOR**: Improve DoclingProcessor design while keeping tests green
+  - [ ] **RED**: Write failing tests for DocumentConverter wrapper
+  - [ ] **GREEN**: Implement basic DocumentConverter integration
+  - [ ] **REFACTOR**: Optimize DocumentConverter wrapper
+  - [ ] **RED**: Write failing tests for format detection logic
+  - [ ] **GREEN**: Implement format detection with minimal functionality
+  - [ ] **REFACTOR**: Enhance format detection robustness
+  - [ ] **RED**: Write failing tests for error handling scenarios
+  - [ ] **GREEN**: Add comprehensive error handling and logging
+  - [ ] **REFACTOR**: Clean up error handling code
 
 #### **Epic**: File Handler Extension
-- **DOC-004** (8 pts): Extend FileHandler for multi-format support
-  - [ ] Add MIME type detection for new formats
-  - [ ] Implement file validation for PDF/DOCX/PPTX
-  - [ ] Update security validation logic
-  - [ ] Add format-specific metadata extraction
+- **DOC-004-TDD** (8 pts): Extend FileHandler for multi-format support using TDD
+  - [ ] **RED**: Write failing tests for MIME type detection
+  - [ ] **GREEN**: Implement basic MIME type detection for new formats
+  - [ ] **RED**: Write failing tests for file validation (PDF/DOCX/PPTX)
+  - [ ] **GREEN**: Implement file validation with security checks
+  - [ ] **RED**: Write failing tests for security validation logic
+  - [ ] **GREEN**: Update security validation for multi-format support
+  - [ ] **REFACTOR**: Optimize validation performance and code quality
+  - [ ] **RED**: Write failing tests for format-specific metadata extraction
+  - [ ] **GREEN**: Implement metadata extraction for each format
 
 ### **Team 2: LLM & Vision Integration**
 **Sprint Goal**: Vision model research and provider framework setup
@@ -373,30 +406,39 @@ Transform our existing Markdown-focused chunking system into a comprehensive mul
 
 ---
 
-## Definition of Done
+## Definition of Done (TDD-Enhanced)
 
-### **Story Level**
-- [ ] Code implemented and reviewed
+### **Story Level (TDD Requirements)**
+- [ ] **RED**: Failing tests written first defining expected behavior
+- [ ] **GREEN**: Minimal code written to make tests pass
+- [ ] **REFACTOR**: Code improved while keeping tests green
+- [ ] TDD cycle documented in commit history (test commits before implementation)
 - [ ] Unit tests written and passing (>90% coverage)
 - [ ] Integration tests passing
+- [ ] Code reviewed with TDD verification (tests written first)
 - [ ] Documentation updated
 - [ ] Security review completed
 - [ ] Performance benchmarks met
 
-### **Sprint Level**
-- [ ] All story acceptance criteria met
-- [ ] Sprint demo completed and approved
+### **Sprint Level (TDD Quality Gates)**
+- [ ] All story acceptance criteria met via TDD cycle
+- [ ] Test-first development verified in code reviews
+- [ ] Sprint demo shows working tests and implementation
 - [ ] Regression tests passing
-- [ ] Performance testing completed
+- [ ] Test coverage >90% for all new code
+- [ ] Performance testing completed with TDD benchmarks
 - [ ] Security scanning passed
+- [ ] TDD metrics tracked (test-to-code ratio, cycle time)
 
-### **Release Level**
-- [ ] End-to-end testing completed
-- [ ] Performance benchmarks achieved
-- [ ] Security audit passed
-- [ ] Documentation complete
-- [ ] Deployment automation tested
-- [ ] Rollback plan verified
+### **Release Level (TDD Validation)**
+- [ ] End-to-end testing completed following TDD principles
+- [ ] All tests passing (unit, integration, e2e)
+- [ ] Performance benchmarks achieved and tested
+- [ ] Security audit passed with test validation
+- [ ] Test documentation complete and verified
+- [ ] Deployment automation tested with TDD approach
+- [ ] Rollback plan verified with automated tests
+- [ ] TDD success metrics achieved (>90% test coverage, <5% defect rate)
 
 ---
 
