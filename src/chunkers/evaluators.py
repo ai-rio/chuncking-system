@@ -203,8 +203,7 @@ class ChunkQualityEvaluator:
             elif re.search(r'^#+\s', content, re.MULTILINE):
                 structure_metrics['chunks_with_headers'] += 1
             
-            if '```' in content or (chunk.metadata.get('content_type') == 'code') or \
-               re.search(r'\b(def|class|import|function|const|var)\b', content):
+            if chunk.metadata.get('has_code', False):
                 structure_metrics['chunks_with_code'] += 1
             
             # This regex is robust for both bullet and numbered lists starting a line.
