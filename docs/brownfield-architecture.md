@@ -256,25 +256,24 @@ pytest --cov=src --cov-report=html        # Coverage report
 **Core Integration Points:**
 - `src/utils/file_handler.py` - Add multi-format file detection and routing
 - `src/chunkers/hybrid_chunker.py` - Integrate Docling chunking capabilities
-- `src/llm/factory.py` - Register DoclingProvider in factory
+- `src/llm/factory.py` - No changes needed (Docling doesn't use LLM provider pattern)
 - `src/chunkers/evaluators.py` - Add multi-format quality metrics
 - `src/config/settings.py` - Add Docling configuration parameters
 
 ### New Files/Modules Needed
 
 **Primary Implementation:**
-- `src/chunkers/docling_processor.py` - Core Docling document processing
-- `src/llm/providers/docling_provider.py` - Docling LLM provider implementation
+- `src/chunkers/docling_processor.py` - Core Docling document processing (using local library)
 
 **Supporting Components:**
 - Enhanced format detection in FileHandler
 - Extended quality metrics for visual content
-- Configuration updates for Docling API integration
+- Configuration updates for Docling library integration
 
 ### Integration Considerations
 
 **Existing Patterns to Follow:**
-- **Provider Registration**: Use factory pattern like other LLM providers
+- **Document Processing**: Follow existing processor patterns from MarkdownProcessor
 - **Error Handling**: Follow existing exception hierarchy in `src/exceptions.py`
 - **Testing**: Maintain 95%+ test coverage with comprehensive test cases
 - **Configuration**: Use Pydantic models in settings system
@@ -282,7 +281,7 @@ pytest --cov=src --cov-report=html        # Coverage report
 
 **Compatibility Requirements:**
 - **Backward Compatibility**: Maintain all existing Markdown processing
-- **Interface Consistency**: Follow existing provider interfaces
+- **Interface Consistency**: Follow existing processor interfaces
 - **Performance**: Stay within 20% of current benchmarks
 - **Security**: Extend existing validation for new file types
 

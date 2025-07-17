@@ -2,10 +2,10 @@
 
 Welcome back! In [Chapter 3: Hybrid Chunking Engine](03_hybrid_chunking_engine_.md), we learned how our system intelligently breaks down large documents into smaller, meaningful "chunks." These chunks are now perfectly prepared to be understood by powerful Artificial Intelligence (AI) models, specifically Large Language Models (LLMs).
 
-But here's a new challenge: there isn't just one LLM in the world! Companies like OpenAI, Anthropic, Jina AI, and **Docling** all offer their own amazing LLMs, each with different strengths, pricing, and ways you talk to them (their "API" or Application Programming Interface).
+But here's a new challenge: there isn't just one LLM in the world! Companies like OpenAI, Anthropic, and Jina AI all offer their own amazing LLMs, each with different strengths, pricing, and ways you talk to them (their "API" or Application Programming Interface). Additionally, we have **Docling**, which is an open-source document processing library that runs locally without requiring external APIs.
 
-> **🎉 NEW: DoclingProvider Integration Complete!**  
-> As of January 2025, our system now supports **Docling** - a powerful multi-format document processing platform that can handle PDFs, DOCX, PPTX, HTML, and images alongside traditional text processing. This integration provides the foundation for advanced document understanding capabilities!
+> **🎉 NEW: Docling Integration Complete!**  
+> As of January 2025, our system now supports **Docling** - a powerful open-source document processing library that can handle PDFs, DOCX, PPTX, HTML, and images locally. This integration provides the foundation for advanced document understanding capabilities without requiring external APIs!
 
 #### What Problem Does LLM Provider Integration Solve?
 
@@ -34,6 +34,8 @@ Let's break down how this "universal remote" works:
 2.  **Specific Adapters (e.g., `OpenAIProvider`, `AnthropicProvider`, `JinaProvider`)**:
     *   These are the actual remote controls for specific brands, like the "OpenAI Remote" or the "Anthropic Remote."
     *   Each of these classes (like `OpenAIProvider` in `src/llm/providers/openai_provider.py`) implements the blueprint. They know exactly how to call OpenAI's specific API to turn text into embeddings or generate new text.
+
+> **Note about Docling**: While Docling is mentioned in this tutorial, it's important to understand that Docling is different from other LLM providers. Docling is an open-source document processing library that runs locally on your machine to convert documents (PDFs, DOCX, etc.) into text. It doesn't provide LLM services like text generation or embeddings. Instead, it helps prepare documents for processing by other LLM providers. You'll find the Docling integration in `src/chunkers/docling_processor.py` rather than in the LLM providers directory.
 
 3.  **The LLM Factory (`LLMFactory`)**:
     *   Think of this as the "shop" where you get your universal remote. You go in and say, "I need a remote for my OpenAI TV," and the shop gives you the pre-configured OpenAI remote.
@@ -100,6 +102,37 @@ if openai_llm:
 4.  `openai_llm.generate_embeddings(texts=[embedding_text])`: Similarly, the text is sent to OpenAI's embedding service. The `OpenAIProvider` retrieves the numerical representation (the embedding) and wraps it in an `EmbeddingResponse` object.
 
 You could swap `"openai"` for `"anthropic"` (if you had an `ANTHROPIC_API_KEY`) and use `anthropic_llm.generate_completion(...)` with almost the exact same code! That's the power of the "universal remote."
+
+#### Using Docling for Document Processing
+
+While Docling doesn't follow the LLM provider pattern (since it's a document processor, not an LLM), it's still an important part of our system. Here's how you can use Docling to process different document formats:
+
+```python
+from src.chunkers.docling_processor import DoclingProcessor
+
+# Create a DoclingProcessor instance
+docling_processor = DoclingProcessor()
+
+# Process a PDF file
+pdf_documents = docling_processor.process_document("path/to/document.pdf")
+
+# Process a DOCX file
+docx_documents = docling_processor.process_document("path/to/document.docx")
+
+# Process an HTML file
+html_documents = docling_processor.process_document("path/to/document.html")
+
+# Each document is converted to LangChain Document objects
+for doc in pdf_documents:
+    print(f"Content: {doc.page_content}")
+    print(f"Metadata: {doc.metadata}")
+```
+
+**What makes Docling special:**
+- **Local Processing**: No API keys needed - everything runs on your machine
+- **Multi-Format Support**: Handles PDFs, DOCX, PPTX, HTML, and images
+- **Automatic Fallback**: If Docling library isn't installed, it uses mock processing
+- **Integration**: Seamlessly integrates with our existing chunking system
 
 #### Under the Hood: How LLM Provider Integration Works
 
@@ -278,6 +311,7 @@ class LLMFactory:
         "anthropic": AnthropicProvider,
         "jina": JinaProvider,
     }
+    # Note: Docling is not included here as it's a document processor, not an LLM provider
 
     @classmethod
     def create_provider(
@@ -311,6 +345,7 @@ class LLMFactory:
             "anthropic": config.ANTHROPIC_API_KEY,
             "jina": config.JINA_API_KEY,
         }
+        # Note: Docling doesn't need API keys as it runs locally
         return key_mapping.get(provider_name, "")
 
     # ... (methods to register new providers or get available providers)

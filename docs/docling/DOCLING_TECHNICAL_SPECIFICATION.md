@@ -30,24 +30,24 @@ This document specifies the technical implementation of Docling integration into
 │ Input: PDF, DOCX, PPTX, HTML, Images, Markdown                │
 │ ├── Enhanced FileHandler                                      │
 │ │   ├── FormatDetector                                       │
-│ │   ├── DoclingProcessor (NEW)                              │
+│ │   ├── DoclingProcessor (NEW - Local Library)              │
 │ │   └── MarkdownProcessor (Existing)                        │
 │ ├── Enhanced HybridChunker                                    │
 │ │   ├── Docling HybridChunker Integration                   │
-│ │   ├── Docling HierarchicalChunker                        │
+│ │   ├── Document Structure Preservation                     │
 │ │   └── Legacy Markdown Chunker                             │
 │ ├── Enhanced LLM Providers                                    │
-│ │   ├── DoclingProvider (NEW - Vision Models)               │
+│ │   ├── DoclingProvider (External API - Optional)           │
 │ │   ├── OpenAI Provider (Enhanced)                          │
 │ │   ├── Anthropic Provider (Enhanced)                       │
 │ │   └── Jina Provider (Enhanced)                            │
 │ ├── Enhanced Quality Evaluator                                │
-│ │   ├── Document Structure Metrics                          │
-│ │   ├── Visual Content Evaluation                           │
-│ │   └── Multi-Modal Quality Assessment                      │
+│ │   ├── Multi-Format Quality Metrics                        │
+│ │   ├── Document Structure Evaluation                       │
+│ │   └── Format-Specific Assessment                          │
 │ └── Enhanced Security/Monitoring                              │
 │     ├── Multi-Format Security Validation                     │
-│     ├── Vision Model Monitoring                              │
+│     ├── Local Processing Monitoring                          │
 │     └── Performance Tracking for Large Documents             │
 └─────────────────────────────────────────────────────────────────┘
 ```
@@ -56,6 +56,15 @@ This document specifies the technical implementation of Docling integration into
 
 ## Component Specifications
 
+### **Important Architecture Note**
+
+The Docling integration consists of two distinct components:
+
+1. **DoclingProcessor** (Primary) - Uses the local Docling library for document processing
+2. **DoclingProvider** (Optional) - Provides external API integration for additional LLM capabilities
+
+The core document processing functionality is handled by DoclingProcessor using the local Docling library. DoclingProvider is an optional external API integration that extends the LLM provider ecosystem.
+
 ### **1. DoclingProcessor** 
 *New Component - Core Integration*
 
@@ -63,45 +72,57 @@ This document specifies the technical implementation of Docling integration into
 
 #### **Interface**
 ```python
-from typing import List, Dict, Any, Optional, Union
-from pathlib import Path
+from typing import List, Dict, Any, Optional
+from langchain_core.documents import Document
 from docling.document_converter import DocumentConverter
 from docling.datamodel.base_models import InputFormat
-from src.chunkers.base_processor import BaseProcessor
+from docling.chunking import HybridChunker
 
-class DoclingProcessor(BaseProcessor):
-    """Multi-format document processor using Docling."""
+class DoclingProcessor:
+    """Multi-format document processor using Docling library."""
     
     def __init__(self, 
-                 allowed_formats: Optional[List[InputFormat]] = None,
-                 pipeline_options: Optional[Dict[str, Any]] = None,
-                 enable_vision: bool = True,
-                 enable_ocr: bool = True):
-        """Initialize Docling processor with configuration."""
+                 chunker_tokenizer: str = "sentence-transformers/all-MiniLM-L6-v2"):
+        """Initialize Docling processor with chunker configuration."""
         
     def process_document(self, 
-                        file_path: Path, 
-                        metadata: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Process document and return structured content."""
+                        file_path: str, 
+                        format_type: str = "auto",
+                        **kwargs) -> List[Document]:
+        """Process document and return chunked Document objects."""
         
-    def detect_format(self, file_path: Path) -> InputFormat:
-        """Detect document format from file."""
+    def _detect_format(self, file_path: str) -> str:
+        """Auto-detect document format from file extension and MIME type."""
         
-    def convert_to_chunks(self, 
-                         docling_document: Any, 
-                         chunk_config: Dict[str, Any]) -> List[Any]:
-        """Convert Docling document to chunks."""
+    def export_to_markdown(self, file_path: str) -> str:
+        """Export document to Markdown format."""
         
-    def extract_metadata(self, docling_document: Any) -> Dict[str, Any]:
-        """Extract comprehensive metadata from document."""
+    def export_to_html(self, file_path: str) -> str:
+        """Export document to HTML format."""
+        
+    def export_to_json(self, file_path: str) -> str:
+        """Export document to JSON format."""
+        
+    def get_supported_formats(self) -> List[str]:
+        """Get list of supported document formats."""
+        
+    def is_format_supported(self, format_type: str) -> bool:
+        """Check if a format is supported."""
+        
+    def get_processor_info(self) -> Dict[str, Any]:
+        """Get information about the processor."""
 ```
 
 #### **Key Features**
 - **Multi-Format Support**: PDF, DOCX, PPTX, HTML, Images
-- **Vision Processing**: Image description, table extraction, formula detection
-- **Structure Preservation**: Headers, lists, tables, code blocks
-- **Metadata Enrichment**: Document structure, content types, provenance
-- **Error Handling**: Graceful degradation for unsupported features
+- **Local Processing**: Uses Docling library directly without API calls
+- **Hybrid Chunking**: Integrates with Docling's HybridChunker for optimal results
+- **Structure Preservation**: Maintains document hierarchy and formatting
+- **Metadata Enrichment**: Extracts comprehensive document metadata
+- **Error Handling**: Graceful degradation with mock processing fallback
+- **Library Fallback**: When Docling library is unavailable, provides mock processing
+- **Format Detection**: Automatic detection using file extensions and MIME types
+- **Export Options**: Supports export to markdown, HTML, and JSON formats
 
 #### **Configuration**
 ```python
@@ -113,21 +134,39 @@ DOCLING_CONFIG = {
         InputFormat.HTML,
         InputFormat.IMAGE
     ],
-    'pipeline_options': {
-        'do_ocr': True,
-        'do_table_structure': True,
-        'generate_picture_images': True,
-        'picture_description_options': {
-            'model': 'granite-vision',
-            'prompt': 'Describe this image in detail for document processing.'
-        }
+    'chunker_config': {
+        'tokenizer': 'sentence-transformers/all-MiniLM-L6-v2',
+        'chunk_size': 1000,
+        'chunk_overlap': 200
+    },
+    'processing_options': {
+        'format_detection': 'auto',
+        'preserve_structure': True,
+        'export_formats': ['markdown', 'html', 'json']
     },
     'performance': {
-        'batch_size': 5,
-        'max_memory_mb': 2048,
-        'timeout_seconds': 300
+        'timeout_seconds': 300,
+        'max_file_size_mb': 100
+    },
+    'fallback': {
+        'enable_mock_processing': True,
+        'mock_content_template': 'Mock {format} content from {filename}',
+        'fallback_on_library_missing': True
     }
 }
+```
+
+#### **Library Availability Detection**
+```python
+# DoclingProcessor automatically detects library availability
+try:
+    from docling.document_converter import DocumentConverter
+    from docling.datamodel.base_models import InputFormat
+    from docling.chunking import HybridChunker
+    DOCLING_AVAILABLE = True
+except ImportError:
+    DOCLING_AVAILABLE = False
+    # Mock classes are used when library is not available
 ```
 
 ---
@@ -143,7 +182,7 @@ class FileHandler:
     # Existing methods remain unchanged...
     
     def detect_document_format(self, file_path: Path) -> str:
-        """Detect document format using MIME type and extension."""
+        """Detect document format using file extension and MIME type."""
         
     def validate_multi_format_file(self, file_path: Path) -> bool:
         """Validate file for multi-format processing."""
@@ -158,12 +197,18 @@ class FileHandler:
 #### **Format Detection Logic**
 ```python
 FORMAT_MAPPING = {
+    # Docling-supported formats
     'application/pdf': ('pdf', DoclingProcessor),
     'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ('docx', DoclingProcessor),
     'application/vnd.openxmlformats-officedocument.presentationml.presentation': ('pptx', DoclingProcessor),
     'text/html': ('html', DoclingProcessor),
     'image/png': ('image', DoclingProcessor),
     'image/jpeg': ('image', DoclingProcessor),
+    'image/gif': ('image', DoclingProcessor),
+    'image/bmp': ('image', DoclingProcessor),
+    'image/tiff': ('image', DoclingProcessor),
+    
+    # Legacy formats
     'text/markdown': ('markdown', MarkdownProcessor),
     'text/plain': ('markdown', MarkdownProcessor)
 }
@@ -172,61 +217,71 @@ FORMAT_MAPPING = {
 ---
 
 ### **3. DoclingProvider**
-*New Component - LLM Integration*
+*Modified Component - LLM Integration*
 
 #### **Location**: `src/llm/providers/docling_provider.py`
 
 #### **Interface**
 ```python
 from src.llm.providers.base import BaseLLMProvider
-from docling.pipeline.vlm_pipeline import VlmPipeline
+from typing import List, Optional, Dict, Any
+import requests
+import json
 
 class DoclingProvider(BaseLLMProvider):
-    """LLM provider for Docling vision and enrichment models."""
+    """LLM provider for external Docling API services."""
     
     @property
     def provider_name(self) -> str:
         return "docling"
     
     def __init__(self, 
-                 vision_model: str = "granite-vision",
-                 enable_picture_description: bool = True,
-                 enable_code_understanding: bool = True,
-                 enable_formula_detection: bool = True):
-        """Initialize Docling provider with vision capabilities."""
+                 api_key: str,
+                 model: str = "docling-v1",
+                 base_url: str = "https://api.docling.ai/v1",
+                 embedding_model: str = "docling-embeddings-v1"):
+        """Initialize Docling provider for external API access."""
         
-    def count_tokens(self, text: str, include_images: int = 0) -> int:
-        """Count tokens including image processing overhead."""
+    def generate_completion(self, 
+                           prompt: str,
+                           max_tokens: Optional[int] = None,
+                           temperature: float = 0.7,
+                           **kwargs) -> LLMResponse:
+        """Generate text completion using Docling API."""
         
-    def process_with_vision(self, 
-                           document_path: Path,
-                           options: Optional[Dict[str, Any]] = None) -> Dict[str, Any]:
-        """Process document with vision models."""
+    def generate_embeddings(self, 
+                           texts: List[str],
+                           **kwargs) -> EmbeddingResponse:
+        """Generate embeddings using Docling API."""
         
-    def describe_images(self, image_items: List[Any]) -> List[str]:
-        """Generate descriptions for document images."""
+    def count_tokens(self, text: str) -> int:
+        """Count tokens in text using heuristic approximation."""
         
-    def detect_formulas(self, document_content: str) -> List[Dict[str, Any]]:
-        """Detect and process mathematical formulas."""
-        
-    def understand_code(self, code_blocks: List[str]) -> List[Dict[str, Any]]:
-        """Analyze and understand code blocks."""
+    def process_document(self, 
+                        document_content: str,
+                        document_type: str = "auto",
+                        **kwargs) -> Dict[str, Any]:
+        """Process document content using Docling API capabilities."""
 ```
 
-#### **Vision Model Configuration**
+#### **API Configuration**
 ```python
-VISION_MODELS = {
-    'granite-vision': {
-        'model_id': 'ibm-granite/granite-3.1-8b-instruct',
-        'description_prompt': 'Describe this image in detail for document processing.',
-        'max_tokens': 150,
-        'temperature': 0.1
+DOCLING_API_CONFIG = {
+    'base_url': 'https://api.docling.ai/v1',
+    'models': {
+        'text': 'docling-v1',
+        'embeddings': 'docling-embeddings-v1',
+        'document_processing': 'docling-document-processor'
     },
-    'smol-vlm': {
-        'model_id': 'HuggingFaceTB/SmolVLM-Instruct',
-        'description_prompt': 'Provide a concise description of this image.',
-        'max_tokens': 100,
-        'temperature': 0.0
+    'timeouts': {
+        'completion': 30,
+        'embedding': 30,
+        'document_processing': 60
+    },
+    'token_limits': {
+        'docling-v1': 8192,
+        'docling-large': 16384,
+        'docling-small': 4096
     }
 }
 ```
@@ -247,53 +302,65 @@ class HybridMarkdownChunker:
                  chunk_size: int = 1000,
                  chunk_overlap: int = 200,
                  enable_docling: bool = True,
-                 docling_chunker_type: str = "hybrid"):
+                 docling_chunker_tokenizer: str = "sentence-transformers/all-MiniLM-L6-v2"):
         """Enhanced initialization with Docling support."""
         
     def chunk_docling_document(self, 
                               docling_doc: Any,
-                              metadata: Dict[str, Any]) -> List[Any]:
-        """Chunk document using Docling's chunking capabilities."""
+                              metadata: Dict[str, Any]) -> List[Document]:
+        """Chunk document using Docling's HybridChunker."""
         
-    def apply_docling_hybrid_chunking(self, 
-                                     docling_doc: Any) -> List[Any]:
-        """Apply Docling's HybridChunker with tokenization-aware refinements."""
+    def integrate_docling_processor(self, 
+                                   docling_processor: DoclingProcessor) -> None:
+        """Integrate DoclingProcessor for multi-format support."""
         
-    def apply_docling_hierarchical_chunking(self, 
-                                           docling_doc: Any) -> List[Any]:
-        """Apply Docling's HierarchicalChunker for structure-aware chunking."""
+    def process_with_docling(self, 
+                            file_path: str,
+                            format_type: str = "auto") -> List[Document]:
+        """Process document using integrated DoclingProcessor."""
         
-    def preserve_document_structure(self, 
-                                   chunks: List[Any],
-                                   docling_doc: Any) -> List[Any]:
+    def enhance_chunks_with_structure(self, 
+                                     chunks: List[Document],
+                                     original_metadata: Dict[str, Any]) -> List[Document]:
         """Enhance chunks with document structure information."""
 ```
 
-#### **Chunking Strategy Selection**
+#### **Processing Strategy Selection**
 ```python
-CHUNKING_STRATEGIES = {
+PROCESSING_STRATEGIES = {
     'pdf': {
-        'primary': 'docling_hybrid',
-        'fallback': 'docling_hierarchical',
+        'processor': 'docling',
+        'chunker': 'hybrid',
         'config': {
             'preserve_tables': True,
             'preserve_images': True,
-            'merge_list_items': True
+            'extract_metadata': True
         }
     },
     'docx': {
-        'primary': 'docling_hierarchical',
-        'fallback': 'docling_hybrid',
+        'processor': 'docling',
+        'chunker': 'hybrid',
         'config': {
             'preserve_headings': True,
-            'preserve_styles': True
+            'preserve_styles': True,
+            'extract_metadata': True
+        }
+    },
+    'pptx': {
+        'processor': 'docling',
+        'chunker': 'hybrid',
+        'config': {
+            'preserve_slides': True,
+            'extract_images': True,
+            'extract_metadata': True
         }
     },
     'markdown': {
-        'primary': 'legacy_hybrid',
-        'fallback': 'recursive',
+        'processor': 'legacy',
+        'chunker': 'hybrid_markdown',
         'config': {
-            'header_based': True
+            'header_based': True,
+            'preserve_code_blocks': True
         }
     }
 }
@@ -456,33 +523,43 @@ class DocumentProcessingResult(BaseModel):
 ```python
 PERFORMANCE_TARGETS = {
     'pdf': {
-        'small_doc': {'pages': '<10', 'target_time_ms': 5000, 'memory_mb': 200},
-        'medium_doc': {'pages': '10-100', 'target_time_ms': 30000, 'memory_mb': 500},
-        'large_doc': {'pages': '>100', 'target_time_ms': 120000, 'memory_mb': 1000}
+        'small_doc': {'size': '<5MB', 'target_time_ms': 3000, 'memory_mb': 150},
+        'medium_doc': {'size': '5-20MB', 'target_time_ms': 15000, 'memory_mb': 300},
+        'large_doc': {'size': '>20MB', 'target_time_ms': 60000, 'memory_mb': 600}
     },
     'docx': {
-        'small_doc': {'pages': '<10', 'target_time_ms': 3000, 'memory_mb': 150},
-        'medium_doc': {'pages': '10-50', 'target_time_ms': 15000, 'memory_mb': 300},
-        'large_doc': {'pages': '>50', 'target_time_ms': 60000, 'memory_mb': 600}
+        'small_doc': {'size': '<2MB', 'target_time_ms': 2000, 'memory_mb': 100},
+        'medium_doc': {'size': '2-10MB', 'target_time_ms': 10000, 'memory_mb': 200},
+        'large_doc': {'size': '>10MB', 'target_time_ms': 30000, 'memory_mb': 400}
     },
     'pptx': {
-        'small_doc': {'slides': '<20', 'target_time_ms': 4000, 'memory_mb': 180},
-        'medium_doc': {'slides': '20-100', 'target_time_ms': 20000, 'memory_mb': 400},
-        'large_doc': {'slides': '>100', 'target_time_ms': 80000, 'memory_mb': 800}
+        'small_doc': {'size': '<5MB', 'target_time_ms': 3000, 'memory_mb': 150},
+        'medium_doc': {'size': '5-25MB', 'target_time_ms': 15000, 'memory_mb': 300},
+        'large_doc': {'size': '>25MB', 'target_time_ms': 45000, 'memory_mb': 500}
+    },
+    'html': {
+        'small_doc': {'size': '<1MB', 'target_time_ms': 1000, 'memory_mb': 50},
+        'medium_doc': {'size': '1-5MB', 'target_time_ms': 5000, 'memory_mb': 100},
+        'large_doc': {'size': '>5MB', 'target_time_ms': 15000, 'memory_mb': 200}
+    },
+    'image': {
+        'small_doc': {'size': '<2MB', 'target_time_ms': 2000, 'memory_mb': 100},
+        'medium_doc': {'size': '2-10MB', 'target_time_ms': 8000, 'memory_mb': 200},
+        'large_doc': {'size': '>10MB', 'target_time_ms': 20000, 'memory_mb': 400}
     }
 }
 ```
 
 ### **Memory Management**
-- **Streaming Processing**: For documents >50MB
-- **Batch Processing**: Process images in batches of 5
+- **Local Processing**: All processing happens locally without API calls
+- **File Size Limits**: Configurable limits per format type
 - **Memory Cleanup**: Automatic cleanup after each document
-- **Cache Management**: LRU cache for frequently processed documents
+- **Fallback Processing**: Mock processing when Docling unavailable
 
 ### **Concurrency**
-- **Document Processing**: Max 3 concurrent documents
-- **Vision Model Calls**: Max 2 concurrent API calls
+- **Document Processing**: Sequential processing for memory efficiency
 - **Chunk Generation**: Parallel processing for independent chunks
+- **Format Detection**: Concurrent format detection for batch processing
 
 ---
 
@@ -528,25 +605,26 @@ DOCLING_METRICS = {
     'document_processing_duration_seconds': 'Histogram of document processing times by format',
     'document_processing_total': 'Counter of total documents processed by format',
     'document_processing_failures_total': 'Counter of processing failures by format and error type',
-    'vision_model_requests_total': 'Counter of vision model API requests',
-    'vision_model_response_time_seconds': 'Histogram of vision model response times',
+    'docling_library_available': 'Gauge indicating if Docling library is available',
+    'mock_processing_total': 'Counter of documents processed with mock fallback',
     'chunk_quality_score': 'Histogram of chunk quality scores by format',
     'memory_usage_bytes': 'Gauge of memory usage during processing',
-    'concurrent_documents': 'Gauge of currently processing documents'
+    'file_size_bytes': 'Histogram of processed file sizes by format',
+    'format_detection_duration_seconds': 'Histogram of format detection times'
 }
 ```
 
 ### **Health Checks**
-- **Docling Service Health**: Verify DocumentConverter functionality
-- **Vision Model Health**: Test vision model API connectivity
+- **Docling Library Health**: Verify DocumentConverter functionality
+- **Format Support Health**: Test supported format processing
 - **Memory Health**: Monitor memory usage and cleanup
-- **Processing Queue Health**: Monitor document processing queue
+- **Processing Performance**: Monitor document processing times
 
 ### **Alerting Rules**
 - **High Failure Rate**: >5% processing failures in 5 minutes
 - **Slow Processing**: >2x normal processing time for document type
 - **Memory Issues**: >80% memory usage sustained for 2 minutes
-- **Vision Model Errors**: >3 consecutive vision model API failures
+- **Library Errors**: >3 consecutive Docling library failures
 
 ---
 

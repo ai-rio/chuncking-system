@@ -37,7 +37,7 @@ class ChunkingConfig(BaseSettings):
     ENABLE_PARALLEL: bool = False
 
     # LLM Provider Configuration
-    LLM_PROVIDER: str = "google"  # openai, anthropic, azure, google, jina, docling, local
+    LLM_PROVIDER: str = "google"  # openai, anthropic, azure, google, jina, local
     LLM_MODEL: str = "gemini-2.0-flash-exp"
     
     # Provider-specific API keys
@@ -46,7 +46,6 @@ class ChunkingConfig(BaseSettings):
     AZURE_OPENAI_API_KEY: str = ""
     GOOGLE_API_KEY: str = ""
     JINA_API_KEY: str = ""
-    DOCLING_API_KEY: str = ""
     
     # Azure-specific settings
     AZURE_OPENAI_ENDPOINT: str = ""
@@ -56,10 +55,8 @@ class ChunkingConfig(BaseSettings):
     LOCAL_LLM_ENDPOINT: str = "http://localhost:8000"
     LOCAL_LLM_MODEL: str = "llama2"
     
-    # Docling-specific settings
-    DOCLING_API_BASE_URL: str = "https://api.docling.ai/v1"
-    DOCLING_MODEL: str = "docling-v1"
-    DOCLING_EMBEDDING_MODEL: str = "docling-embeddings-v1"
+    # Docling-specific settings (local library)
+    DOCLING_CHUNKER_TOKENIZER: str = "sentence-transformers/all-MiniLM-L6-v2"
 
     # Quality thresholds
     SEMANTIC_SIMILARITY_THRESHOLD: float = 0.8

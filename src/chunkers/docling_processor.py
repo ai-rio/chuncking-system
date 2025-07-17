@@ -26,24 +26,22 @@ class DoclingProcessor:
     """
     DoclingProcessor component for multi-format document processing.
     
-    Handles PDF, DOCX, PPTX, HTML, and image files using Docling's AI capabilities.
-    Follows existing patterns from MarkdownProcessor while leveraging DoclingProvider.
+    Handles PDF, DOCX, PPTX, HTML, and image files using DoclingProvider.
     """
     
-    def __init__(self, docling_provider: DoclingProvider):
+    def __init__(self, provider: 'DoclingProvider'):
         """
-        Initialize DoclingProcessor.
+        Initialize DoclingProcessor with a DoclingProvider.
         
         Args:
-            docling_provider: DoclingProvider instance for API interactions
+            provider: DoclingProvider instance for document processing
             
         Raises:
-            ValueError: If docling_provider is None or invalid
+            ValueError: If provider is None or invalid
         """
-        if not isinstance(docling_provider, DoclingProvider):
+        if provider is None:
             raise ValueError("DoclingProvider instance required")
-        
-        self.provider = docling_provider
+        self.provider = provider
         self.supported_formats = ["pdf", "docx", "pptx", "html", "image"]
         
         # Format-specific MIME type mappings
@@ -66,7 +64,7 @@ class DoclingProcessor:
         **kwargs
     ) -> ProcessingResult:
         """
-        Process document using Docling capabilities.
+        Process document using DoclingProvider and return processing result.
         
         Args:
             file_path: Path to the document file
@@ -74,11 +72,12 @@ class DoclingProcessor:
             **kwargs: Additional processing options
             
         Returns:
-            ProcessingResult containing processed document data
+            ProcessingResult object containing processed document data
             
         Raises:
             FileNotFoundError: If file doesn't exist
             ValueError: If format is not supported
+            LLMProviderError: If provider processing fails
         """
         start_time = time.time()
         
@@ -98,36 +97,41 @@ class DoclingProcessor:
             raise ValueError(f"Unsupported format: {format_type}")
         
         try:
-            # Read file content
-            with open(file_path, 'rb') as f:
-                file_content = f.read()
+            # Call provider to process the document
+            provider_result = self.provider.process_document(file_path, document_type=format_type, **kwargs)
             
-            # Process document using provider
-            result = self.provider.process_document(
-                document_content=file_content,
-                document_type=format_type,
-                **kwargs
-            )
-            
-            # Calculate processing time
             processing_time = time.time() - start_time
             
-            # Extract and structure the result
+            # Create ProcessingResult from provider response
+            # Handle empty provider result case
+            if not provider_result:
+                merged_metadata = {}
+            else:
+                # Merge provider metadata with base metadata
+                base_metadata = {
+                    "source": file_path,
+                    "format": format_type,
+                    "file_size": file_size,
+                    "processing_time": processing_time
+                }
+                
+                # Add provider metadata at top level
+                provider_metadata = provider_result.get('metadata', {})
+                merged_metadata = {**base_metadata, **provider_metadata}
+            
             return ProcessingResult(
                 format_type=format_type,
                 file_path=file_path,
                 success=True,
-                text=result.get("text", ""),
-                structure=result.get("structure", {}),
-                metadata=result.get("metadata", {}),
+                text=provider_result.get('text', ''),
+                structure=provider_result.get('structure', {}),
+                metadata=merged_metadata,
                 processing_time=processing_time,
                 file_size=file_size
             )
             
-        except Exception as e:
+        except LLMProviderError as e:
             processing_time = time.time() - start_time
-            error_message = str(e)
-            
             return ProcessingResult(
                 format_type=format_type,
                 file_path=file_path,
@@ -137,8 +141,42 @@ class DoclingProcessor:
                 metadata={},
                 processing_time=processing_time,
                 file_size=file_size,
-                error_message=error_message
+                error_message=str(e)
             )
+        except Exception as e:
+            processing_time = time.time() - start_time
+            return ProcessingResult(
+                format_type=format_type,
+                file_path=file_path,
+                success=False,
+                text="",
+                structure={},
+                metadata={},
+                processing_time=processing_time,
+                file_size=file_size,
+                error_message=str(e)
+            )
+    
+    def get_provider_info(self) -> Dict[str, Any]:
+        """
+        Get information about the provider.
+        
+        Returns:
+            Provider information dictionary
+        """
+        base_info = {
+            "provider_name": "docling",
+            "model": "docling-v1",
+            "is_available": True,
+            "supported_formats": self.supported_formats
+        }
+        
+        # Add provider-specific info if available
+        if hasattr(self.provider, 'get_provider_info'):
+            provider_info = self.provider.get_provider_info()
+            base_info.update(provider_info)
+            
+        return base_info
     
     def _detect_format(self, file_path: str) -> str:
         """
@@ -178,102 +216,79 @@ class DoclingProcessor:
         # Default to PDF if uncertain
         return "pdf"
     
-    def _process_pdf(self, content: bytes, **kwargs) -> Dict[str, Any]:
+    def export_to_markdown(self, file_path: str) -> str:
         """
-        Process PDF document content.
+        Export document to Markdown format.
         
         Args:
-            content: PDF file content as bytes
-            **kwargs: Additional processing options
+            file_path: Path to the document file
             
         Returns:
-            Processed PDF data with text, structure, and metadata
+            Markdown representation of the document
         """
-        return self.provider.process_document(
-            document_content=content,
-            document_type="pdf",
-            extract_text=kwargs.get("extract_text", True),
-            extract_structure=kwargs.get("extract_structure", True),
-            extract_metadata=kwargs.get("extract_metadata", True),
-            **kwargs
-        )
+        try:
+            result = self.process_document(file_path)
+            if result.success:
+                # Try to get markdown from provider or use text as fallback
+                if hasattr(self.provider, 'export_to_markdown'):
+                    return self.provider.export_to_markdown(file_path)
+                else:
+                    return result.text
+            else:
+                return f"Error processing document: {result.error_message}"
+        except Exception as e:
+            return f"Error exporting to markdown: {str(e)}"
     
-    def _process_docx(self, content: bytes, **kwargs) -> Dict[str, Any]:
+    def export_to_html(self, file_path: str) -> str:
         """
-        Process DOCX document content with hierarchy preservation.
+        Export document to HTML format.
         
         Args:
-            content: DOCX file content as bytes
-            **kwargs: Additional processing options
+            file_path: Path to the document file
             
         Returns:
-            Processed DOCX data with hierarchy and structure
+            HTML representation of the document
         """
-        return self.provider.process_document(
-            document_content=content,
-            document_type="docx",
-            preserve_hierarchy=kwargs.get("preserve_hierarchy", True),
-            extract_styles=kwargs.get("extract_styles", True),
-            **kwargs
-        )
+        try:
+            result = self.process_document(file_path)
+            if result.success:
+                # Try to get HTML from provider or use text as fallback
+                if hasattr(self.provider, 'export_to_html'):
+                    return self.provider.export_to_html(file_path)
+                else:
+                    return f"<html><body><pre>{result.text}</pre></body></html>"
+            else:
+                return f"Error processing document: {result.error_message}"
+        except Exception as e:
+            return f"Error exporting to HTML: {str(e)}"
     
-    def _process_pptx(self, content: bytes, **kwargs) -> Dict[str, Any]:
+    def export_to_json(self, file_path: str) -> str:
         """
-        Process PPTX presentation content with slides and visual elements.
+        Export document to JSON format.
         
         Args:
-            content: PPTX file content as bytes
-            **kwargs: Additional processing options
+            file_path: Path to the document file
             
         Returns:
-            Processed PPTX data with slides and visual elements
+            JSON representation of the document
         """
-        return self.provider.process_document(
-            document_content=content,
-            document_type="pptx",
-            extract_slides=kwargs.get("extract_slides", True),
-            extract_visuals=kwargs.get("extract_visuals", True),
-            **kwargs
-        )
-    
-    def _process_html(self, content: str, **kwargs) -> Dict[str, Any]:
-        """
-        Process HTML content with semantic structure preservation.
-        
-        Args:
-            content: HTML content as string
-            **kwargs: Additional processing options
-            
-        Returns:
-            Processed HTML data with semantic structure
-        """
-        return self.provider.process_document(
-            document_content=content,
-            document_type="html",
-            preserve_semantic_structure=kwargs.get("preserve_semantic_structure", True),
-            extract_links=kwargs.get("extract_links", True),
-            **kwargs
-        )
-    
-    def _process_image(self, content: bytes, **kwargs) -> Dict[str, Any]:
-        """
-        Process image content with vision capabilities.
-        
-        Args:
-            content: Image file content as bytes
-            **kwargs: Additional processing options
-            
-        Returns:
-            Processed image data with extracted text and visual analysis
-        """
-        return self.provider.process_document(
-            document_content=content,
-            document_type="image",
-            use_vision=kwargs.get("use_vision", True),
-            extract_text=kwargs.get("extract_text", True),
-            analyze_layout=kwargs.get("analyze_layout", True),
-            **kwargs
-        )
+        try:
+            result = self.process_document(file_path)
+            if result.success:
+                # Try to get JSON from provider or use structured data
+                if hasattr(self.provider, 'export_to_json'):
+                    return self.provider.export_to_json(file_path)
+                else:
+                    import json
+                    return json.dumps({
+                        "text": result.text,
+                        "structure": result.structure,
+                        "metadata": result.metadata
+                    })
+            else:
+                return f"Error processing document: {result.error_message}"
+        except Exception as e:
+            return f"Error exporting to JSON: {str(e)}"
     
     def get_supported_formats(self) -> List[str]:
         """
@@ -296,16 +311,104 @@ class DoclingProcessor:
         """
         return format_type in self.supported_formats
     
-    def get_provider_info(self) -> Dict[str, Any]:
+    def get_processor_info(self) -> Dict[str, Any]:
         """
-        Get information about the underlying provider.
+        Get information about the processor configuration.
         
         Returns:
-            Provider information dictionary
+            Dictionary containing processor information
         """
         return {
-            "provider_name": self.provider.provider_name,
-            "model": self.provider.model,
-            "is_available": self.provider.is_available(),
-            "supported_formats": self.supported_formats
+            "processor_type": "DoclingProcessor",
+            "provider_available": hasattr(self, 'provider') and self.provider is not None,
+            "supported_formats": self.supported_formats,
+            "provider_info": self.provider.get_provider_info() if hasattr(self.provider, 'get_provider_info') else {},
+            "version": "1.0.0"
         }
+    
+    def _process_pdf(self, content: bytes) -> Dict[str, Any]:
+        """
+        Process PDF content using the provider.
+        
+        Args:
+            content: PDF content as bytes
+            
+        Returns:
+            Processing result dictionary
+        """
+        return self.provider.process_document(
+            content,
+            document_type="pdf",
+            extract_text=True,
+            extract_structure=True,
+            extract_metadata=True
+        )
+    
+    def _process_docx(self, content: bytes) -> Dict[str, Any]:
+        """
+        Process DOCX content using the provider.
+        
+        Args:
+            content: DOCX content as bytes
+            
+        Returns:
+            Processing result dictionary
+        """
+        return self.provider.process_document(
+            content,
+            document_type="docx",
+            preserve_hierarchy=True,
+            extract_styles=True
+        )
+    
+    def _process_pptx(self, content: bytes) -> Dict[str, Any]:
+        """
+        Process PPTX content using the provider.
+        
+        Args:
+            content: PPTX content as bytes
+            
+        Returns:
+            Processing result dictionary
+        """
+        return self.provider.process_document(
+            content,
+            document_type="pptx",
+            extract_slides=True,
+            extract_visuals=True
+        )
+    
+    def _process_html(self, content: str) -> Dict[str, Any]:
+        """
+        Process HTML content using the provider.
+        
+        Args:
+            content: HTML content as string
+            
+        Returns:
+            Processing result dictionary
+        """
+        return self.provider.process_document(
+            content,
+            document_type="html",
+            preserve_semantic_structure=True,
+            extract_links=True
+        )
+    
+    def _process_image(self, content: bytes) -> Dict[str, Any]:
+        """
+        Process image content using the provider.
+        
+        Args:
+            content: Image content as bytes
+            
+        Returns:
+            Processing result dictionary
+        """
+        return self.provider.process_document(
+            content,
+            document_type="image",
+            use_vision=True,
+            extract_text=True,
+            analyze_layout=True
+        )

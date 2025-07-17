@@ -5,7 +5,7 @@ from dataclasses import dataclass
 from pathlib import Path
 
 from src.utils.file_handler import FileHandler
-from src.chunkers.docling_processor import DoclingProcessor, ProcessingResult
+from src.chunkers.docling_processor import DoclingProcessor
 from src.exceptions import FileHandlingError, ValidationError
 
 
@@ -127,7 +127,7 @@ class EnhancedFileHandler:
         # Return unknown if no match
         return 'unknown'
     
-    def route_to_processor(self, file_path: str, format_type: str) -> ProcessingResult:
+    def route_to_processor(self, file_path: str, format_type: str):
         """
         Route file to appropriate processor based on format type.
         
@@ -136,7 +136,7 @@ class EnhancedFileHandler:
             format_type: Detected format type
             
         Returns:
-            ProcessingResult from the appropriate processor
+            List of Document objects from the appropriate processor
             
         Raises:
             ValidationError: If inputs are invalid
@@ -292,7 +292,7 @@ class EnhancedFileHandler:
         except Exception:
             return False
     
-    def process_batch(self, file_paths: List[str]) -> List[ProcessingResult]:
+    def process_batch(self, file_paths: List[str]) -> List[Any]:
         """
         Process multiple files in batch.
         
@@ -300,7 +300,7 @@ class EnhancedFileHandler:
             file_paths: List of file paths to process
             
         Returns:
-            List of ProcessingResult objects
+            List of processing results (Document objects or error objects)
             
         Raises:
             ValidationError: If file_paths is not a list
@@ -321,43 +321,43 @@ class EnhancedFileHandler:
                 
                 # Validate format
                 if not self.validate_file_format(file_path, format_type):
-                    # Create failed result
-                    result = ProcessingResult(
-                        format_type=format_type,
-                        file_path=file_path,
-                        success=False,
-                        text="",
-                        structure={},
-                        metadata={},
-                        processing_time=0,
-                        file_size=0,
-                        error_message="File validation failed"
+                    # Create failed result as Document object
+                    from langchain_core.documents import Document
+                    error_doc = Document(
+                        page_content="",
+                        metadata={
+                            "source": file_path,
+                            "format": format_type,
+                            "error": "File validation failed",
+                            "processing_time": 0,
+                            "file_size": 0
+                        }
                     )
-                    results.append(result)
+                    results.append(error_doc)
                     continue
                 
-                # Route to processor
-                result = self.route_to_processor(file_path, format_type)
-                results.append(result)
+                # Route to processor (returns list of Documents)
+                batch_results = self.route_to_processor(file_path, format_type)
+                results.extend(batch_results)
                 
             except Exception as e:
                 # Create failed result for any errors
-                result = ProcessingResult(
-                    format_type='unknown',
-                    file_path=file_path,
-                    success=False,
-                    text="",
-                    structure={},
-                    metadata={},
-                    processing_time=0,
-                    file_size=0,
-                    error_message=str(e)
+                from langchain_core.documents import Document
+                error_doc = Document(
+                    page_content="",
+                    metadata={
+                        "source": file_path,
+                        "format": "unknown",
+                        "error": str(e),
+                        "processing_time": 0,
+                        "file_size": 0
+                    }
                 )
-                results.append(result)
+                results.append(error_doc)
         
         return results
     
-    def _process_markdown(self, file_path: str) -> ProcessingResult:
+    def _process_markdown(self, file_path: str):
         """
         Process Markdown file using existing patterns.
         
@@ -365,9 +365,10 @@ class EnhancedFileHandler:
             file_path: Path to the Markdown file
             
         Returns:
-            ProcessingResult for the processed Markdown file
+            List of Document objects for the processed Markdown file
         """
         import time
+        from langchain_core.documents import Document
         
         start_time = time.time()
         
@@ -382,30 +383,32 @@ class EnhancedFileHandler:
             # Process markdown (simplified - can be enhanced with actual markdown processor)
             processing_time = time.time() - start_time
             
-            return ProcessingResult(
-                format_type='markdown',
-                file_path=file_path,
-                success=True,
-                text=content,
-                structure={'type': 'markdown'},
-                metadata={'source': file_path, 'file_size': file_size},
-                processing_time=processing_time,
-                file_size=file_size
+            # Return as Document object
+            doc = Document(
+                page_content=content,
+                metadata={
+                    "source": file_path,
+                    "format": "markdown",
+                    "file_size": file_size,
+                    "processing_time": processing_time
+                }
             )
+            
+            return [doc]
             
         except Exception as e:
             processing_time = time.time() - start_time
-            return ProcessingResult(
-                format_type='markdown',
-                file_path=file_path,
-                success=False,
-                text="",
-                structure={},
-                metadata={},
-                processing_time=processing_time,
-                file_size=0,
-                error_message=str(e)
+            error_doc = Document(
+                page_content="",
+                metadata={
+                    "source": file_path,
+                    "format": "markdown",
+                    "error": str(e),
+                    "processing_time": processing_time,
+                    "file_size": 0
+                }
             )
+            return [error_doc]
     
     def get_supported_formats(self) -> List[str]:
         """
