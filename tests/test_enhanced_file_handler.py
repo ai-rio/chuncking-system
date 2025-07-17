@@ -7,7 +7,24 @@ from typing import List, Dict, Any
 
 from src.utils.enhanced_file_handler import EnhancedFileHandler, FileInfo
 from src.utils.file_handler import FileHandler
-from src.chunkers.docling_processor import DoclingProcessor, ProcessingResult
+from src.chunkers.docling_processor import DoclingProcessor
+try:
+    from docling.datamodel.base_models import ConversionResult
+    DOCLING_AVAILABLE = True
+except ImportError:
+    ConversionResult = None
+    DOCLING_AVAILABLE = False
+    # Fallback for when docling is not available
+    class ProcessingResult:
+        def __init__(self, format_type, file_path, success, text, structure, metadata, processing_time, file_size):
+            self.format_type = format_type
+            self.file_path = file_path
+            self.success = success
+            self.text = text
+            self.structure = structure
+            self.metadata = metadata
+            self.processing_time = processing_time
+            self.file_size = file_size
 from src.exceptions import FileHandlingError, ValidationError
 
 
@@ -98,16 +115,22 @@ class TestEnhancedFileHandler:
     def test_intelligent_routing_docling_processor(self):
         """Test routing to DoclingProcessor for supported formats"""
         # Mock DoclingProcessor response
-        mock_result = ProcessingResult(
-            format_type='pdf',
-            file_path='/test/file.pdf',
-            success=True,
-            text='Test content',
-            structure={},
-            metadata={},
-            processing_time=0.1,
-            file_size=1024
-        )
+        if DOCLING_AVAILABLE:
+            # Create a mock ConversionResult
+            mock_result = Mock(spec=ConversionResult)
+            mock_result.status.success = True
+            mock_result.document.export_to_markdown.return_value = 'Test content'
+        else:
+            mock_result = ProcessingResult(
+                format_type='pdf',
+                file_path='/test/file.pdf',
+                success=True,
+                text='Test content',
+                structure={},
+                metadata={},
+                processing_time=0.1,
+                file_size=1024
+            )
         self.mock_docling_processor.process_document.return_value = mock_result
         
         with tempfile.NamedTemporaryFile(suffix='.pdf', delete=False) as tmp:
@@ -157,24 +180,37 @@ class TestEnhancedFileHandler:
             test_files.append(md_path)
             
             # Mock responses
-            pdf_result = ProcessingResult(
-                format_type='pdf',
-                file_path=pdf_path,
-                success=True,
-                text='PDF content',
-                structure={},
-                metadata={},
-                processing_time=0.1,
-                file_size=1024
-            )
+            if DOCLING_AVAILABLE:
+                # Create a mock ConversionResult for PDF
+                pdf_result = Mock(spec=ConversionResult)
+                pdf_result.status.success = True
+                pdf_result.document.export_to_markdown.return_value = 'PDF content'
+            else:
+                pdf_result = ProcessingResult(
+                    format_type='pdf',
+                    file_path=pdf_path,
+                    success=True,
+                    text='PDF content',
+                    structure={},
+                    metadata={},
+                    processing_time=0.1,
+                    file_size=1024
+                )
             self.mock_docling_processor.process_document.return_value = pdf_result
             
             results = self.enhanced_handler.process_batch(test_files)
             
             assert len(results) == 2
-            assert results[0].format_type == 'pdf'
+            if DOCLING_AVAILABLE:
+                assert results[0].status.success is True
+            else:
+                assert results[0].format_type == 'pdf'
+                assert results[0].success is True
             assert results[1].format_type == 'markdown'
-            assert all(result.success for result in results)
+            if DOCLING_AVAILABLE:
+                assert results[1].status.success is True
+            else:
+                assert results[1].success is True
     
     def test_error_handling_unsupported_formats(self):
         """Test error handling for unsupported file formats"""

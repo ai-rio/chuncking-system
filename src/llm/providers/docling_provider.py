@@ -1,6 +1,16 @@
 from typing import List, Optional, Dict, Any
 import requests
 import json
+from pathlib import Path
+
+try:
+    from docling.document_converter import DocumentConverter
+    from docling.datamodel.base_models import ConversionResult
+    DOCLING_AVAILABLE = True
+except ImportError:
+    DOCLING_AVAILABLE = False
+    DocumentConverter = None
+    ConversionResult = None
 
 from .base import (
     BaseLLMProvider, 
@@ -20,22 +30,25 @@ class DoclingProvider(BaseLLMProvider):
     Supports text completion, embeddings, and document processing workflows.
     """
     
-    def __init__(self, api_key: str, model: str = "docling-v1", **kwargs):
+    def __init__(self, api_key: str = None, model: str = "docling-v1", **kwargs):
         """
         Initialize DoclingProvider.
         
         Args:
-            api_key: Docling API key
+            api_key: Optional API key (not needed for local docling)
             model: Model name to use (default: docling-v1)
-            **kwargs: Additional configuration including base_url
+            **kwargs: Additional configuration
         """
-        super().__init__(api_key, model, **kwargs)
-        self.base_url = kwargs.get("base_url", "https://api.docling.ai/v1")
-        self.embedding_model = kwargs.get("embedding_model", "docling-embeddings-v1")
+        super().__init__(api_key or "local", model, **kwargs)
         
-        # Store base_url in config for test compatibility
-        self.config["base_url"] = self.base_url
-        self.config["embedding_model"] = self.embedding_model
+        if not DOCLING_AVAILABLE:
+            raise LLMProviderError("Docling library not available. Install with: pip install docling")
+        
+        # Initialize DocumentConverter
+        self.converter = DocumentConverter()
+        
+        # Store configuration for compatibility
+        self.config["docling_available"] = DOCLING_AVAILABLE
     
     @property
     def provider_name(self) -> str:
@@ -241,58 +254,42 @@ class DoclingProvider(BaseLLMProvider):
     
     def process_document(
         self, 
-        document_content: str, 
+        file_path: str, 
         document_type: str = "auto",
         **kwargs
-    ) -> Dict[str, Any]:
+    ) -> ConversionResult:
         """
-        Process document content using Docling capabilities.
+        Process document using Docling DocumentConverter.
         
         This method provides document-specific processing that leverages
         Docling's advanced document understanding capabilities.
         
         Args:
-            document_content: Raw document content or URL
+            file_path: Path to the document file
             document_type: Type of document (pdf, docx, html, etc.) or "auto"
             **kwargs: Additional processing parameters
             
         Returns:
-            Dict containing processed document data
+            ConversionResult containing the processed document
             
         Note:
             This is a specialized method for document processing workflows.
             It extends beyond standard LLM provider interface for Docling-specific features.
         """
         try:
-            client = self.get_client()
+            if not DOCLING_AVAILABLE:
+                raise LLMProviderError("Docling library not available")
             
-            payload = {
-                "document": document_content,
-                "document_type": document_type,
-                "options": {
-                    "extract_text": kwargs.get("extract_text", True),
-                    "extract_structure": kwargs.get("extract_structure", True),
-                    "extract_metadata": kwargs.get("extract_metadata", True),
-                    **kwargs
-                }
-            }
+            # Convert file path to Path object
+            doc_path = Path(file_path)
             
-            response = requests.post(
-                f"{client['base_url']}/document/process",
-                headers=client["headers"],
-                json=payload,
-                timeout=60  # Longer timeout for document processing
-            )
+            if not doc_path.exists():
+                raise LLMProviderError(f"Document file not found: {file_path}")
             
-            if response.status_code != 200:
-                raise LLMProviderError(
-                    f"Docling document processing error: {response.status_code} - {response.text}"
-                )
+            # Use DocumentConverter to process the document
+            result = self.converter.convert(doc_path)
             
-            return response.json()
+            return result
             
-        except (OSError, IOError) as e:
-            # Catch network-related errors (RequestException inherits from OSError)
-            raise LLMProviderError(f"Docling document processing request failed: {str(e)}")
         except Exception as e:
             raise LLMProviderError(f"Docling document processing failed: {str(e)}")

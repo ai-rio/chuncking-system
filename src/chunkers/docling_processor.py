@@ -6,6 +6,13 @@ import mimetypes
 
 from langchain_core.documents import Document
 
+try:
+    from docling.datamodel.base_models import ConversionResult
+    DOCLING_AVAILABLE = True
+except ImportError:
+    DOCLING_AVAILABLE = False
+    ConversionResult = None
+
 from src.llm.providers.docling_provider import DoclingProvider
 from src.llm.providers.base import LLMProviderError
 from src.exceptions import ChunkingError
@@ -65,9 +72,9 @@ class DoclingProcessor:
         file_path: str, 
         format_type: str = "auto",
         **kwargs
-    ) -> List[Document]:
+    ) -> ConversionResult:
         """
-        Process document using DoclingProvider and return list of Document objects.
+        Process document using DoclingProvider and return ConversionResult.
         
         Args:
             file_path: Path to the document file
@@ -75,21 +82,16 @@ class DoclingProcessor:
             **kwargs: Additional processing options
             
         Returns:
-            List of Document objects containing processed content
+            ConversionResult containing processed document
             
         Raises:
             FileNotFoundError: If file doesn't exist
             ValueError: If format is not supported
             ChunkingError: If document processing fails
         """
-        start_time = time.time()
-        
         # Validate file existence
         if not os.path.exists(file_path):
             raise FileNotFoundError(f"File not found: {file_path}")
-        
-        # Get file size for performance monitoring
-        file_size = os.path.getsize(file_path)
         
         # Auto-detect format if needed
         if format_type == "auto":
@@ -101,35 +103,9 @@ class DoclingProcessor:
         
         try:
             # Call provider to process the document
-            provider_result = self.provider.process_document(file_path, document_type=format_type, **kwargs)
+            conversion_result = self.provider.process_document(file_path, document_type=format_type, **kwargs)
             
-            processing_time = time.time() - start_time
-            
-            # Create Document objects from provider response
-            # Handle empty provider result case
-            if not provider_result:
-                return []
-            
-            # Merge provider metadata with base metadata
-            base_metadata = {
-                "source": file_path,
-                "format": format_type,
-                "file_size": file_size,
-                "processing_time": processing_time
-            }
-            
-            # Add provider metadata and structure data at top level
-            provider_metadata = provider_result.get('metadata', {})
-            provider_structure = provider_result.get('structure', {})
-            merged_metadata = {**base_metadata, **provider_metadata, **provider_structure}
-            
-            # Create a single Document from the processed text
-            document = Document(
-                page_content=provider_result.get('text', ''),
-                metadata=merged_metadata
-            )
-            
-            return [document]
+            return conversion_result
             
         except LLMProviderError as e:
             # Re-raise provider errors for ProductionPipeline to handle
@@ -209,14 +185,11 @@ class DoclingProcessor:
         """
         try:
             result = self.process_document(file_path)
-            if result.success:
-                # Try to get markdown from provider or use text as fallback
-                if hasattr(self.provider, 'export_to_markdown'):
-                    return self.provider.export_to_markdown(file_path)
-                else:
-                    return result.text
+            if result.status.success:
+                # Use DoclingDocument's export_to_markdown method
+                return result.document.export_to_markdown()
             else:
-                return f"Error processing document: {result.error_message}"
+                return f"Error processing document: {result.status}"
         except Exception as e:
             return f"Error exporting to markdown: {str(e)}"
     
@@ -232,14 +205,11 @@ class DoclingProcessor:
         """
         try:
             result = self.process_document(file_path)
-            if result.success:
-                # Try to get HTML from provider or use text as fallback
-                if hasattr(self.provider, 'export_to_html'):
-                    return self.provider.export_to_html(file_path)
-                else:
-                    return f"<html><body><pre>{result.text}</pre></body></html>"
+            if result.status.success:
+                # Use DoclingDocument's export_to_html method
+                return result.document.export_to_html()
             else:
-                return f"Error processing document: {result.error_message}"
+                return f"Error processing document: {result.status}"
         except Exception as e:
             return f"Error exporting to HTML: {str(e)}"
     
@@ -255,19 +225,11 @@ class DoclingProcessor:
         """
         try:
             result = self.process_document(file_path)
-            if result.success:
-                # Try to get JSON from provider or use structured data
-                if hasattr(self.provider, 'export_to_json'):
-                    return self.provider.export_to_json(file_path)
-                else:
-                    import json
-                    return json.dumps({
-                        "text": result.text,
-                        "structure": result.structure,
-                        "metadata": result.metadata
-                    })
+            if result.status.success:
+                # Use DoclingDocument's export_to_json method
+                return result.document.export_to_json()
             else:
-                return f"Error processing document: {result.error_message}"
+                return f"Error processing document: {result.status}"
         except Exception as e:
             return f"Error exporting to JSON: {str(e)}"
     
@@ -307,87 +269,87 @@ class DoclingProcessor:
             "version": "1.0.0"
         }
     
-    def _process_pdf(self, content: bytes) -> Dict[str, Any]:
+    def _process_pdf(self, file_path: str) -> 'ConversionResult':
         """
-        Process PDF content using the provider.
+        Process PDF file using the provider.
         
         Args:
-            content: PDF content as bytes
+            file_path: Path to PDF file
             
         Returns:
-            Processing result dictionary
+            ConversionResult from docling
         """
         return self.provider.process_document(
-            content,
+            file_path,
             document_type="pdf",
             extract_text=True,
             extract_structure=True,
             extract_metadata=True
         )
     
-    def _process_docx(self, content: bytes) -> Dict[str, Any]:
+    def _process_docx(self, file_path: str) -> 'ConversionResult':
         """
-        Process DOCX content using the provider.
+        Process DOCX file using the provider.
         
         Args:
-            content: DOCX content as bytes
+            file_path: Path to DOCX file
             
         Returns:
-            Processing result dictionary
+            ConversionResult from docling
         """
         return self.provider.process_document(
-            content,
+            file_path,
             document_type="docx",
             preserve_hierarchy=True,
             extract_styles=True
         )
     
-    def _process_pptx(self, content: bytes) -> Dict[str, Any]:
+    def _process_pptx(self, file_path: str) -> 'ConversionResult':
         """
-        Process PPTX content using the provider.
+        Process PPTX file using the provider.
         
         Args:
-            content: PPTX content as bytes
+            file_path: Path to PPTX file
             
         Returns:
-            Processing result dictionary
+            ConversionResult from docling
         """
         return self.provider.process_document(
-            content,
+            file_path,
             document_type="pptx",
             extract_slides=True,
             extract_visuals=True
         )
     
-    def _process_html(self, content: str) -> Dict[str, Any]:
+    def _process_html(self, file_path: str) -> 'ConversionResult':
         """
-        Process HTML content using the provider.
+        Process HTML file using the provider.
         
         Args:
-            content: HTML content as string
+            file_path: Path to HTML file
             
         Returns:
-            Processing result dictionary
+            ConversionResult from docling
         """
         return self.provider.process_document(
-            content,
+            file_path,
             document_type="html",
             preserve_semantic_structure=True,
             extract_links=True
         )
     
-    def _process_image(self, content: bytes) -> Dict[str, Any]:
+    def _process_image(self, file_path: str) -> 'ConversionResult':
         """
-        Process image content using the provider.
+        Process image file using the provider.
         
         Args:
-            content: Image content as bytes
+            file_path: Path to image file
             
         Returns:
-            Processing result dictionary
+            ConversionResult from docling
         """
         return self.provider.process_document(
-            content,
+            file_path,
             document_type="image",
             use_vision=True,
             extract_text=True,
