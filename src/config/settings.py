@@ -37,7 +37,11 @@ class ChunkingConfig(BaseSettings):
     ENABLE_PARALLEL: bool = False
 
     # LLM Provider Configuration
+<<<<<<< HEAD
     LLM_PROVIDER: str = "google"  # openai, anthropic, azure, google, jina, docling, local
+=======
+    LLM_PROVIDER: str = "google"  # openai, anthropic, azure, google, jina, local
+>>>>>>> feat/quality-enhancement
     LLM_MODEL: str = "gemini-2.0-flash-exp"
     
     # Provider-specific API keys
@@ -60,6 +64,8 @@ class ChunkingConfig(BaseSettings):
     DOCLING_API_BASE_URL: str = "https://api.docling.ai/v1"
     DOCLING_MODEL: str = "docling-v1"
     DOCLING_EMBEDDING_MODEL: str = "docling-embeddings-v1"
+    # Docling-specific settings (local library)
+    DOCLING_CHUNKER_TOKENIZER: str = "sentence-transformers/all-MiniLM-L6-v2"
 
     # Quality thresholds
     SEMANTIC_SIMILARITY_THRESHOLD: float = 0.8
@@ -78,4 +84,3 @@ class ChunkingConfig(BaseSettings):
 
 # Global config instance
 config = ChunkingConfig()
-

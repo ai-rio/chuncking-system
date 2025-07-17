@@ -166,6 +166,42 @@ def mock_tokenizer():
 
 
 @pytest.fixture
+def mock_docling_provider():
+    """Mock DoclingProvider for testing."""
+    from src.llm.providers.docling_provider import DoclingProvider
+    
+    class MockDoclingProvider(DoclingProvider):
+        def __init__(self):
+            # Initialize with mock values without calling super()
+            self.api_key = "mock_api_key"
+            self.model = "docling-v1"
+            self.config = {"base_url": "https://api.docling.ai/v1"}
+            self.supported_formats = ["pdf", "docx", "pptx", "html", "image"]
+            self._client = None
+        
+        def is_available(self):
+            return True
+        
+        def process_document(self, document_content, document_type, **kwargs):
+            """Mock document processing with sample results"""
+            return {
+                "text": f"Mock processed content for {document_type} format. This is a longer text to ensure proper chunking. It contains multiple sentences to create meaningful chunks for testing purposes.",
+                "structure": {"pages": [{"page_number": 1, "text": "Mock content"}]},
+                "metadata": {"format": document_type, "pages": 1}
+            }
+        
+        def get_provider_info(self):
+            return {
+                "provider_name": "docling",
+                "model": self.model,
+                "is_available": True,
+                "supported_formats": self.supported_formats
+            }
+    
+    return MockDoclingProvider()
+
+
+@pytest.fixture
 def chunking_config():
     """Sample chunking configuration."""
     return {

@@ -50,7 +50,11 @@ Based on my comprehensive analysis of your project structure and the existing `d
 
 **Database Integration**: Extend existing ChunkingResult dataclass and chunk metadata schema with optional Docling-specific fields (document_type, vision_content, structure_data) using backward-compatible approach. No existing database schema modifications required - new fields will be additive only.
 
+<<<<<<< HEAD
 **API Integration**: Maintain all existing CLI arguments and Python API methods unchanged. Add optional Docling-specific parameters (`--docling-api-key`, `--enable-vision-processing`) following established argument patterns. Extend health endpoints with Docling metrics while preserving existing endpoint contracts.
+=======
+**API Integration**: Maintain all existing CLI arguments and Python API methods unchanged. Add optional Docling-specific parameters (`--docling-tokenizer`, `--enable-multi-format`) following established argument patterns. Extend health endpoints with Docling metrics while preserving existing endpoint contracts.
+>>>>>>> feat/quality-enhancement
 
 **UI Integration**: Enhance existing console output and monitoring interfaces with multi-format processing information while maintaining current formatting patterns. Extend Grafana dashboards and Prometheus metrics with Docling-specific observability data using existing infrastructure.
 
@@ -86,7 +90,11 @@ Based on my comprehensive analysis of your project structure and the existing `d
 
 | Technology | Version | Purpose | Rationale | Integration Method |
 |------------|---------|---------|-----------|-------------------|
+<<<<<<< HEAD
 | Docling SDK | Latest stable | Multi-format document processing and vision capabilities | Required for PDF, DOCX, PPTX, HTML, image processing functionality | New DoclingProvider implements existing BaseLLMProvider interface |
+=======
+| Docling | Latest stable | Multi-format document processing library (local execution) | Required for PDF, DOCX, PPTX, HTML, image processing functionality | New DoclingProcessor processes documents locally using Docling library |
+>>>>>>> feat/quality-enhancement
 | Python-magic | 0.4.27+ | Enhanced file type detection for multi-format routing | Reliable MIME type detection for secure format validation | Integrated into enhanced FileHandler format detection logic |
 | Pillow (PIL) | 10.0.0+ | Image format validation and basic processing | Security validation for image files before Docling processing | Extends existing security validation framework |
 
@@ -110,6 +118,7 @@ Based on my comprehensive analysis of your project structure and the existing `d
 - **With Existing**: Integrates as optional extension to current chunk metadata in ChunkingResult dataclass
 - **With New**: Used by DoclingProcessor and referenced in enhanced quality evaluation metrics
 
+<<<<<<< HEAD
 #### **DoclingProviderConfig**
 
 **Purpose**: Configuration management for Docling API integration following existing Pydantic settings patterns  
@@ -125,6 +134,22 @@ Based on my comprehensive analysis of your project structure and the existing `d
 **Relationships:**
 - **With Existing**: Inherits from existing provider configuration base class and integrates with current settings management
 - **With New**: Used by DoclingProvider for initialization and operation configuration
+=======
+#### **DoclingProcessorConfig**
+
+**Purpose**: Configuration management for Docling open-source library integration following existing Pydantic settings patterns  
+**Integration**: Extends current configuration system with Docling-specific settings
+
+**Key Attributes:**
+- `chunker_tokenizer`: str - Tokenizer model for hybrid chunking (default: sentence-transformers/all-MiniLM-L6-v2)
+- `supported_formats`: List[str] - List of supported document formats (PDF, DOCX, PPTX, HTML, image)
+- `max_file_size_mb`: int - File size limit for security validation (default: 50MB)
+- `enable_mock_processing`: bool - Toggle for mock processing when Docling library unavailable
+
+**Relationships:**
+- **With Existing**: Integrates with existing configuration system and file handling patterns
+- **With New**: Used by DoclingProcessor for initialization and document processing configuration
+>>>>>>> feat/quality-enhancement
 
 #### **MultiFormatChunk**
 
@@ -162,6 +187,7 @@ Based on my comprehensive analysis of your project structure and the existing `d
 
 #### **DoclingProcessor**
 
+<<<<<<< HEAD
 **Responsibility**: Core multi-format document processing using Docling API, handling PDF, DOCX, PPTX, HTML, and image files while integrating with existing chunking pipeline  
 **Integration Points**: Interfaces with enhanced FileHandler for format routing, integrates with existing quality evaluation system, follows established processor patterns from MarkdownProcessor
 
@@ -193,6 +219,40 @@ Based on my comprehensive analysis of your project structure and the existing `d
 - **New Components**: DoclingProviderConfig for settings management, integration with DoclingProcessor
 
 **Technology Stack**: Inherits from existing provider patterns, Docling SDK integration, follows current authentication and error handling approaches
+=======
+**Responsibility**: Core multi-format document processing using Docling open-source library, handling PDF, DOCX, PPTX, HTML, and image files with local processing capabilities  
+**Integration Points**: Interfaces with enhanced FileHandler for format routing, integrates with existing quality evaluation system, follows established processor patterns from MarkdownProcessor
+
+**Key Interfaces:**
+- `process_document(file_path: str, format_type: str) -> List[Document]` - Main processing interface returning LangChain Document objects
+- `export_to_markdown(file_path: str) -> str` - Export document to Markdown format
+- `export_to_html(file_path: str) -> str` - Export document to HTML format
+- `get_supported_formats() -> List[str]` - Get list of supported document formats
+
+**Dependencies:**
+- **Existing Components**: FileHandler (enhanced), existing security validation framework, observability infrastructure
+- **New Components**: Docling library (DocumentConverter, HybridChunker), LangChain Document objects
+
+**Technology Stack**: Python 3.11+, Docling open-source library, integrates with existing LangChain text processing, follows current error handling patterns
+
+#### **DoclingProcessor**
+
+**Responsibility**: Multi-format document processing using Docling open-source library for handling PDF, DOCX, PPTX, HTML, and image files with local processing capabilities  
+**Integration Points**: Interfaces with existing file handling, integrates with HybridChunker, follows established processor patterns
+
+**Key Interfaces:**
+- `process_document(file_path: str, format_type: str) -> List[Document]` - Main document processing interface returning LangChain Document objects
+- `export_to_markdown(file_path: str) -> str` - Export document to Markdown format
+- `export_to_html(file_path: str) -> str` - Export document to HTML format
+- `export_to_json(file_path: str) -> str` - Export document to JSON format
+- `get_supported_formats() -> List[str]` - Get list of supported document formats
+
+**Dependencies:**
+- **Existing Components**: LangChain Document objects, existing file handling patterns, current error handling
+- **New Components**: Docling library (DocumentConverter, HybridChunker), enhanced file format detection
+
+**Technology Stack**: Docling open-source library, LangChain integration, follows current processing patterns with local execution
+>>>>>>> feat/quality-enhancement
 
 #### **EnhancedFileHandler**
 
@@ -237,8 +297,13 @@ graph TD
     C -->|Markdown| D[Existing MarkdownProcessor]
     C -->|PDF/DOCX/PPTX/HTML/Image| E[DoclingProcessor]
     
+<<<<<<< HEAD
     E --> F[DoclingProvider]
     F --> G[Docling API]
+=======
+    E --> F[Docling Library]
+    F --> G[Local Document Processing]
+>>>>>>> feat/quality-enhancement
     
     D --> H[Existing HybridChunker]
     E --> I[Enhanced HybridChunker]
@@ -252,8 +317,13 @@ graph TD
     L --> N[Traditional Quality Reports]
     M --> O[Enhanced Quality Reports]
     
+<<<<<<< HEAD
     F --> P[LLMFactory]
     P --> Q[Existing Providers: OpenAI, Anthropic, Jina]
+=======
+    F --> P[Document Processing]
+    P --> Q[Processed Documents]
+>>>>>>> feat/quality-enhancement
     
     B --> R[Existing Security Validation]
     E --> S[Enhanced Security Validation]
@@ -335,8 +405,12 @@ chunking-system/
 │   │   └── (existing files...)      # All existing files preserved
 │   ├── llm/
 │   │   └── providers/               # LLM implementations
+<<<<<<< HEAD
 │   │       ├── docling_provider.py  # NEW: Docling LLM provider
 │   │       └── (existing files...)  # All existing providers preserved
+=======
+│   │       └── (existing files...)  # All existing providers preserved (Docling doesn't need LLM provider)
+>>>>>>> feat/quality-enhancement
 │   ├── utils/
 │   │   ├── file_handler.py          # ENHANCED: Multi-format detection and routing
 │   │   ├── security.py              # ENHANCED: Multi-format validation
@@ -349,8 +423,12 @@ chunking-system/
 │   │   ├── test_multi_format_integration.py # NEW: Integration tests
 │   │   └── (existing tests...)      # All existing tests preserved
 │   ├── test_llm/
+<<<<<<< HEAD
 │   │   ├── test_docling_provider.py # NEW: Docling provider tests
 │   │   └── (existing tests...)      # All existing LLM tests preserved
+=======
+│   │   └── (existing tests...)      # All existing LLM tests preserved (Docling doesn't need LLM provider tests)
+>>>>>>> feat/quality-enhancement
 │   └── test_utils/
 │       ├── test_enhanced_file_handler.py # NEW: Multi-format file handling tests
 │       └── (existing tests...)      # All existing utility tests preserved
@@ -383,14 +461,24 @@ chunking-system/
 **Deployment Approach**: Zero-downtime deployment leveraging existing Docker infrastructure with enhanced container including Docling dependencies. Maintain current deployment pipeline with additional Docling API key validation and multi-format file security checks integrated into existing CI/CD quality gates.
 
 **Infrastructure Changes**: 
+<<<<<<< HEAD
 - Container image enhancement with Docling SDK and python-magic dependencies added to existing requirements
 - Environment variable expansion for Docling configuration (DOCLING_API_KEY, DOCLING_BASE_URL) following current credential management patterns
 - Enhanced health checks including Docling API connectivity verification integrated with existing health endpoint infrastructure
+=======
+- Container image enhancement with Docling library and python-magic dependencies added to existing requirements
+- Environment variable expansion for Docling configuration (DOCLING_CHUNKER_TOKENIZER) following current configuration patterns
+- Enhanced health checks including Docling library availability verification integrated with existing health endpoint infrastructure
+>>>>>>> feat/quality-enhancement
 - Extended monitoring configuration with Docling-specific Prometheus metrics added to current observability stack
 
 **Pipeline Integration**: 
 - Existing pytest workflow extended with Docling integration tests maintaining 95% coverage requirement
+<<<<<<< HEAD
 - Current quality gates enhanced with multi-format security validation and Docling API connectivity checks
+=======
+- Current quality gates enhanced with multi-format security validation and Docling library availability checks
+>>>>>>> feat/quality-enhancement
 - Existing Docker build process updated to include new dependencies while preserving current image optimization
 - Current deployment automation extended with Docling configuration validation following established patterns
 
@@ -399,15 +487,25 @@ chunking-system/
 **Rollback Method**: Feature flag-based rollback enabling selective disabling of Docling processing while maintaining existing Markdown functionality. Environment variable ENABLE_DOCLING_PROCESSING=false reverts to current behavior without code changes or redeployment.
 
 **Risk Mitigation**: 
+<<<<<<< HEAD
 - Comprehensive fallback mechanisms ensure system continues operating if Docling API unavailable
+=======
+- Comprehensive fallback mechanisms ensure system continues operating if Docling library unavailable (mock processing)
+>>>>>>> feat/quality-enhancement
 - Existing Markdown processing pathways remain completely unchanged providing guaranteed fallback capability
 - Multi-format file validation prevents processing of potentially problematic documents
 - Enhanced monitoring and alerting provide early warning of Docling integration issues
 
 **Monitoring**: 
+<<<<<<< HEAD
 - Extended Prometheus metrics include Docling API response times, success rates, and error categorization
 - Enhanced Grafana dashboards display multi-format processing statistics alongside existing system metrics
 - Existing alerting rules supplemented with Docling-specific alerts for API failures and processing anomalies
+=======
+- Extended Prometheus metrics include Docling processing times, success rates, and error categorization
+- Enhanced Grafana dashboards display multi-format processing statistics alongside existing system metrics
+- Existing alerting rules supplemented with Docling-specific alerts for library failures and processing anomalies
+>>>>>>> feat/quality-enhancement
 - Current observability infrastructure maintains full visibility into system health during integration
 
 ## Coding Standards and Conventions
@@ -424,9 +522,10 @@ chunking-system/
 
 ### **Enhancement-Specific Standards**
 
-- **Docling Integration Pattern**: All Docling-related components must implement graceful fallback mechanisms when Docling API unavailable, ensuring system continues operating with existing functionality
+- **Docling Integration Pattern**: All Docling-related components must implement graceful fallback mechanisms when Docling library or API unavailable, ensuring system continues operating with existing functionality
 - **Multi-Format Validation**: New file type validation must extend existing security framework patterns, following current PathSanitizer and FileValidator approaches for consistency
 - **Provider Interface Compliance**: DoclingProvider must strictly implement BaseLLMProvider interface, maintaining compatibility with existing factory registration and provider switching mechanisms
+- **Document Processing Integration**: DoclingProcessor must integrate smoothly with existing file handling and chunking patterns, maintaining compatibility with current processing workflows
 - **Quality Evaluation Extensions**: Enhanced quality metrics must preserve existing evaluation patterns while adding multi-format capabilities, ensuring backward compatibility with current assessment workflows
 - **Configuration Management**: All new settings must follow existing Pydantic model patterns with environment variable integration, maintaining current configuration validation and type safety approaches
 

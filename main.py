@@ -39,7 +39,11 @@ from src.utils.validators import (
     validate_file_path, validate_directory_path, validate_chunk_size, 
     validate_chunk_overlap, validate_output_format
 )
+<<<<<<< HEAD
 from src.utils.path_utils import get_markdown_manager, get_quality_enhancement_manager, get_advanced_quality_enhancement_manager
+=======
+from src.utils.path_utils import get_markdown_manager, get_advanced_quality_enhancement_manager
+>>>>>>> feat/quality-enhancement
 
 # Setup logging
 app_logger = setup_logging(level="INFO")
@@ -50,7 +54,7 @@ path_manager = get_markdown_manager()
 from src.chunkers.hybrid_chunker import HybridMarkdownChunker
 from src.utils.file_handler import FileHandler
 from src.utils.metadata_enricher import MetadataEnricher
-from src.chunkers.evaluators import ChunkQualityEvaluator, EnhancedChunkQualityEvaluator  # Fixed: changed 'evaluator' to 'evaluators'
+from src.chunkers.evaluators import ChunkQualityEvaluator, EnhancedChunkQualityEvaluator
 from src.config.settings import config
 from src.exceptions import ChunkingError, FileHandlingError, ValidationError
 

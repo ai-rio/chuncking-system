@@ -485,7 +485,6 @@ python main.py \
 - **Semantic Coherence**: 87% vs 33% with traditional TF-IDF
 - **Quality Score**: 63+ points vs 46 points without embeddings
 - **Chunk Relationships**: Superior understanding of content relationships
-
 ### Multi-LLM Provider Configuration
 
 ```python

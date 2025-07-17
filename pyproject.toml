@@ -23,6 +23,7 @@ dependencies = [
     "tqdm>=4.67.1",
     "anthropic>=0.7.0",
     "requests>=2.31.0",
+    "docling>=2.41.0",
 ]
 
 [project.optional-dependencies]
