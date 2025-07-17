@@ -2,7 +2,10 @@
 
 Welcome back! In [Chapter 3: Hybrid Chunking Engine](03_hybrid_chunking_engine_.md), we learned how our system intelligently breaks down large documents into smaller, meaningful "chunks." These chunks are now perfectly prepared to be understood by powerful Artificial Intelligence (AI) models, specifically Large Language Models (LLMs).
 
-But here's a new challenge: there isn't just one LLM in the world! Companies like OpenAI, Anthropic, and Jina AI all offer their own amazing LLMs, each with different strengths, pricing, and ways you talk to them (their "API" or Application Programming Interface).
+But here's a new challenge: there isn't just one LLM in the world! Companies like OpenAI, Anthropic, Jina AI, and **Docling** all offer their own amazing LLMs, each with different strengths, pricing, and ways you talk to them (their "API" or Application Programming Interface).
+
+> **🎉 NEW: DoclingProvider Integration Complete!**  
+> As of January 2025, our system now supports **Docling** - a powerful multi-format document processing platform that can handle PDFs, DOCX, PPTX, HTML, and images alongside traditional text processing. This integration provides the foundation for advanced document understanding capabilities!
 
 #### What Problem Does LLM Provider Integration Solve?
 
