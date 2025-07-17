@@ -136,7 +136,7 @@ class EnhancedFileHandler:
             format_type: Detected format type
             
         Returns:
-            List of Document objects from the appropriate processor
+            ProcessingResult object from the appropriate processor
             
         Raises:
             ValidationError: If inputs are invalid
@@ -300,7 +300,7 @@ class EnhancedFileHandler:
             file_paths: List of file paths to process
             
         Returns:
-            List of processing results (Document objects or error objects)
+            List of ProcessingResult objects
             
         Raises:
             ValidationError: If file_paths is not a list
@@ -312,6 +312,7 @@ class EnhancedFileHandler:
                 value=type(file_paths)
             )
         
+        from src.chunkers.docling_processor import ProcessingResult
         results = []
         
         for file_path in file_paths:
@@ -321,39 +322,49 @@ class EnhancedFileHandler:
                 
                 # Validate format
                 if not self.validate_file_format(file_path, format_type):
-                    # Create failed result as Document object
-                    from langchain_core.documents import Document
-                    error_doc = Document(
-                        page_content="",
+                    # Create failed result as ProcessingResult object
+                    error_result = ProcessingResult(
+                        format_type=format_type,
+                        file_path=file_path,
+                        success=False,
+                        text="",
+                        structure={},
                         metadata={
                             "source": file_path,
                             "format": format_type,
                             "error": "File validation failed",
                             "processing_time": 0,
                             "file_size": 0
-                        }
+                        },
+                        processing_time=0,
+                        file_size=0
                     )
-                    results.append(error_doc)
+                    results.append(error_result)
                     continue
                 
-                # Route to processor (returns list of Documents)
-                batch_results = self.route_to_processor(file_path, format_type)
-                results.extend(batch_results)
+                # Route to processor (returns ProcessingResult)
+                batch_result = self.route_to_processor(file_path, format_type)
+                results.append(batch_result)
                 
             except Exception as e:
                 # Create failed result for any errors
-                from langchain_core.documents import Document
-                error_doc = Document(
-                    page_content="",
+                error_result = ProcessingResult(
+                    format_type="unknown",
+                    file_path=file_path,
+                    success=False,
+                    text="",
+                    structure={},
                     metadata={
                         "source": file_path,
                         "format": "unknown",
                         "error": str(e),
                         "processing_time": 0,
                         "file_size": 0
-                    }
+                    },
+                    processing_time=0,
+                    file_size=0
                 )
-                results.append(error_doc)
+                results.append(error_result)
         
         return results
     
@@ -365,10 +376,10 @@ class EnhancedFileHandler:
             file_path: Path to the Markdown file
             
         Returns:
-            List of Document objects for the processed Markdown file
+            ProcessingResult object for the processed Markdown file
         """
         import time
-        from langchain_core.documents import Document
+        from src.chunkers.docling_processor import ProcessingResult
         
         start_time = time.time()
         
@@ -383,32 +394,41 @@ class EnhancedFileHandler:
             # Process markdown (simplified - can be enhanced with actual markdown processor)
             processing_time = time.time() - start_time
             
-            # Return as Document object
-            doc = Document(
-                page_content=content,
+            # Return as ProcessingResult object
+            return ProcessingResult(
+                format_type='markdown',
+                file_path=file_path,
+                success=True,
+                text=content,
+                structure={},
                 metadata={
                     "source": file_path,
                     "format": "markdown",
                     "file_size": file_size,
                     "processing_time": processing_time
-                }
+                },
+                processing_time=processing_time,
+                file_size=file_size
             )
-            
-            return [doc]
             
         except Exception as e:
             processing_time = time.time() - start_time
-            error_doc = Document(
-                page_content="",
+            return ProcessingResult(
+                format_type='markdown',
+                file_path=file_path,
+                success=False,
+                text="",
+                structure={},
                 metadata={
                     "source": file_path,
                     "format": "markdown",
                     "error": str(e),
                     "processing_time": processing_time,
                     "file_size": 0
-                }
+                },
+                processing_time=processing_time,
+                file_size=0
             )
-            return [error_doc]
     
     def get_supported_formats(self) -> List[str]:
         """
